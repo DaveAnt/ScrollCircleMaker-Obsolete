@@ -36,6 +36,6 @@ EditorBuildSettings:
     path: Assets/Demos/Main Menu/MainMenu.unity
     guid: 8eeacee47d6ad004ea2dc42a279a60a8
   - enabled: 1
-    path: Assets/Demos/SampleScene1.unity
+    path: Assets/Demos/SampleScene.unity
     guid: dade62d95fb7a2e4bad6646c7f647e16
   m_configObjects: {}

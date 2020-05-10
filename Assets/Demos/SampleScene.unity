@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311992, g: 0.38074034, b: 0.35872713, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -358,7 +358,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fae2f24c9de61914793286874ecf4d79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _scrollMaker: UIPlugIn.ScrollCircleMaker.testCircleMaker
+  _scrollMaker: UIPlugs.ScrollCircleMaker.testCircleMaker
   _baseItem: {fileID: 7749687860297296843, guid: 12f9543447ce02c44bfc7b6e08238efd,
     type: 3}
   _scrollType: 0
@@ -366,11 +366,11 @@ MonoBehaviour:
   _scrollSort: 0
   _refreshRatio: 0
   _padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  _spacing: {x: 0, y: 0}
+    m_Left: 100
+    m_Right: 10
+    m_Top: 100
+    m_Bottom: 100
+  _spacing: {x: 10, y: 10}
   _isUpdateEnable: 0
   _isCircleEnable: 0
   _isSlideEnable: 1

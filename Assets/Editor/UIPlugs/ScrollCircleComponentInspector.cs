@@ -54,7 +54,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                     if (limitNum.intValue <= 0)
                         limitNum.intValue = 1;
                 }
-                refreshRatio.floatValue = EditorGUILayout.IntSlider("Refresh Ratio", (int)(refreshRatio.floatValue*10), 0, 10)/10f;
+                refreshRatio.floatValue = (EditorGUILayout.IntSlider("Refresh Ratio", (int)(refreshRatio.floatValue*10+1), 1, 3)-1)/10f;
                 EditorGUILayout.PropertyField(padding,true);
                 EditorGUILayout.PropertyField(spacing);
                 EditorGUILayout.PropertyField(isUpdateEnable);
