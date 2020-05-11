@@ -6,6 +6,7 @@
 //------------------------------------------------------------
 using UnityEditor;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace UIPlugs.ScrollCircleMaker.Editor
 {
@@ -29,6 +30,8 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         //编辑器运行时显示
         private SerializedProperty maxItems;
         private SerializedProperty initItems;
+        private SerializedProperty itemIdx;
+        private SerializedProperty dataIdx;
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
@@ -62,8 +65,14 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                 EditorGUILayout.PropertyField(isSlideEnable);
                 if (EditorApplication.isPlaying)
                 {
-                    EditorGUILayout.PropertyField(maxItems);
-                    EditorGUILayout.PropertyField(initItems);
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField("MaxItems:"+maxItems.intValue.ToString(), GUILayout.Width(100)) ;
+                    EditorGUILayout.LabelField("InitItems:"+initItems.intValue.ToString(), GUILayout.Width(100));
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField("ItemIdx:" + itemIdx.intValue.ToString(), GUILayout.Width(100));
+                    EditorGUILayout.LabelField("DataIdx:" + dataIdx.intValue.ToString(), GUILayout.Width(100));
+                    EditorGUILayout.EndHorizontal();
                 }
             }
             EditorGUI.EndDisabledGroup();
@@ -87,6 +96,8 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             isCircleEnable = serializedObject.FindProperty("_isCircleEnable");
             isSlideEnable = serializedObject.FindProperty("_isSlideEnable");
             limitNum = serializedObject.FindProperty("_limitNum");
+            itemIdx = serializedObject.FindProperty("_itemIdx");
+            dataIdx = serializedObject.FindProperty("_dataIdx");
             maxItems = serializedObject.FindProperty("_maxItems");
             initItems = serializedObject.FindProperty("_initItems");
             m_SelectIdx = makerNames.IndexOf(scrollMaker.stringValue);

@@ -8,6 +8,30 @@ using System;
 using UnityEngine;
 namespace UIPlugs.ScrollCircleMaker
 {
+    public struct Size
+    {
+        public float Width;
+        public float Height;
+
+        public Size(float Width,float Height)
+        {
+            this.Width = Width;
+            this.Height = Height;
+        }
+    }
+
+    public struct SizeInt
+    {
+        public int Width;
+        public int Height;
+
+        public SizeInt(int Width, int Height)
+        {
+            this.Width = Width;
+            this.Height = Height;
+        }
+    }
+
     public enum ScrollSort//数据排序
     {
         FrontDir,//正方向
@@ -48,12 +72,13 @@ namespace UIPlugs.ScrollCircleMaker
         [SerializeField]
         private RectOffset _padding;   //上下左右剩余空间
         [SerializeField]
-        private Vector2 _spacing;  //x表示左右间距,y表示上下间距
+        private Vector2Int _spacing;  //x表示左右间距,y表示上下间距
         [SerializeField]
         private bool _isUpdateEnable, _isCircleEnable, _isSlideEnable = true;
         [SerializeField]
         private int _limitNum;
-
+        [SerializeField]
+        private int _dataIdx = 0, _itemIdx = 0;
         [SerializeField]
         private int _maxItems,_initItems;
 
@@ -120,14 +145,14 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
 
-        public float WidthExt
+        public int WidthExt
         {
             get {
                 return _spacing.x;
             }
         }
 
-        public float HeightExt
+        public int HeightExt
         {
             get {
                 return _spacing.y;
@@ -156,6 +181,26 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
 
+        public int itemIdx
+        {
+            get {
+                return _itemIdx;
+            }
+            set {
+                _itemIdx = value;
+            }
+        }
+
+        public int dataIdx
+        {
+            get {
+                return _dataIdx;
+            }
+            set {
+                _dataIdx = value;
+            }
+        }
+
         public int maxItems
         {
             get {
@@ -178,33 +223,26 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
 
-        public BaseMaker BaseMaker
-        {
-            get {
-                return _baseMaker;
-            }
-        }
-
-        private BaseMaker _baseMaker;
+        public BaseMaker baseMaker { get; private set; }
 
         public void Awake()
         {
-            _baseMaker = TypesObtainer<BaseMaker>.CreateInstanceByName(_scrollMaker);
+            baseMaker = TypesObtainer<BaseMaker>.CreateInstanceByName(_scrollMaker);
         }
 
         public void Start()
         {          
-            _baseMaker?.OnStart(transform);
+            baseMaker?.OnStart(transform);
         }
 
         public void Update()
         {
-            if(_isUpdateEnable) _baseMaker?.OnUpdate();
+            if(_isUpdateEnable) baseMaker?.OnUpdate();
         }
 
         public void OnDestroy()
         {
-            _baseMaker?.OnDestroy();
+            baseMaker?.OnDestroy();
         }
 
     }
