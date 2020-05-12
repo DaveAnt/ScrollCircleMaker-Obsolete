@@ -31,13 +31,13 @@ namespace UIPlugs.ScrollCircleMaker
         {
             baseCircleHelper?.ResetItems();
         }
-        public Vector4? GetLocationParam()//获取当前定位参数
+        public int? GetLocation()//获取当前定位参数
         {
-            return baseCircleHelper?.GetLocationParam();
+            return baseCircleHelper?.GetLocation();
         }
-        public void ToLocation(Vector4 locationNode, bool isDrawEnable = true)
+        public void ToLocation(int toSeat, bool isDrawEnable = true)
         {
-            baseCircleHelper?.ToLocation(locationNode, isDrawEnable);
+            baseCircleHelper?.ToLocation(toSeat, isDrawEnable);
         }
         public void ToTop(bool isDrawEnable = true)//置顶 true存在过程动画
         {

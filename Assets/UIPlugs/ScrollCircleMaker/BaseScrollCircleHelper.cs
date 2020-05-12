@@ -33,8 +33,8 @@ namespace UIPlugs.ScrollCircleMaker
         public abstract void AddItem(T data,int itemIdx = -1);//添加数据
         public abstract void UpdateItem(T data,int itemIdx);
         public abstract void ResetItems();//清空数据
-        public abstract Vector4 GetLocationParam();
-        public abstract void ToLocation(Vector4 locationNode, bool isDrawEnable = true);
+        public abstract int GetLocation();
+        public abstract void ToLocation(int toSeat, bool isDrawEnable = true);
         public abstract void ToTop(bool isDrawEnable = true);//置顶 true存在过程动画
         public abstract void ToBottom(bool isDrawEnable = true);//置底
     }

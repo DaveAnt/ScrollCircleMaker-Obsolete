@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------
+//------------------------------------------------------------
 // ScrollCircleMaker v1.0
 // Copyright © 2020 DaveAnt. All rights reserved.
 // Homepage: https://dagamestudio.top/
@@ -8,26 +8,22 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
 {
-    public class testCircleMaker : BaseScrollCircleMaker<int>
+    public class {0} : BaseScrollCircleMaker<{1}>
     {
         public override void OnStart(Transform transform)
         {
-            baseCircleHelper = new MultipleRectCircleHelper<int>(transform,()=> {
-                return new HeroItem();
+            baseCircleHelper = new {2}<{1}>(transform,()=> {
+                return new {3}();
             });
-            for (int i = 0; i < 9999; ++i)
-                baseCircleHelper.AddItem(i);
-            baseCircleHelper.OnStart();
-            baseCircleHelper.ToLocation(9000);
+            //How do you want to load data?
         }
     }
-
-    public class HeroItem : BaseItem<int>
+    //How do you want to update item?
+    public class {3} : BaseItem<{1}>
     {
-        Text text;
         public override void InitComponents()
         {
-            text = _transform.Find("Text").GetComponent<Text>();
+            
         }
 
         public override void InitEvents()
@@ -42,7 +38,7 @@ namespace UIPlugs.ScrollCircleMaker
 
         public override void UpdateView(int data)
         {
-            text.text = data.ToString();
+
         }
     }
 }

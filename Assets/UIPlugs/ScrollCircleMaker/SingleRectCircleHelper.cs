@@ -37,12 +37,12 @@ namespace UIPlugs.ScrollCircleMaker       //单行矩形滑动循环  支持不�
             throw new NotImplementedException();
         }
 
-        public override Vector4 GetLocationParam()
+        public override int GetLocation()
         {
             throw new NotImplementedException();
         }
 
-        public override void ToLocation(Vector4 locationNode, bool isDrawEnable = true)
+        public override void ToLocation(int locationNode, bool isDrawEnable = true)
         {
             throw new NotImplementedException();
         }

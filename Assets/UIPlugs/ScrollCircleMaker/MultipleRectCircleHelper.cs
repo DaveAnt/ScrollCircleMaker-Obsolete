@@ -246,14 +246,14 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
         }
 
-        private IEnumerator ToAutoMoveVertical(int toPos)
+        private IEnumerator ToAutoMoveVSeat(int toSeat)
         {           
             if(_boundaryArea.length <= 0) yield break;
-            if (toPos < 0) toPos = 0;
-            else if (toPos > _boundaryArea.length) toPos = _boundaryArea.length;
+            if (toSeat < 0) toSeat = 0;
+            else if (toSeat > _boundaryArea.length) toSeat = _boundaryArea.length;
 
             _scrollRect.enabled = false;
-            while (toPos + _viewRect.rect.height >
+            while (toSeat + _viewRect.rect.height >
                 contentSite + _lookSize.Height + _sProperty.HeightExt)
             {
                 if (_sProperty.dataIdx + _maxRanks.Width >= _dataSet.Count)
@@ -263,7 +263,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 }
 
                 _tmpContentPos = _contentRect.anchoredPosition;
-                if (_tmpContentPos.y * _boundaryArea.start < toPos)
+                if (_tmpContentPos.y * _boundaryArea.start < toSeat)
                 {         
                     _tmpContentPos.y = _tmpContentPos.y + _boundaryArea.start * _sProperty.autoMoveRatio;
                     _contentRect.anchoredPosition = _tmpContentPos;
@@ -301,7 +301,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     yield return new WaitForEndOfFrame();
                 }
             }
-            while (toPos < contentSite - _sProperty.HeightExt)
+            while (toSeat < contentSite - _sProperty.HeightExt)
             {
                 if (_sProperty.dataIdx <= 0)
                 {
@@ -310,7 +310,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 }
 
                 _tmpContentPos = _contentRect.anchoredPosition;
-                if (_tmpContentPos.y * _boundaryArea.start > toPos)
+                if (_tmpContentPos.y * _boundaryArea.start > toSeat)
                 {            
                     _tmpContentPos.y =_tmpContentPos.y - _boundaryArea.start * _sProperty.autoMoveRatio;
                     _contentRect.anchoredPosition = _tmpContentPos;
@@ -348,14 +348,14 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _scrollRect.enabled = true;
         }
 
-        private IEnumerator ToAutoMoveHorizontal(int toPos)
+        private IEnumerator ToAutoMoveHSeat(int toSeat)
         {
             if (_boundaryArea.length <= 0) yield break;
-            if (toPos < 0) toPos = 0;
-            else if (toPos > _boundaryArea.length) toPos = _boundaryArea.length;
+            if (toSeat < 0) toSeat = 0;
+            else if (toSeat > _boundaryArea.length) toSeat = _boundaryArea.length;
 
             _scrollRect.enabled = false;
-            while (toPos + _viewRect.rect.width >
+            while (toSeat + _viewRect.rect.width >
                     contentSite + _lookSize.Width + _sProperty.WidthExt)
             {
                 if (_sProperty.dataIdx + _maxRanks.Height >= _dataSet.Count) {
@@ -364,7 +364,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 }
 
                 _tmpContentPos = _contentRect.anchoredPosition;
-                if (_tmpContentPos.x * _boundaryArea.start < toPos){
+                if (_tmpContentPos.x * _boundaryArea.start < toSeat){
                     _tmpContentPos.x = _tmpContentPos.x + _boundaryArea.start * _sProperty.autoMoveRatio;
                     _contentRect.anchoredPosition = _tmpContentPos;
                     yield return new WaitForEndOfFrame();
@@ -401,7 +401,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     yield return new WaitForEndOfFrame();
                 }
             }
-            while (toPos < contentSite - _sProperty.WidthExt)
+            while (toSeat < contentSite - _sProperty.WidthExt)
             {
                 if (_sProperty.dataIdx <= 0) {
                     _scrollRect.enabled = true;
@@ -409,7 +409,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 }
 
                 _tmpContentPos = _contentRect.anchoredPosition;
-                if (_tmpContentPos.x * _boundaryArea.start > toPos){
+                if (_tmpContentPos.x * _boundaryArea.start > toSeat){
                     _tmpContentPos.x = _tmpContentPos.x - _boundaryArea.start * _sProperty.autoMoveRatio;
                     _contentRect.anchoredPosition = _tmpContentPos;
                     yield return new WaitForEndOfFrame();
@@ -446,7 +446,15 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _scrollRect.enabled = true;
         }
 
+        private void ToDirectVSeat(int toSeat)
+        {
+            
+        }
 
+        private void ToDirectHSeat(int toSeat)
+        { 
+
+        }
 
         private void OnResolveGroupEnum()
         {
@@ -613,52 +621,53 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     break;
             }
         }
-
-        public override void ToTop(bool isDrawEnable = true)
-        {
-            if (_sProperty.isCircleEnable) return;
-            switch (_sProperty.scrollDir)
-            {
-                case ScrollDir.TopToBottom:
-                case ScrollDir.BottomToTop:
-                    _sProperty.StartCoroutine(ToAutoMoveVertical(0));
-                    break;
-                case ScrollDir.LeftToRight:
-                case ScrollDir.RightToLeft:
-                    _sProperty.StartCoroutine(ToAutoMoveHorizontal(0));
-                    break;
-            }
-        }
-
-        public override void ToBottom(bool isDrawEnable = true)
-        {
-            if (_sProperty.isCircleEnable) return;
-            switch (_sProperty.scrollDir)
-            {
-                case ScrollDir.TopToBottom:
-                case ScrollDir.BottomToTop:
-                    _sProperty.StartCoroutine(ToAutoMoveVertical(_boundaryArea.length));
-                    break;
-                case ScrollDir.LeftToRight:
-                case ScrollDir.RightToLeft:
-                    _sProperty.StartCoroutine(ToAutoMoveHorizontal(_boundaryArea.length));
-                    break;
-            }             
-        }
-
         public override void UpdateItem(T data, int itemIdx)
         {
 
         }
 
-        public override Vector4 GetLocationParam()
+        public override void ToLocation(int toSeat, bool isDrawEnable = true)
         {
-            throw new NotImplementedException();
+            if (_sProperty.isCircleEnable) return;
+            switch (_sProperty.scrollDir)
+            {
+                case ScrollDir.TopToBottom:
+                case ScrollDir.BottomToTop:
+                    if (isDrawEnable)
+                        _sProperty.StartCoroutine(ToAutoMoveVSeat(toSeat));
+                    else
+                        ToDirectVSeat(toSeat);
+                    break;
+                default:
+                    if (isDrawEnable)
+                        _sProperty.StartCoroutine(ToAutoMoveHSeat(toSeat));
+                    else
+                        ToDirectVSeat(toSeat);
+                    break;
+            }
         }
 
-        public override void ToLocation(Vector4 locationNode, bool isDrawEnable = true)
+        public override int GetLocation()
         {
-
+            switch (_sProperty.scrollDir)
+            {
+                case ScrollDir.TopToBottom:
+                case ScrollDir.BottomToTop:
+                    return (int)Mathf.Abs(_contentRect.rect.y);
+                default:
+                    return (int)Mathf.Abs(_contentRect.rect.x);
+            }
         }
+
+        public override void ToTop(bool isDrawEnable = true)
+        {
+            ToLocation(0, isDrawEnable);
+        }
+
+        public override void ToBottom(bool isDrawEnable = true)
+        {
+            ToLocation(_boundaryArea.length, isDrawEnable);
+        }
+
     }
 }
