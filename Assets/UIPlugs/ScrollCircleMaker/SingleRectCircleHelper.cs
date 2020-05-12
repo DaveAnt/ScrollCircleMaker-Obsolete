@@ -1,5 +1,5 @@
 ﻿//------------------------------------------------------------
-// ScrollCircleMaker
+// ScrollCircleMaker v1.0
 // Copyright © 2020 DaveAnt. All rights reserved.
 // Homepage: https://dagamestudio.top/
 // Github: https://github.com/DaveAnt/ScollCircleMaker

@@ -1,5 +1,5 @@
 ﻿//------------------------------------------------------------
-// ScrollCircleMaker
+// ScrollCircleMaker v1.0
 // Copyright © 2020 DaveAnt. All rights reserved.
 // Homepage: https://dagamestudio.top/
 // Github: https://github.com/DaveAnt/ScollCircleMaker
@@ -12,16 +12,17 @@ namespace UIPlugs.ScrollCircleMaker
     {
         public override void OnStart(Transform transform)
         {
-            ibaseCircleHelper = new MultipleRectCircleHelper<int>(transform,()=> {
-                return new HeroItem();
+            baseCircleHelper = new MultipleRectCircleHelper<int>(transform,()=> {
+                return new sHeroItem();
             });
-            for (int i = 0; i < 1000; ++i)
-                ibaseCircleHelper.AddItem(i);
-            ibaseCircleHelper.OnStart();
+            for (int i = 0; i < 99999; ++i)
+                baseCircleHelper.AddItem(i);
+            baseCircleHelper.OnStart();
+            baseCircleHelper.ToBottom();
         }
     }
 
-    public class HeroItem : BaseItem<int>
+    public class sHeroItem : BaseItem<int>
     {
         Text text;
         public override void InitComponents()

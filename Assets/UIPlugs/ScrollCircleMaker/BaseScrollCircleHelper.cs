@@ -1,5 +1,5 @@
 ﻿//------------------------------------------------------------
-// ScrollCircleMaker
+// ScrollCircleMaker v1.0
 // Copyright © 2020 DaveAnt. All rights reserved.
 // Homepage: https://dagamestudio.top/
 // Github: https://github.com/DaveAnt/ScollCircleMaker
@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 namespace UIPlugs.ScrollCircleMaker
 {
-    public abstract class BaseScrollCircleHelper<T>: IBaseScrollCircleHelper<T>
+    public abstract class BaseScrollCircleHelper<T>
     {
         protected List<T> _dataSet;
         protected List<BaseItem<T>> _itemSet;

@@ -1,5 +1,5 @@
 ﻿//------------------------------------------------------------
-// ScrollCircleMaker
+// ScrollCircleMaker v1.0
 // Copyright © 2020 DaveAnt. All rights reserved.
 // Homepage: https://dagamestudio.top/
 // Github: https://github.com/DaveAnt/ScollCircleMaker
@@ -70,6 +70,8 @@ namespace UIPlugs.ScrollCircleMaker
         [SerializeField]
         private float _refreshRatio;
         [SerializeField]
+        private int _autoMoveRatio;
+        [SerializeField]
         private RectOffset _padding;   //上下左右剩余空间
         [SerializeField]
         private Vector2Int _spacing;  //x表示左右间距,y表示上下间距
@@ -80,11 +82,11 @@ namespace UIPlugs.ScrollCircleMaker
         [SerializeField]
         private int _dataIdx = 0, _itemIdx = 0;
         [SerializeField]
-        private int _maxItems,_initItems;
+        private int _maxItems, _initItems;
 
         public GameObject baseItem
         {
-            get{
+            get {
                 return _baseItem;
             }
         }
@@ -105,7 +107,7 @@ namespace UIPlugs.ScrollCircleMaker
 
         public ScrollSort scrollSort
         {
-            get{
+            get {
                 return _scrollSort;
             }
         }
@@ -114,6 +116,13 @@ namespace UIPlugs.ScrollCircleMaker
         {
             get {
                 return _refreshRatio;
+            }
+        }
+
+        public int autoMoveRatio
+        {
+            get {
+                return _autoMoveRatio;
             }
         }
 

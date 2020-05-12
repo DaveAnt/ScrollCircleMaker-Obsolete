@@ -1,5 +1,5 @@
 ﻿//------------------------------------------------------------
-// ScrollCircleMaker
+// ScrollCircleMaker v1.0
 // Copyright © 2020 DaveAnt. All rights reserved.
 // Homepage: https://dagamestudio.top/
 // Github: https://github.com/DaveAnt/ScollCircleMaker
@@ -21,6 +21,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         private SerializedProperty scrollDir;
         private SerializedProperty scrollSort;
         private SerializedProperty refreshRatio;
+        private SerializedProperty autoMoveRatio;
         private SerializedProperty padding;
         private SerializedProperty spacing;
         private SerializedProperty isUpdateEnable;
@@ -58,6 +59,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                         limitNum.intValue = 1;
                 }
                 refreshRatio.floatValue = (EditorGUILayout.IntSlider("Refresh Ratio", (int)(refreshRatio.floatValue*10+1), 1, 3)-1)/10f;
+                autoMoveRatio.intValue = EditorGUILayout.IntSlider("AutoMove Ratio", autoMoveRatio.intValue/10,1,10)*10;
                 EditorGUILayout.PropertyField(padding,true);
                 EditorGUILayout.PropertyField(spacing);
                 EditorGUILayout.PropertyField(isUpdateEnable);
@@ -81,14 +83,14 @@ namespace UIPlugs.ScrollCircleMaker.Editor
 
         private void OnEnable()
         {
-            makerNames = TypesObtainer<BaseMaker>.GetNames();
-            makerNames.RemoveAt(makerNames.Count-1);
+            makerNames = TypesObtainer<BaseScrollCircleMaker<dynamic>>.GetNames();
             scrollMaker = serializedObject.FindProperty("_scrollMaker");
             baseItem = serializedObject.FindProperty("_baseItem");         
             scrollDir = serializedObject.FindProperty("_scrollDir");
             scrollType = serializedObject.FindProperty("_scrollType");
             scrollSort = serializedObject.FindProperty("_scrollSort");
             refreshRatio = serializedObject.FindProperty("_refreshRatio");
+            autoMoveRatio = serializedObject.FindProperty("_autoMoveRatio");
             padding = serializedObject.FindProperty("_padding");
             spacing = serializedObject.FindProperty("_spacing");
 
