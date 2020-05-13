@@ -448,12 +448,37 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
 
         private void ToDirectVSeat(int toSeat)
         {
-            
+            if (_boundaryArea.length <= 0) return;
+            if (toSeat < 0) toSeat = 0;
+            else if (toSeat > _boundaryArea.length) toSeat = _boundaryArea.length;
+            switch (_sProperty.scrollDir)
+            {
+                case ScrollDir.TopToBottom:
+                    _tmpContentPos = _contentRect.anchoredPosition;
+                    _tmpContentPos.y = toSeat;
+                    _contentRect.anchoredPosition = _tmpContentPos;
+
+                    break;
+                case ScrollDir.BottomToTop:
+                    _tmpContentPos = _contentRect.anchoredPosition;
+                    _tmpContentPos.y = -toSeat;
+                    _contentRect.anchoredPosition = _tmpContentPos;
+                    
+                    break;
+            }
         }
 
         private void ToDirectHSeat(int toSeat)
-        { 
+        {
+            switch (_sProperty.scrollDir)
+            {
+                case ScrollDir.LeftToRight:
 
+                    break;
+                case ScrollDir.RightToLeft:
+
+                    break;
+            }
         }
 
         private void OnResolveGroupEnum()

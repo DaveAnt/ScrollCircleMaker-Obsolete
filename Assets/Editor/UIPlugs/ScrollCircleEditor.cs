@@ -24,5 +24,31 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         {
             System.Diagnostics.Process.Start("https://dagamestudio.top/");
         }
+
+        [MenuItem("ScrollCircleMaker/Clear Order/Clear All Makers")]
+        private static void ClerAllMakers()
+        {
+            System.Diagnostics.Process.Start("https://dagamestudio.top/");
+        }
+        [MenuItem("ScrollCircleMaker/Clear Order/Clear MultipleRect Maker")]
+        private static void ClerMultipleRectMaker()
+        {
+            System.Diagnostics.Process.Start("https://dagamestudio.top/");
+        }
+        [MenuItem("ScrollCircleMaker/Clear Order/Clear SingleRect Maker")]
+        private static void ClerSingleRectMaker()
+        {
+            System.Diagnostics.Process.Start("https://dagamestudio.top/");
+        }
+        [MenuItem("ScrollCircleMaker/Clear Order/Clear ZRect Maker")]
+        private static void ClerZRectMaker()
+        {
+            System.Diagnostics.Process.Start("https://dagamestudio.top/");
+        }
+        [MenuItem("ScrollCircleMaker/Clear Order/Clear CustomRect Maker")]
+        private static void ClerCustomRectMaker()
+        {
+            System.Diagnostics.Process.Start("https://dagamestudio.top/");
+        }
     }
 }
