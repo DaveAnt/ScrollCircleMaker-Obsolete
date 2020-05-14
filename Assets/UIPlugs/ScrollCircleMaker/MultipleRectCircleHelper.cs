@@ -249,8 +249,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         private IEnumerator ToAutoMoveVSeat(int toSeat)
         {           
             if(_boundaryArea.length <= 0) yield break;
-            if (toSeat < 0) toSeat = 0;
-            else if (toSeat > _boundaryArea.length) toSeat = _boundaryArea.length;
+            toSeat = Mathf.Clamp(toSeat, 0, _boundaryArea.length);
 
             _scrollRect.enabled = false;
             while (toSeat + _viewRect.rect.height >
@@ -345,14 +344,15 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     yield return new WaitForEndOfFrame();
                 }
             }
+            _tmpContentPos.y = toSeat * _boundaryArea.start;
+            _contentRect.anchoredPosition = _tmpContentPos;
             _scrollRect.enabled = true;
         }
 
         private IEnumerator ToAutoMoveHSeat(int toSeat)
         {
             if (_boundaryArea.length <= 0) yield break;
-            if (toSeat < 0) toSeat = 0;
-            else if (toSeat > _boundaryArea.length) toSeat = _boundaryArea.length;
+            toSeat = Mathf.Clamp(toSeat, 0, _boundaryArea.length);
 
             _scrollRect.enabled = false;
             while (toSeat + _viewRect.rect.width >
@@ -443,42 +443,115 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     yield return new WaitForEndOfFrame();
                 }
             }
+            _tmpContentPos.x = toSeat * _boundaryArea.start;
+            _contentRect.anchoredPosition = _tmpContentPos;
             _scrollRect.enabled = true;
         }
 
         private void ToDirectVSeat(int toSeat)
         {
             if (_boundaryArea.length <= 0) return;
-            if (toSeat < 0) toSeat = 0;
-            else if (toSeat > _boundaryArea.length) toSeat = _boundaryArea.length;
-            switch (_sProperty.scrollDir)
+            toSeat = Mathf.Clamp(toSeat, 0, _boundaryArea.length);
+   
+            _tmpContentPos = _contentRect.anchoredPosition;
+            _tmpContentPos.y = toSeat;
+            _contentRect.anchoredPosition = _tmpContentPos;
+            if (_tmpContentPos.y + _viewRect.rect.height >
+                    contentSite + _lookSize.Height + _sProperty.HeightExt)//向下
             {
-                case ScrollDir.TopToBottom:
-                    _tmpContentPos = _contentRect.anchoredPosition;
-                    _tmpContentPos.y = toSeat;
-                    _contentRect.anchoredPosition = _tmpContentPos;
-
-                    break;
-                case ScrollDir.BottomToTop:
-                    _tmpContentPos = _contentRect.anchoredPosition;
-                    _tmpContentPos.y = -toSeat;
-                    _contentRect.anchoredPosition = _tmpContentPos;
-                    
-                    break;
+                int tmpRow = (int)Math.Ceiling((_tmpContentPos.y + _viewRect.rect.height
+                        - contentSite - _lookSize.Height - _sProperty.HeightExt) / _wholeSize.Height);
+                contentSite += _wholeSize.Height * tmpRow;
+                _sProperty.dataIdx = _sProperty.dataIdx + _maxRanks.Width * tmpRow;
+                _sProperty.itemIdx = (_sProperty.itemIdx + _maxRanks.Width * tmpRow) % _sProperty.maxItems;
+                for (int i = 0; i < _sProperty.maxItems; ++i)
+                {
+                    _itemSet[i].gameObject.name = _baseItem.name + _sProperty.dataIdx + i;
+                    if (_sProperty.dataIdx + i < _dataSet.Count)
+                    {
+                        if (_itemSet[i].gameObject.activeSelf == false)
+                            _itemSet[i].gameObject.SetActive(true);
+                        _itemSet[i].UpdateView(_dataSet[_sProperty.dataIdx + i]);
+                    }
+                    else
+                        _itemSet[i].gameObject.SetActive(false);
+                    _itemSet[i].transform.SetAsLastSibling();
+                }
             }
+            else if (_tmpContentPos.y < contentSite - _sProperty.HeightExt)
+            {
+                int tmpRow = (int)Math.Ceiling((contentSite
+                    - _sProperty.HeightExt - _tmpContentPos.y) / _wholeSize.Height);
+                contentSite -= _wholeSize.Height * tmpRow;
+                _sProperty.dataIdx = _sProperty.dataIdx - _maxRanks.Width * tmpRow;
+                _sProperty.itemIdx = _sProperty.itemIdx - _maxRanks.Width * tmpRow;
+                _sProperty.itemIdx = _sProperty.itemIdx < 0 ? _sProperty.maxItems - 1 : _sProperty.itemIdx;
+                for (int i = _sProperty.maxItems - 1; i >= 0; --i)
+                {
+                    _itemSet[i].gameObject.name = _baseItem.name + _sProperty.dataIdx + i;
+                    if (_sProperty.dataIdx + i >= 0)
+                    {
+                        if (_itemSet[i].gameObject.activeSelf == false)
+                            _itemSet[i].gameObject.SetActive(true);
+                        _itemSet[i].UpdateView(_dataSet[_sProperty.dataIdx + i]);
+                    }
+                    _itemSet[i].transform.SetAsFirstSibling();
+                }
+            }
+            _gridLayoutGroup.SetLayoutVertical();
         }
 
         private void ToDirectHSeat(int toSeat)
         {
-            switch (_sProperty.scrollDir)
+            if (_boundaryArea.length <= 0) return;
+            toSeat = Mathf.Clamp(toSeat, 0, _boundaryArea.length);
+
+            _tmpContentPos = _contentRect.anchoredPosition;
+            _tmpContentPos.x = toSeat;
+            _contentRect.anchoredPosition = _tmpContentPos;
+            if (_tmpContentPos.x + _viewRect.rect.width >
+                    contentSite + _lookSize.Width + _sProperty.WidthExt)//向下
             {
-                case ScrollDir.LeftToRight:
-
-                    break;
-                case ScrollDir.RightToLeft:
-
-                    break;
+                int tmpColumn = (int)Math.Ceiling((_tmpContentPos.x + _viewRect.rect.height
+                        - contentSite - _lookSize.Width - _sProperty.WidthExt) / _wholeSize.Width);
+                contentSite += _wholeSize.Width * tmpColumn;
+                _sProperty.dataIdx = _sProperty.dataIdx + _maxRanks.Width * tmpColumn;
+                _sProperty.itemIdx = (_sProperty.itemIdx + _maxRanks.Width * tmpColumn) % _sProperty.maxItems;
+                for (int i = 0; i < _sProperty.maxItems; ++i)
+                {
+                    _itemSet[i].gameObject.name = _baseItem.name + _sProperty.dataIdx + i;
+                    if (_sProperty.dataIdx + i < _dataSet.Count)
+                    {
+                        if (_itemSet[i].gameObject.activeSelf == false)
+                            _itemSet[i].gameObject.SetActive(true);
+                        _itemSet[i].UpdateView(_dataSet[_sProperty.dataIdx + i]);
+                    }
+                    else
+                        _itemSet[i].gameObject.SetActive(false);
+                    _itemSet[i].transform.SetAsLastSibling();
+                }
             }
+            else if (_tmpContentPos.x < contentSite - _sProperty.HeightExt)
+            {
+                int tmpColumn = (int)Math.Ceiling((contentSite
+                    - _sProperty.HeightExt - _tmpContentPos.x) / _wholeSize.Height);
+                contentSite -= _wholeSize.Height * tmpColumn;
+                _sProperty.dataIdx = _sProperty.dataIdx - _maxRanks.Width * tmpColumn;
+                _sProperty.itemIdx = _sProperty.itemIdx - _maxRanks.Width * tmpColumn;
+                _sProperty.itemIdx = _sProperty.itemIdx < 0 ? _sProperty.maxItems - 1 : _sProperty.itemIdx;
+                for (int i = _sProperty.maxItems - 1; i >= 0; --i)
+                {
+                    _itemSet[i].gameObject.name = _baseItem.name + _sProperty.dataIdx + i;
+                    if (_sProperty.dataIdx + i >= 0)
+                    {
+                        if (_itemSet[i].gameObject.activeSelf == false)
+                            _itemSet[i].gameObject.SetActive(true);
+                        _itemSet[i].UpdateView(_dataSet[_sProperty.dataIdx + i]);
+                    }
+                    _itemSet[i].transform.SetAsFirstSibling();
+                }
+            }
+            _gridLayoutGroup.SetLayoutHorizontal();
         }
 
         private void OnResolveGroupEnum()
