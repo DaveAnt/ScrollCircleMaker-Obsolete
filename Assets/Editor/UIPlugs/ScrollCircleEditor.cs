@@ -5,6 +5,7 @@
 // Github: https://github.com/DaveAnt/ScollCircleMaker
 //------------------------------------------------------------
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection.Emit;
 using UnityEditor;
 using UnityEngine;
@@ -16,7 +17,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         [MenuItem("ScrollCircleMaker/Generate Maker")]
         private static void GenerateMaker()
         {
-            helperNames = TypesObtainer<BaseScrollCircleHelper<dynamic>>.GetNames();
+            
             ScrollCircleEditor window = GetWindow<ScrollCircleEditor>("ScrollCircle Maker", true);
             window.minSize = window.maxSize = new Vector2(300f, 180f);            
         }
@@ -57,6 +58,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         static string saveMakerName = string.Empty;
         static string saveItemName = string.Empty;
         static string saveDataType = string.Empty;
+        static int selectHepler = 0;
         static bool itemPostfix = true;
         static bool makerPostfix = true;
         static bool forceGenerate = false;
@@ -90,13 +92,12 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Type Name:", GUILayout.Width(80));
             saveDataType = EditorGUILayout.TextField(string.Empty, saveDataType, GUILayout.Width(100));
-            
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space();
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Circle Helper:", GUILayout.Width(80));
-            EditorGUILayout.Popup( 0, helperNames.ToArray());
+            selectHepler = EditorGUILayout.Popup(selectHepler, helperNames.ToArray());
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space();
@@ -137,14 +138,20 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                     return;
                 }
 
-                string templateMaker = System.IO.File.ReadAllText(@"Assets\Editor\UIPlugs\TemplateMaker");
-                //string.Format(templateMaker, saveMakerName, saveDataType,'1','1');
+                string templateMaker = File.ReadAllText(@"Assets\Editor\UIPlugs\TemplateMaker");
+                templateMaker = string.Format(templateMaker, saveMakerName, saveDataType,helperNames[selectHepler],saveItemName);
+                File.WriteAllText(savePath,templateMaker);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
                 this.ShowNotification(new GUIContent("Success!"));
             }
             forceGenerate = EditorGUILayout.ToggleLeft("Force", forceGenerate);
             EditorGUILayout.EndHorizontal();
+        }
+
+        private void OnEnable()
+        {
+            helperNames = TypesObtainer<BaseScrollCircleHelper<dynamic>>.GetNames();
         }
 
         private string OpenFolder()

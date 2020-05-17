@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,7 +20,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         private RangeInt _boundaryArea;
         private Vector2 _tmpContentPos;
         private float _timer = 0;
-        private bool _lockSlide;
+        private bool _lockSlide,_firstRun;
 
         private int contentSite//偏移锚点
         {
@@ -64,7 +65,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _viewRect = contentTrans.parent.GetComponent<RectTransform>();
             _scrollRect = _viewRect.parent.GetComponent<ScrollRect>();
             _sProperty = _contentRect.GetComponent<ScrollCircleComponent>();
-            if (_sProperty == null) Debug.LogError("content must have ScrollCircleComponent!");
+            if (_sProperty == null) UnityEngine.Debug.LogError("content must have ScrollCircleComponent!");
 
             _baseItem = _sProperty.baseItem;
             _gridLayoutGroup = _contentRect.GetComponent<GridLayoutGroup>() ?? _contentRect.gameObject.AddComponent<GridLayoutGroup>();
@@ -137,10 +138,12 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         private void OnCircleVertical()
         {
             _tmpContentPos = _contentRect.anchoredPosition;
-            if (_tmpContentPos.y < 0) _tmpContentPos.y = -_tmpContentPos.y;
+            _tmpContentPos.y = Mathf.Clamp(_tmpContentPos.y *
+                _boundaryArea.start, 0,  _boundaryArea.length);
             while (_tmpContentPos.y + _viewRect.rect.height >
                 contentSite + _lookSize.Height + _sProperty.HeightExt)//向下
             {
+                if (_contentRect.anchoredPosition.y * _boundaryArea.start < 0) return;
                 if (_sProperty.dataIdx + _maxRanks.Width >= _dataSet.Count) return;//数据到底了
 
                 for (int i = 0; i < _maxRanks.Width; ++i)
@@ -193,10 +196,11 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         private void OnCircleHorizontal()
         {
             _tmpContentPos = _contentRect.anchoredPosition;
-            if (_tmpContentPos.x < 0) _tmpContentPos.x = -_tmpContentPos.x;
+            _tmpContentPos.x = Mathf.Clamp(_tmpContentPos.x * 
+                _boundaryArea.start,0, _boundaryArea.length);
             while (_tmpContentPos.x + _viewRect.rect.width >
                     contentSite + _lookSize.Width + _sProperty.WidthExt)
-            {
+            {                
                 if (_sProperty.dataIdx + _maxRanks.Height >= _dataSet.Count) return;
 
                 for (int i = 0; i < _maxRanks.Height; ++i)
@@ -354,7 +358,6 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         {
             if (_boundaryArea.length <= 0) yield break;
             toSeat = Mathf.Clamp(toSeat, 0, _boundaryArea.length);
-
             _scrollRect.enabled = false;
             yield return new WaitForEndOfFrame();
             while (toSeat + _viewRect.rect.width >
@@ -458,46 +461,42 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _tmpContentPos = _contentRect.anchoredPosition;
             _tmpContentPos.y = toSeat * _boundaryArea.start;
             _contentRect.anchoredPosition = _tmpContentPos;
+
+            int tmpItemIdx;
             if (Mathf.Abs(_tmpContentPos.y) + _viewRect.rect.height >
                     contentSite + _lookSize.Height + _sProperty.HeightExt)//向下
             {
+                tmpItemIdx = _sProperty.itemIdx;
                 int tmpRow = (int)Math.Ceiling((Mathf.Abs(_tmpContentPos.y) + _viewRect.rect.height
                         - contentSite - _lookSize.Height - _sProperty.HeightExt) / _wholeSize.Height);
                 contentSite += _wholeSize.Height * tmpRow;
                 _sProperty.dataIdx = _sProperty.dataIdx + _maxRanks.Width * tmpRow;
-                _sProperty.itemIdx = (_sProperty.itemIdx + _maxRanks.Width * tmpRow) % _sProperty.maxItems;
-                for (int i = 0; i < _sProperty.maxItems; ++i)
-                {
-                    _itemSet[i].gameObject.name = _baseItem.name + _sProperty.dataIdx + i;
-                    if (_sProperty.dataIdx + i < _dataSet.Count)
-                    {
-                        if (_itemSet[i].gameObject.activeSelf == false)
-                            _itemSet[i].gameObject.SetActive(true);
-                        _itemSet[i].UpdateView(_dataSet[_sProperty.dataIdx + i]);
-                    }
-                    else
-                        _itemSet[i].gameObject.SetActive(false);
-                }
+                _sProperty.itemIdx = (tmpItemIdx + _maxRanks.Width * tmpRow) % _sProperty.maxItems;
+
+                //对齐偏移
+                for (int i = tmpItemIdx; i < _sProperty.itemIdx; ++i)
+                    _itemSet[i].transform.SetAsLastSibling();
+                for (int i = tmpItemIdx; i > _sProperty.itemIdx; --i)
+                    _itemSet[i].transform.SetAsFirstSibling();
             }
             else if (Mathf.Abs(_tmpContentPos.y) * _boundaryArea.start < contentSite - _sProperty.HeightExt)
             {
+                tmpItemIdx = _sProperty.itemIdx;
                 int tmpRow = (int)Math.Ceiling((contentSite
                     - _sProperty.HeightExt - Mathf.Abs(_tmpContentPos.y)) / _wholeSize.Height);
                 contentSite -= _wholeSize.Height * tmpRow;
                 _sProperty.dataIdx = _sProperty.dataIdx - _maxRanks.Width * tmpRow;
-                _sProperty.itemIdx = _sProperty.itemIdx - _maxRanks.Width * tmpRow;
-                _sProperty.itemIdx = _sProperty.itemIdx < 0 ? _sProperty.maxItems - 1 : _sProperty.itemIdx;
-                for (int i = _sProperty.maxItems - 1; i >= 0; --i)
-                {
-                    _itemSet[i].gameObject.name = _baseItem.name + _sProperty.dataIdx + i;
-                    if (_sProperty.dataIdx + i >= 0)
-                    {
-                        if (_itemSet[i].gameObject.activeSelf == false)
-                            _itemSet[i].gameObject.SetActive(true);
-                        _itemSet[i].UpdateView(_dataSet[_sProperty.dataIdx + i]);
-                    }
-                }
+                _sProperty.itemIdx = tmpItemIdx - _maxRanks.Width * tmpRow;
+                _sProperty.itemIdx = _sProperty.itemIdx < 0 ? _sProperty.maxItems - _maxRanks.Width : _sProperty.itemIdx;
+
+                //对齐偏移
+                for (int i = tmpItemIdx; i < _sProperty.itemIdx; ++i)
+                    _itemSet[i].transform.SetAsLastSibling();
+                for (int i = tmpItemIdx; i > _sProperty.itemIdx; --i)
+                    _itemSet[i].transform.SetAsFirstSibling();
             }
+
+            RefreshItems();
             _gridLayoutGroup.SetLayoutVertical();
         }
 
@@ -505,50 +504,45 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         {
             if (_boundaryArea.length <= 0) return;
             toSeat = Mathf.Clamp(toSeat, 0, _boundaryArea.length);
-
             _tmpContentPos = _contentRect.anchoredPosition;
             _tmpContentPos.x = toSeat * _boundaryArea.start;
             _contentRect.anchoredPosition = _tmpContentPos;
+
+            int tmpItemIdx;
             if (Mathf.Abs(_tmpContentPos.x) + _viewRect.rect.width >
                     contentSite + _lookSize.Width + _sProperty.WidthExt)//向下
             {
+                tmpItemIdx = _sProperty.itemIdx;
                 int tmpColumn = (int)Math.Ceiling((Mathf.Abs(_tmpContentPos.x) + _viewRect.rect.width
                         - contentSite - _lookSize.Width - _sProperty.WidthExt) / _wholeSize.Width);
                 contentSite += _wholeSize.Width * tmpColumn;
                 _sProperty.dataIdx = _sProperty.dataIdx + _maxRanks.Height * tmpColumn;
-                _sProperty.itemIdx = (_sProperty.itemIdx + _maxRanks.Height * tmpColumn) % _sProperty.maxItems;
-                for (int i = 0; i < _sProperty.maxItems; ++i)
-                {
-                    _itemSet[i].gameObject.name = _baseItem.name + _sProperty.dataIdx + i;
-                    if (_sProperty.dataIdx + i < _dataSet.Count)
-                    {
-                        if (_itemSet[i].gameObject.activeSelf == false)
-                            _itemSet[i].gameObject.SetActive(true);
-                        _itemSet[i].UpdateView(_dataSet[_sProperty.dataIdx + i]);
-                    }
-                    else
-                        _itemSet[i].gameObject.SetActive(false);
-                }
+                _sProperty.itemIdx = (tmpItemIdx + _maxRanks.Height * tmpColumn) % _sProperty.maxItems;
+
+                //对齐偏移
+                for (int i = tmpItemIdx; i < _sProperty.itemIdx; ++i)
+                    _itemSet[i].transform.SetAsLastSibling();
+                for (int i = tmpItemIdx; i > _sProperty.itemIdx; --i)
+                    _itemSet[i].transform.SetAsFirstSibling();
             }
             else if (Mathf.Abs(_tmpContentPos.x) < contentSite - _sProperty.HeightExt)
             {
+                tmpItemIdx = _sProperty.itemIdx;
                 int tmpColumn = (int)Math.Ceiling((contentSite
                     - _sProperty.HeightExt - Mathf.Abs(_tmpContentPos.x)) / _wholeSize.Width);
                 contentSite -= _wholeSize.Width * tmpColumn;
                 _sProperty.dataIdx = _sProperty.dataIdx - _maxRanks.Height * tmpColumn;
-                _sProperty.itemIdx = _sProperty.itemIdx - _maxRanks.Height * tmpColumn;
-                _sProperty.itemIdx = _sProperty.itemIdx < 0 ? _sProperty.maxItems - 1 : _sProperty.itemIdx;
-                for (int i = _sProperty.maxItems - 1; i >= 0; --i)
-                {
-                    _itemSet[i].gameObject.name = _baseItem.name + _sProperty.dataIdx + i;
-                    if (_sProperty.dataIdx + i >= 0)
-                    {
-                        if (_itemSet[i].gameObject.activeSelf == false)
-                            _itemSet[i].gameObject.SetActive(true);
-                        _itemSet[i].UpdateView(_dataSet[_sProperty.dataIdx + i]);
-                    }
-                }
+                _sProperty.itemIdx = tmpItemIdx - _maxRanks.Height * tmpColumn;
+                _sProperty.itemIdx = _sProperty.itemIdx < 0 ? _sProperty.maxItems - _maxRanks.Height : _sProperty.itemIdx;
+
+                //对齐偏移
+                for (int i = tmpItemIdx; i < _sProperty.itemIdx; ++i)
+                    _itemSet[i].transform.SetAsLastSibling();
+                for (int i = tmpItemIdx; i > _sProperty.itemIdx; --i)
+                    _itemSet[i].transform.SetAsFirstSibling();
             }
+
+            RefreshItems();
             _gridLayoutGroup.SetLayoutHorizontal();
         }
 
@@ -633,6 +627,26 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _contentRect.sizeDelta = contentSize;
         }
 
+        private void RefreshItems()
+        {
+            int tmpItemIdx;
+            for (int i = 0; i < _sProperty.maxItems; ++i)
+            {
+                if (_itemSet.Count - 1 < i) return;
+                tmpItemIdx = (_sProperty.itemIdx + i) % _sProperty.maxItems;
+                _itemSet[tmpItemIdx].gameObject.name = _baseItem.name + (_sProperty.dataIdx + i);
+                if (_sProperty.dataIdx + i >= 0 &&
+                    _sProperty.dataIdx + i < _dataSet.Count)
+                {
+                    if (!_itemSet[tmpItemIdx].gameObject.activeSelf)
+                        _itemSet[tmpItemIdx].gameObject.SetActive(true);
+                    _itemSet[tmpItemIdx].UpdateView(_dataSet[_sProperty.dataIdx + i]);
+                }
+                else
+                    _itemSet[tmpItemIdx].gameObject.SetActive(false);
+            }
+        }
+
         private void InitItem(int itemIdx)
         {
             BaseItem<T> baseItem = _createItemFunc();
@@ -648,6 +662,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
 
         public override void OnStart(List<T> _tmpDataSet = null)
         {
+            _firstRun = true;
             if (_tmpDataSet != null)
             {
                 switch (_sProperty.scrollSort)
@@ -699,6 +714,8 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
 
         public override void AddItem(T data, int itemIdx = -1)
         {
+            if(itemIdx != -1)  itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count-1);
+
             switch (_sProperty.scrollSort)
             {
                 case ScrollSort.FrontDir:
@@ -716,10 +733,49 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                         _dataSet.Insert(0, data);
                     break;
             }
+
+            //扩展
+            if (_firstRun)
+            {
+                switch (_sProperty.scrollDir)
+                {
+                    case ScrollDir.TopToBottom:
+                    case ScrollDir.BottomToTop:
+                        if (_itemSet.Count % _maxRanks.Width == 0)
+                        {
+                            _tmpContentPos = _contentRect.sizeDelta;
+                            _tmpContentPos.y += _wholeSize.Height;
+                            _contentRect.sizeDelta = _tmpContentPos;
+                        }
+                        break;
+                    case ScrollDir.LeftToRight:
+                    case ScrollDir.RightToLeft:
+                        if (_itemSet.Count % _maxRanks.Height == 0)
+                        {
+                            _tmpContentPos = _contentRect.sizeDelta;
+                            _tmpContentPos.x += _wholeSize.Width;
+                            _contentRect.sizeDelta = _tmpContentPos;
+                        }
+                        break;
+                }
+
+                if (_itemSet.Count < _sProperty.maxItems)
+                    InitItem(_itemSet.Count);
+                else if (_itemSet.Count > _sProperty.maxItems)
+                    _lockSlide = true;
+                RefreshItems();
+            }
         }
         public override void UpdateItem(T data, int itemIdx)
         {
-
+            itemIdx = Mathf.Clamp(itemIdx,0, _dataSet.Count - 1);
+            _dataSet[itemIdx] = data;
+            if (itemIdx >= _sProperty.dataIdx &&
+                itemIdx < _sProperty.dataIdx + _sProperty.maxItems)
+            {
+                int tmpItemIdx = (itemIdx - _sProperty.dataIdx + _sProperty.itemIdx)%_sProperty.maxItems;
+                _itemSet[tmpItemIdx].UpdateView(data);
+            }
         }
 
         public override void ToLocation(int toSeat, bool isDrawEnable = true)
