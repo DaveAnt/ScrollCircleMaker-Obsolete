@@ -13,10 +13,12 @@ namespace UIPlugs.ScrollCircleMaker.Editor
     [CustomEditor(typeof(ScrollCircleComponent))]
     internal sealed class ScrollCircleComponentInspector : UnityEditor.Editor
     {
-        private int m_SelectIdx;
+        private int m_MakerIdx;
         private List<string> makerNames;
+        private List<string> helperNames;       
+        private SerializedProperty baseItem;
+        private SerializedProperty baseHelperIdx;
         private SerializedProperty scrollMaker;
-        private SerializedProperty baseItem;  
         private SerializedProperty scrollType;
         private SerializedProperty scrollDir;
         private SerializedProperty scrollSort;
@@ -41,13 +43,22 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                 EditorGUILayout.PropertyField(baseItem);
                 if (baseItem.objectReferenceValue == null)
                     EditorGUILayout.HelpBox("You must set BaseItem", MessageType.Error);
-                int selectedIndex = EditorGUILayout.Popup("Scroll Maker", m_SelectIdx, makerNames.ToArray());
-                if (selectedIndex != m_SelectIdx)
+                int helperIndex = EditorGUILayout.Popup("Base Helper", baseHelperIdx.intValue, helperNames.ToArray());
+                if (helperIndex != baseHelperIdx.intValue)
                 {
-                    m_SelectIdx = selectedIndex;
-                    scrollMaker.stringValue =  makerNames[selectedIndex];
+                    //改变宏开关
+                    baseHelperIdx.intValue = helperIndex;
                 }
-                if ( string.IsNullOrEmpty(scrollMaker.stringValue) || m_SelectIdx == -1)
+                if (string.IsNullOrEmpty(scrollMaker.stringValue) || m_MakerIdx == -1)
+                    EditorGUILayout.HelpBox("You must set BaseHelper", MessageType.Error);
+                int makerIndex = EditorGUILayout.Popup("Scroll Maker", m_MakerIdx, makerNames.ToArray());
+                if (makerIndex != m_MakerIdx)
+                {
+                    m_MakerIdx = makerIndex;
+                    scrollMaker.stringValue = makerNames[makerIndex];
+                }
+#if _Scroll_Mu
+                if ( string.IsNullOrEmpty(scrollMaker.stringValue) || m_MakerIdx == -1)
                     EditorGUILayout.HelpBox("You must set ScrollCircleMaker", MessageType.Error);
                 EditorGUILayout.PropertyField(scrollDir);
                 EditorGUILayout.PropertyField(scrollSort);
@@ -76,6 +87,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                     EditorGUILayout.LabelField("DataIdx:" + dataIdx.intValue.ToString(), GUILayout.Width(100));
                     EditorGUILayout.EndHorizontal();
                 }
+#endif
             }
             EditorGUI.EndDisabledGroup();
             serializedObject.ApplyModifiedProperties();
@@ -84,7 +96,9 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         private void OnEnable()
         {
             makerNames = TypesObtainer<BaseScrollCircleMaker<dynamic>>.GetNames();
+            helperNames = TypesObtainer<BaseScrollCircleHelper<dynamic>>.GetNames();
             scrollMaker = serializedObject.FindProperty("_scrollMaker");
+            baseHelperIdx = serializedObject.FindProperty("_baseHelperIdx");
             baseItem = serializedObject.FindProperty("_baseItem");         
             scrollDir = serializedObject.FindProperty("_scrollDir");
             scrollType = serializedObject.FindProperty("_scrollType");
@@ -102,7 +116,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             dataIdx = serializedObject.FindProperty("_dataIdx");
             maxItems = serializedObject.FindProperty("_maxItems");
             initItems = serializedObject.FindProperty("_initItems");
-            m_SelectIdx = makerNames.IndexOf(scrollMaker.stringValue);
+            m_MakerIdx = makerNames.IndexOf(scrollMaker.stringValue);
         }
     }
 }

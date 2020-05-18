@@ -16,8 +16,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
     {
         [MenuItem("ScrollCircleMaker/Generate Maker")]
         private static void GenerateMaker()
-        {
-            
+        {            
             ScrollCircleEditor window = GetWindow<ScrollCircleEditor>("ScrollCircle Maker", true);
             window.minSize = window.maxSize = new Vector2(300f, 180f);            
         }

@@ -7,7 +7,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,7 +19,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         private RangeInt _boundaryArea;
         private Vector2 _tmpContentPos;
         private float _timer = 0;
-        private bool _lockSlide,_firstRun;
+        private bool _lockSlide;
 
         private int contentSite//偏移锚点
         {
@@ -588,6 +587,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
 
         private void OnAnchorSet()
         {
+            _sProperty.initItems = _itemSet.Count;
+            _lockSlide = _sProperty.maxItems >= _dataSet.Count;
+
             Vector2 contentSize = _contentRect.sizeDelta;
             switch (_sProperty.scrollDir)
             {
@@ -627,12 +629,40 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _contentRect.sizeDelta = contentSize;
         }
 
+        private void OnAnchorCircleSet()
+        {
+            _lockSlide = false;
+            _sProperty.initItems = _sProperty.maxItems;
+            
+            Vector2 contentSize = _contentRect.sizeDelta;
+            switch (_sProperty.scrollDir)
+            {
+                case ScrollDir.TopToBottom:
+                case ScrollDir.BottomToTop:
+                    _contentRect.anchorMin = new Vector2(0, 0.5f);
+                    _contentRect.anchorMax = new Vector2(1, 0.5f);
+                    _contentRect.pivot = new Vector2(0.5f, 0);
+                    _wholeSize.Height = (int)(_itemRect.rect.height + _sProperty.HeightExt);
+                    contentSize.y = _viewRect.rect.height * 3;
+                    break;
+                case ScrollDir.LeftToRight:
+                case ScrollDir.RightToLeft:
+                    _contentRect.anchorMin = new Vector2(0.5f, 0);
+                    _contentRect.anchorMax = new Vector2(0.5f, 1);
+                    _contentRect.pivot = new Vector2(0.5f, 0.5f);
+                    _wholeSize.Width = (int)(_itemRect.rect.width + _sProperty.WidthExt);
+                    contentSize.x = _viewRect.rect.width * 3;
+                    break;
+            }
+            _contentRect.sizeDelta = contentSize;
+        }
+
         private void RefreshItems()
         {
             int tmpItemIdx;
             for (int i = 0; i < _sProperty.maxItems; ++i)
             {
-                if (_itemSet.Count - 1 < i) return;
+                if (i > _itemSet.Count - 1) return;
                 tmpItemIdx = (_sProperty.itemIdx + i) % _sProperty.maxItems;
                 _itemSet[tmpItemIdx].gameObject.name = _baseItem.name + (_sProperty.dataIdx + i);
                 if (_sProperty.dataIdx + i >= 0 &&
@@ -662,7 +692,6 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
 
         public override void OnStart(List<T> _tmpDataSet = null)
         {
-            _firstRun = true;
             if (_tmpDataSet != null)
             {
                 switch (_sProperty.scrollSort)
@@ -679,9 +708,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 if (i >= _dataSet.Count) break;//表示没有数据
                 InitItem(i);
             }
-            _sProperty.initItems = _itemSet.Count;
-            _lockSlide = _sProperty.maxItems >= _dataSet.Count;
-            OnAnchorSet();
+            if (_sProperty.isCircleEnable)
+                OnAnchorCircleSet();
+            else
+                OnAnchorSet();
         }
 
         public override void OnDestroy()
@@ -734,35 +764,12 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     break;
             }
 
-            //扩展
-            if (_firstRun)
+            //扩展边距
+            if (_sProperty.initItems != -1)//表示已经初始化，需要计算偏移
             {
-                switch (_sProperty.scrollDir)
-                {
-                    case ScrollDir.TopToBottom:
-                    case ScrollDir.BottomToTop:
-                        if (_itemSet.Count % _maxRanks.Width == 0)
-                        {
-                            _tmpContentPos = _contentRect.sizeDelta;
-                            _tmpContentPos.y += _wholeSize.Height;
-                            _contentRect.sizeDelta = _tmpContentPos;
-                        }
-                        break;
-                    case ScrollDir.LeftToRight:
-                    case ScrollDir.RightToLeft:
-                        if (_itemSet.Count % _maxRanks.Height == 0)
-                        {
-                            _tmpContentPos = _contentRect.sizeDelta;
-                            _tmpContentPos.x += _wholeSize.Width;
-                            _contentRect.sizeDelta = _tmpContentPos;
-                        }
-                        break;
-                }
-
                 if (_itemSet.Count < _sProperty.maxItems)
                     InitItem(_itemSet.Count);
-                else if (_itemSet.Count > _sProperty.maxItems)
-                    _lockSlide = true;
+                OnAnchorSet();
                 RefreshItems();
             }
         }

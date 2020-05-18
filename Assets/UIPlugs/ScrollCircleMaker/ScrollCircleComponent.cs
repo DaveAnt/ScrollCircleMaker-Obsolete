@@ -62,6 +62,8 @@ namespace UIPlugs.ScrollCircleMaker
         [SerializeField]
         private GameObject _baseItem;
         [SerializeField]
+        private int _baseHelperIdx;
+        [SerializeField]
         private ScrollType _scrollType;
         [SerializeField]
         private ScrollDir _scrollDir;
@@ -82,7 +84,7 @@ namespace UIPlugs.ScrollCircleMaker
         [SerializeField]
         private int _dataIdx = 0, _itemIdx = 0;
         [SerializeField]
-        private int _maxItems, _initItems;
+        private int _maxItems, _initItems=-1;
 
         public GameObject baseItem
         {
