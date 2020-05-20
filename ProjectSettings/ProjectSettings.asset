@@ -502,7 +502,10 @@ PlayerSettings:
   webGLCompressionFormat: 0
   webGLLinkerTarget: 1
   webGLThreadsSupport: 0
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    1: IsMutipleHelper
+    7: IsMutipleHelper
+    13: IsCircleEnable
   platformArchitecture: {}
   scriptingBackend: {}
   il2cppCompilerConfiguration: {}

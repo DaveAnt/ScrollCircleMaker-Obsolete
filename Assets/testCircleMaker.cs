@@ -13,16 +13,17 @@ namespace UIPlugs.ScrollCircleMaker
         public override void OnStart(Transform transform)
         {
             baseCircleHelper = new MultipleRectCircleHelper<int>(transform,()=> {
-                return new HeroItem();
+                return new HeroaItem();
             });
-            for (int i = 0; i < 999999; ++i)
+            for (int i = 0; i < 9; ++i)
                 baseCircleHelper.AddItem(i);
-            baseCircleHelper.OnStart();           
+            baseCircleHelper.OnStart();
+            baseCircleHelper.ToLocation(4000);
         }
 
     }
 
-    public class HeroItem : BaseItem<int>
+    public class HeroaItem : BaseItem<int>
     {
         Text text;
         public override void InitComponents()

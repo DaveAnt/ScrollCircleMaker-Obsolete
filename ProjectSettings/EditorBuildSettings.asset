@@ -32,9 +32,6 @@ EditorBuildSettings:
   - enabled: 0
     path: 
     guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
   - enabled: 1
     path: Assets/Demos/SampleScene.unity
     guid: dade62d95fb7a2e4bad6646c7f647e16

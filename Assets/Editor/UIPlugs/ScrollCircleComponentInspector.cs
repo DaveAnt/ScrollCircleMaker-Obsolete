@@ -10,9 +10,18 @@ using UnityEngine;
 
 namespace UIPlugs.ScrollCircleMaker.Editor
 {
+
     [CustomEditor(typeof(ScrollCircleComponent))]
     internal sealed class ScrollCircleComponentInspector : UnityEditor.Editor
     {
+        public static string[] ScrollCircleDefine =
+        {
+            "IsCircleEnable",
+            "IsCustomHelper",
+            "IsMutipleHelper",
+            "IsSingleHelper"
+        };
+
         private int m_MakerIdx;
         private List<string> makerNames;
         private List<string> helperNames;       
@@ -47,9 +56,11 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                 if (helperIndex != baseHelperIdx.intValue)
                 {
                     //改变宏开关
+                    RemoveScriptingSymbol(ScrollCircleDefine[baseHelperIdx.intValue + 1]);
+                    AddScriptingSymbol(ScrollCircleDefine[helperIndex + 1]);
                     baseHelperIdx.intValue = helperIndex;
                 }
-                if (string.IsNullOrEmpty(scrollMaker.stringValue) || m_MakerIdx == -1)
+                if (baseHelperIdx.intValue == -1)
                     EditorGUILayout.HelpBox("You must set BaseHelper", MessageType.Error);
                 int makerIndex = EditorGUILayout.Popup("Scroll Maker", m_MakerIdx, makerNames.ToArray());
                 if (makerIndex != m_MakerIdx)
@@ -57,7 +68,6 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                     m_MakerIdx = makerIndex;
                     scrollMaker.stringValue = makerNames[makerIndex];
                 }
-#if _Scroll_Mu
                 if ( string.IsNullOrEmpty(scrollMaker.stringValue) || m_MakerIdx == -1)
                     EditorGUILayout.HelpBox("You must set ScrollCircleMaker", MessageType.Error);
                 EditorGUILayout.PropertyField(scrollDir);
@@ -87,9 +97,14 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                     EditorGUILayout.LabelField("DataIdx:" + dataIdx.intValue.ToString(), GUILayout.Width(100));
                     EditorGUILayout.EndHorizontal();
                 }
-#endif
             }
             EditorGUI.EndDisabledGroup();
+
+            if (isCircleEnable.boolValue && !IsScriptingSymbolEnabled(ScrollCircleDefine[0]))
+                AddScriptingSymbol(ScrollCircleDefine[0]);
+            else if (!isCircleEnable.boolValue && IsScriptingSymbolEnabled(ScrollCircleDefine[0]))
+                RemoveScriptingSymbol(ScrollCircleDefine[0]);
+
             serializedObject.ApplyModifiedProperties();
         }
 
@@ -99,7 +114,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             helperNames = TypesObtainer<BaseScrollCircleHelper<dynamic>>.GetNames();
             scrollMaker = serializedObject.FindProperty("_scrollMaker");
             baseHelperIdx = serializedObject.FindProperty("_baseHelperIdx");
-            baseItem = serializedObject.FindProperty("_baseItem");         
+            baseItem = serializedObject.FindProperty("_baseItem");
             scrollDir = serializedObject.FindProperty("_scrollDir");
             scrollType = serializedObject.FindProperty("_scrollType");
             scrollSort = serializedObject.FindProperty("_scrollSort");
@@ -116,7 +131,62 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             dataIdx = serializedObject.FindProperty("_dataIdx");
             maxItems = serializedObject.FindProperty("_maxItems");
             initItems = serializedObject.FindProperty("_initItems");
+
             m_MakerIdx = makerNames.IndexOf(scrollMaker.stringValue);
+
+            //Maker的宏定义相关设置
+            for (int i = 1; i < ScrollCircleDefine.Length; ++i)//移除不相关宏
+            {
+                if (i == baseHelperIdx.intValue + 1) continue;
+                if (IsScriptingSymbolEnabled(ScrollCircleDefine[i]))
+                    RemoveScriptingSymbol(ScrollCircleDefine[i]);
+            }
+            if (!IsScriptingSymbolEnabled(ScrollCircleDefine[baseHelperIdx.intValue + 1]))
+                AddScriptingSymbol(ScrollCircleDefine[baseHelperIdx.intValue + 1]);            
+            if (isCircleEnable.boolValue && !IsScriptingSymbolEnabled(ScrollCircleDefine[0]))
+                AddScriptingSymbol(ScrollCircleDefine[0]);
+            else if (!isCircleEnable.boolValue && IsScriptingSymbolEnabled(ScrollCircleDefine[0]))
+                RemoveScriptingSymbol(ScrollCircleDefine[0]);
+        }
+
+        //移除宏定义
+        public static void RemoveScriptingSymbol(string symbol)
+        {
+            string symbolsString = PlayerSettings.GetScriptingDefineSymbolsForGroup(
+                EditorUserBuildSettings.selectedBuildTargetGroup);
+            string[] symbols = symbolsString.Split(';');
+            symbolsString = "";
+            foreach (string s in symbols)
+            {
+                if (!s.StartsWith(symbol))
+                {
+                    if (symbolsString.Length > 0)
+                        symbolsString += ';';
+                    symbolsString += s;
+                }
+            }
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(
+                EditorUserBuildSettings.selectedBuildTargetGroup, symbolsString);
+        }
+
+        //添加宏定义
+        public static void AddScriptingSymbol(string symbol)
+        {
+            if (!IsScriptingSymbolEnabled(symbol))
+            {
+                string symbolsString = PlayerSettings.GetScriptingDefineSymbolsForGroup(
+                        EditorUserBuildSettings.selectedBuildTargetGroup)+ ";" + symbol;
+                PlayerSettings.SetScriptingDefineSymbolsForGroup(
+                    EditorUserBuildSettings.selectedBuildTargetGroup, symbolsString);
+            }
+        }
+
+        //判断宏定义是否存在
+        static bool IsScriptingSymbolEnabled(string symbol)
+        {
+            string symbolsString = PlayerSettings.GetScriptingDefineSymbolsForGroup(
+                EditorUserBuildSettings.selectedBuildTargetGroup);
+            return symbolsString.Contains(symbol);
         }
     }
 }

@@ -30,27 +30,22 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         [MenuItem("ScrollCircleMaker/Clear Order/Clear All Makers")]
         private static void ClerAllMakers()
         {
-            System.Diagnostics.Process.Start("https://dagamestudio.top/");
+            
         }
         [MenuItem("ScrollCircleMaker/Clear Order/Clear MultipleRect Maker")]
         private static void ClerMultipleRectMaker()
         {
-            System.Diagnostics.Process.Start("https://dagamestudio.top/");
+            
         }
         [MenuItem("ScrollCircleMaker/Clear Order/Clear SingleRect Maker")]
         private static void ClerSingleRectMaker()
         {
-            System.Diagnostics.Process.Start("https://dagamestudio.top/");
-        }
-        [MenuItem("ScrollCircleMaker/Clear Order/Clear ZRect Maker")]
-        private static void ClerZRectMaker()
-        {
-            System.Diagnostics.Process.Start("https://dagamestudio.top/");
+            
         }
         [MenuItem("ScrollCircleMaker/Clear Order/Clear CustomRect Maker")]
         private static void ClerCustomRectMaker()
         {
-            System.Diagnostics.Process.Start("https://dagamestudio.top/");
+            
         }
 
         static string savePath = string.Empty;
@@ -138,7 +133,9 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                 }
 
                 string templateMaker = File.ReadAllText(@"Assets\Editor\UIPlugs\TemplateMaker");
-                templateMaker = string.Format(templateMaker, saveMakerName, saveDataType,helperNames[selectHepler],saveItemName);
+                string helperName = helperNames[selectHepler].Substring(26);
+                Debug.LogError(helperName);
+                templateMaker = string.Format(templateMaker, saveMakerName+"Maker", saveDataType,helperNames[selectHepler],saveItemName+"Item");
                 File.WriteAllText(savePath,templateMaker);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
@@ -159,7 +156,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             tmpPath = EditorUtility.OpenFolderPanel("Resource Folder", "Assets", string.Empty);
             if (!string.IsNullOrEmpty(tmpPath))
             {
-                var gamePath = System.IO.Path.GetFullPath(".");//TODO - FileUtil.GetProjectRelativePath??
+                var gamePath = Path.GetFullPath(".");//TODO - FileUtil.GetProjectRelativePath??
                 gamePath = gamePath.Replace("\\", "/");
                 if (tmpPath.Length > gamePath.Length && tmpPath.StartsWith(gamePath))
                     tmpPath = tmpPath.Remove(0, gamePath.Length + 1);

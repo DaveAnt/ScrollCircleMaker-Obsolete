@@ -20,6 +20,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         private Vector2 _tmpContentPos;
         private float _timer = 0;
         private bool _lockSlide;
+        private bool _firstRun;
 
         private int contentSite//偏移锚点
         {
@@ -64,7 +65,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _viewRect = contentTrans.parent.GetComponent<RectTransform>();
             _scrollRect = _viewRect.parent.GetComponent<ScrollRect>();
             _sProperty = _contentRect.GetComponent<ScrollCircleComponent>();
-            if (_sProperty == null) UnityEngine.Debug.LogError("content must have ScrollCircleComponent!");
+            if (_sProperty == null) Debug.LogError("content must have ScrollCircleComponent!");
 
             _baseItem = _sProperty.baseItem;
             _gridLayoutGroup = _contentRect.GetComponent<GridLayoutGroup>() ?? _contentRect.gameObject.AddComponent<GridLayoutGroup>();
@@ -100,14 +101,35 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     break;
             }
             OnResolveGroupEnum();
-            _gridLayoutGroup.padding.left = _sProperty.LeftExt;
-            _gridLayoutGroup.padding.right = _sProperty.RightExt;
-            _gridLayoutGroup.padding.top = _sProperty.TopExt;
-            _gridLayoutGroup.padding.bottom = _sProperty.BottomExt;
             _gridLayoutGroup.spacing = new Vector2(_sProperty.WidthExt, _sProperty.HeightExt);
             _gridLayoutGroup.cellSize = _itemRect.rect.size;
             _lookSize.Width = (int)(_maxRanks.Width * (_itemRect.rect.width + _sProperty.WidthExt) - _sProperty.WidthExt);
             _lookSize.Height = (int)(_maxRanks.Height * (_itemRect.rect.height + _sProperty.HeightExt) - _sProperty.HeightExt);
+
+#if IsCircleEnable
+            switch (_sProperty.scrollDir)
+            {
+                case ScrollDir.BottomToTop:
+                case ScrollDir.TopToBottom:
+                    _gridLayoutGroup.padding.top = 0;
+                    _gridLayoutGroup.padding.bottom = 0;
+                    _gridLayoutGroup.padding.left = _sProperty.LeftExt;
+                    _gridLayoutGroup.padding.right = _sProperty.RightExt;
+                    break;
+                case ScrollDir.LeftToRight:
+                case ScrollDir.RightToLeft:
+                    _gridLayoutGroup.padding.left = 0;
+                    _gridLayoutGroup.padding.right = 0;
+                    _gridLayoutGroup.padding.top = _sProperty.TopExt;
+                    _gridLayoutGroup.padding.bottom = _sProperty.BottomExt;
+                    break;
+            }
+#else
+            _gridLayoutGroup.padding.left = _sProperty.LeftExt;
+            _gridLayoutGroup.padding.right = _sProperty.RightExt;
+            _gridLayoutGroup.padding.top = _sProperty.TopExt;
+            _gridLayoutGroup.padding.bottom = _sProperty.BottomExt;
+#endif
         }
 
         private void OnRefreshHandler(Vector2 v2)//刷新Item的移动
@@ -133,7 +155,195 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
 
             _timer = 0;
         }
+        private void OnResolveGroupEnum()
+        {
+            //解析排版
+            int sign = (short)_sProperty.scrollDir * 10 + (short)_sProperty.scrollSort;
+            switch (sign)
+            {
+                case 0:case 2:case 20:case 22:
+                    _gridLayoutGroup.startCorner = GridLayoutGroup.Corner.UpperLeft;
+                    break;
+                case 1:case 3:case 30:case 32:
+                    _gridLayoutGroup.startCorner = GridLayoutGroup.Corner.UpperRight;
+                    break;
+                case 10:case 12:case 21:case 23:
+                    _gridLayoutGroup.startCorner = GridLayoutGroup.Corner.LowerLeft;
+                    break;
+                case 11:case 13:case 31:case 33:
+                    _gridLayoutGroup.startCorner = GridLayoutGroup.Corner.LowerRight;
+                    break;
+            }
+            sign = sign * 10 + (_sProperty.isCircleEnable ? 1 : 0);
+            switch (sign)
+            {
+                case 0:case 10:case 20:case 30:case 200:case 210:case 220:case 230:
+                    _gridLayoutGroup.childAlignment = TextAnchor.UpperLeft;
+                    break;
+                case 1:case 11:case 21:case 31:case 101:case 111:case 121:case 131:
+                    _gridLayoutGroup.childAlignment = TextAnchor.MiddleLeft;
+                    break;
+                case 100:case 110: case 120:case 130:
+                    _gridLayoutGroup.childAlignment = TextAnchor.LowerLeft;
+                    break;
+                case 201:case 211:case 221:case 231:case 301:case 311:case 321:case 331:
+                    _gridLayoutGroup.childAlignment = TextAnchor.UpperCenter;
+                    break;
+                case 300: case 310:case 320:case 330:
+                    _gridLayoutGroup.childAlignment = TextAnchor.UpperRight;
+                    break;
+            }
+        }
+#if IsCircleEnable
+        private void OnCircleVertical()
+        {
+            
+        }
 
+        private void OnCircleHorizontal()
+        {
+            
+        }
+
+        private void RefreshItems()
+        {
+            int tmpItemIdx, tmpDataIdx;
+            for (int i = 0; i < _sProperty.maxItems; ++i)
+            {
+                tmpItemIdx = (_sProperty.itemIdx + i) % _sProperty.maxItems;
+                tmpDataIdx = (_sProperty.dataIdx + i) % _dataSet.Count;
+                _itemSet[tmpItemIdx].gameObject.name = _baseItem.name + tmpDataIdx;
+                _itemSet[tmpItemIdx].UpdateView(_dataSet[tmpDataIdx]);
+            }
+        }
+
+        private void InitItem(int itemIdx)
+        {
+            int tmpItemIdx = itemIdx % _dataSet.Count;
+            BaseItem<T> baseItem = _createItemFunc();
+            RectTransform itemRect = UnityEngine.Object.Instantiate(_baseItem, _contentRect).transform as RectTransform;
+            baseItem.transform = itemRect as Transform;
+            baseItem.gameObject = itemRect.gameObject;
+            baseItem.gameObject.name = _baseItem.name + tmpItemIdx;
+            baseItem.InitComponents();
+            baseItem.InitEvents();
+            baseItem.UpdateView(_dataSet[tmpItemIdx]);
+            _itemSet.Add(baseItem);
+        }
+
+        private void OnAnchorSet()
+        {
+            _sProperty.initItems = _itemSet.Count;
+            _lockSlide = _sProperty.maxItems >= _dataSet.Count;
+
+            Vector2 contentSize = _contentRect.sizeDelta;
+            switch (_sProperty.scrollDir)
+            {
+                case ScrollDir.TopToBottom:
+                    _contentRect.anchorMin = _contentRect.anchorMax = _contentRect.pivot = new Vector2(0.5f, 1);
+                    _wholeSize.Height = (int)(_itemRect.rect.height + _sProperty.HeightExt);
+                    contentSize.y = (float)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Width)
+                        * _wholeSize.Height - _sProperty.HeightExt;
+                    contentSize.y = contentSize.y < _viewRect.rect.height ?
+                        3 * _viewRect.rect.height : contentSize.y + 2 * _viewRect.rect.height;
+                    break;
+                case ScrollDir.BottomToTop:
+                    _contentRect.anchorMin = _contentRect.anchorMax = _contentRect.pivot = new Vector2(0.5f, 0);
+                    _wholeSize.Height = (int)(_itemRect.rect.height + _sProperty.HeightExt);
+                    contentSize.y = (float)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Width)
+                        * _wholeSize.Height - _sProperty.HeightExt;
+                    contentSize.y = contentSize.y < _viewRect.rect.height ?
+                        3 * _viewRect.rect.height : contentSize.y + 2 * _viewRect.rect.height;
+                    break;
+                case ScrollDir.LeftToRight:
+                    _contentRect.anchorMin = _contentRect.anchorMax = _contentRect.pivot = new Vector2(0, 0.5f);
+                    _wholeSize.Width = (int)(_itemRect.rect.width + _sProperty.WidthExt);
+                    contentSize.x = (float)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Height)
+                        * _wholeSize.Width - _sProperty.WidthExt;
+                    contentSize.x = contentSize.x < _viewRect.rect.width ?
+                        3 * _viewRect.rect.width : contentSize.x + 2 * _viewRect.rect.width;
+                    break;
+                case ScrollDir.RightToLeft:
+                    _contentRect.anchorMin = _contentRect.anchorMax = _contentRect.pivot = new Vector2(1, 0.5f);
+                    _wholeSize.Width = (int)(_itemRect.rect.width + _sProperty.WidthExt);
+                    contentSize.x = contentSize.x < _viewRect.rect.width ?
+                        3 * _viewRect.rect.width : contentSize.x + 2 * _viewRect.rect.width;
+                    break;
+            }
+            Debug.LogError(contentSize);
+            _contentRect.sizeDelta = contentSize;
+        }
+
+        public override void OnStart(List<T> _tmpDataSet = null)
+        {
+            _firstRun = true;
+            if (_tmpDataSet != null)
+            {
+                switch (_sProperty.scrollSort)
+                {
+                    case ScrollSort.BackDir:
+                    case ScrollSort.BackZDir:
+                        _tmpDataSet.Reverse();
+                        break;
+                }
+                _dataSet.AddRange(_tmpDataSet);
+            }
+            if (_dataSet.Count > 0)
+            {
+                for (int i = 0; i < _sProperty.maxItems; ++i)
+                    InitItem(i);
+            }
+            OnAnchorSet();
+        }
+
+        public override void AddItem(T data, int itemIdx = -1)
+        {
+            if (itemIdx != -1) itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count - 1);
+
+            switch (_sProperty.scrollSort)
+            {
+                case ScrollSort.FrontDir:
+                case ScrollSort.FrontZDir:
+                    if (itemIdx != -1)
+                        _dataSet.Insert(itemIdx, data);
+                    else
+                        _dataSet.Add(data);
+                    break;
+                case ScrollSort.BackDir:
+                case ScrollSort.BackZDir:
+                    if (itemIdx != -1)
+                        _dataSet.Insert(_dataSet.Count - itemIdx - 1, data);
+                    else
+                        _dataSet.Insert(0, data);
+                    break;
+            }
+        }
+
+        public override void ResetItems()
+        {
+            
+        }
+
+        public override int GetLocation()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ToLocation(int toSeat, bool isDrawEnable = true)
+        {
+            
+        }
+
+        public override void ToTop(bool isDrawEnable = true)
+        {
+            
+        }
+
+        public override void ToBottom(bool isDrawEnable = true)
+        {
+            
+        }
+#else
         private void OnCircleVertical()
         {
             _tmpContentPos = _contentRect.anchoredPosition;
@@ -543,46 +753,39 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
 
             RefreshItems();
             _gridLayoutGroup.SetLayoutHorizontal();
+        }  
+
+        private void RefreshItems()
+        {
+            int tmpItemIdx;
+            for (int i = 0; i < _sProperty.maxItems; ++i)
+            {
+                if (i > _itemSet.Count - 1) return;
+                tmpItemIdx = (_sProperty.itemIdx + i) % _sProperty.maxItems;
+                _itemSet[tmpItemIdx].gameObject.name = _baseItem.name + (_sProperty.dataIdx + i);
+                if (_sProperty.dataIdx + i >= 0 &&
+                    _sProperty.dataIdx + i < _dataSet.Count)
+                {
+                    if (!_itemSet[tmpItemIdx].gameObject.activeSelf)
+                        _itemSet[tmpItemIdx].gameObject.SetActive(true);
+                    _itemSet[tmpItemIdx].UpdateView(_dataSet[_sProperty.dataIdx + i]);
+                }
+                else
+                    _itemSet[tmpItemIdx].gameObject.SetActive(false);
+            }
         }
 
-        private void OnResolveGroupEnum()
+        private void InitItem(int itemIdx)
         {
-            //解析排版
-            int sign = (short)_sProperty.scrollDir * 10 + (short)_sProperty.scrollSort;
-            switch (sign)
-            {
-                case 0:case 2:case 20:case 22:
-                    _gridLayoutGroup.startCorner = GridLayoutGroup.Corner.UpperLeft;
-                    break;
-                case 1:case 3:case 30:case 32:
-                    _gridLayoutGroup.startCorner = GridLayoutGroup.Corner.UpperRight;
-                    break;
-                case 10:case 12:case 21:case 23:
-                    _gridLayoutGroup.startCorner = GridLayoutGroup.Corner.LowerLeft;
-                    break;
-                case 11:case 13:case 31:case 33:
-                    _gridLayoutGroup.startCorner = GridLayoutGroup.Corner.LowerRight;
-                    break;
-            }
-            sign = sign * 10 + (_sProperty.isCircleEnable ? 1 : 0);
-            switch (sign)
-            {
-                case 0:case 10:case 20:case 30:case 200:case 210:case 220:case 230:
-                    _gridLayoutGroup.childAlignment = TextAnchor.UpperLeft;
-                    break;
-                case 1:case 11:case 21:case 31:case 101:case 111:case 121:case 131:
-                    _gridLayoutGroup.childAlignment = TextAnchor.MiddleLeft;
-                    break;
-                case 100:case 110:case 120:case 130:
-                    _gridLayoutGroup.childAlignment = TextAnchor.LowerLeft;
-                    break;
-                case 201:case 211:case 221:case 231:case 301:case 311:case 321:case 331:
-                    _gridLayoutGroup.childAlignment = TextAnchor.UpperCenter;
-                    break;
-                case 300:case 310:case 320:case 330:
-                    _gridLayoutGroup.childAlignment = TextAnchor.UpperRight;
-                    break;
-            }
+            BaseItem<T> baseItem = _createItemFunc();
+            RectTransform itemRect = UnityEngine.Object.Instantiate(_baseItem, _contentRect).transform as RectTransform;
+            baseItem.transform = itemRect as Transform;
+            baseItem.gameObject = itemRect.gameObject;
+            baseItem.gameObject.name = _baseItem.name + itemIdx;
+            baseItem.InitComponents();
+            baseItem.InitEvents();
+            baseItem.UpdateView(_dataSet[itemIdx]);
+            _itemSet.Add(baseItem);
         }
 
         private void OnAnchorSet()
@@ -629,69 +832,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _contentRect.sizeDelta = contentSize;
         }
 
-        private void OnAnchorCircleSet()
-        {
-            _lockSlide = false;
-            _sProperty.initItems = _sProperty.maxItems;
-            
-            Vector2 contentSize = _contentRect.sizeDelta;
-            switch (_sProperty.scrollDir)
-            {
-                case ScrollDir.TopToBottom:
-                case ScrollDir.BottomToTop:
-                    _contentRect.anchorMin = new Vector2(0, 0.5f);
-                    _contentRect.anchorMax = new Vector2(1, 0.5f);
-                    _contentRect.pivot = new Vector2(0.5f, 0);
-                    _wholeSize.Height = (int)(_itemRect.rect.height + _sProperty.HeightExt);
-                    contentSize.y = _viewRect.rect.height * 3;
-                    break;
-                case ScrollDir.LeftToRight:
-                case ScrollDir.RightToLeft:
-                    _contentRect.anchorMin = new Vector2(0.5f, 0);
-                    _contentRect.anchorMax = new Vector2(0.5f, 1);
-                    _contentRect.pivot = new Vector2(0.5f, 0.5f);
-                    _wholeSize.Width = (int)(_itemRect.rect.width + _sProperty.WidthExt);
-                    contentSize.x = _viewRect.rect.width * 3;
-                    break;
-            }
-            _contentRect.sizeDelta = contentSize;
-        }
-
-        private void RefreshItems()
-        {
-            int tmpItemIdx;
-            for (int i = 0; i < _sProperty.maxItems; ++i)
-            {
-                if (i > _itemSet.Count - 1) return;
-                tmpItemIdx = (_sProperty.itemIdx + i) % _sProperty.maxItems;
-                _itemSet[tmpItemIdx].gameObject.name = _baseItem.name + (_sProperty.dataIdx + i);
-                if (_sProperty.dataIdx + i >= 0 &&
-                    _sProperty.dataIdx + i < _dataSet.Count)
-                {
-                    if (!_itemSet[tmpItemIdx].gameObject.activeSelf)
-                        _itemSet[tmpItemIdx].gameObject.SetActive(true);
-                    _itemSet[tmpItemIdx].UpdateView(_dataSet[_sProperty.dataIdx + i]);
-                }
-                else
-                    _itemSet[tmpItemIdx].gameObject.SetActive(false);
-            }
-        }
-
-        private void InitItem(int itemIdx)
-        {
-            BaseItem<T> baseItem = _createItemFunc();
-            RectTransform itemRect = UnityEngine.Object.Instantiate(_baseItem, _contentRect).transform as RectTransform;
-            baseItem.transform = itemRect as Transform;
-            baseItem.gameObject = itemRect.gameObject;
-            baseItem.gameObject.name = _baseItem.name + itemIdx;
-            baseItem.InitComponents();
-            baseItem.InitEvents();
-            baseItem.UpdateView(_dataSet[itemIdx]);
-            _itemSet.Add(baseItem);
-        }
-
         public override void OnStart(List<T> _tmpDataSet = null)
         {
+            _firstRun = true;
             if (_tmpDataSet != null)
             {
                 switch (_sProperty.scrollSort)
@@ -708,18 +851,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 if (i >= _dataSet.Count) break;//表示没有数据
                 InitItem(i);
             }
-            if (_sProperty.isCircleEnable)
-                OnAnchorCircleSet();
-            else
-                OnAnchorSet();
-        }
-
-        public override void OnDestroy()
-        {
-            _scrollRect.onValueChanged.RemoveListener(OnRefreshHandler);
-            _dataSet.Clear();
-            _itemSet.Clear();
-            GC.Collect();
+            OnAnchorSet();
         }
 
         public override void ResetItems()
@@ -765,23 +897,12 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
 
             //扩展边距
-            if (_sProperty.initItems != -1)//表示已经初始化，需要计算偏移
+            if (_firstRun)//表示已经初始化，需要计算偏移
             {
                 if (_itemSet.Count < _sProperty.maxItems)
                     InitItem(_itemSet.Count);
                 OnAnchorSet();
                 RefreshItems();
-            }
-        }
-        public override void UpdateItem(T data, int itemIdx)
-        {
-            itemIdx = Mathf.Clamp(itemIdx,0, _dataSet.Count - 1);
-            _dataSet[itemIdx] = data;
-            if (itemIdx >= _sProperty.dataIdx &&
-                itemIdx < _sProperty.dataIdx + _sProperty.maxItems)
-            {
-                int tmpItemIdx = (itemIdx - _sProperty.dataIdx + _sProperty.itemIdx)%_sProperty.maxItems;
-                _itemSet[tmpItemIdx].UpdateView(data);
             }
         }
 
@@ -827,6 +948,26 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         {
             ToLocation(_boundaryArea.length, isDrawEnable);
         }
+#endif
+        //公有函数 不管是不是轮回
+        public override void UpdateItem(T data, int itemIdx)
+        {
+            itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count - 1);
+            _dataSet[itemIdx] = data;
+            if (itemIdx >= _sProperty.dataIdx &&
+                itemIdx < _sProperty.dataIdx + _sProperty.maxItems)
+            {
+                int tmpItemIdx = (itemIdx - _sProperty.dataIdx + _sProperty.itemIdx) % _sProperty.maxItems;
+                _itemSet[tmpItemIdx].UpdateView(data);
+            }
+        }
 
+        public override void OnDestroy()
+        {
+            _scrollRect.onValueChanged.RemoveListener(OnRefreshHandler);
+            _dataSet.Clear();
+            _itemSet.Clear();
+            GC.Collect();
+        }
     }
 }
