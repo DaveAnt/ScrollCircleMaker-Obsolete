@@ -37,7 +37,6 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         private SerializedProperty spacing;
         private SerializedProperty isUpdateEnable;
         private SerializedProperty isCircleEnable;
-        private SerializedProperty isSlideEnable;
         private SerializedProperty limitNum;
         //编辑器运行时显示
         private SerializedProperty maxItems;
@@ -83,9 +82,10 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                 autoMoveRatio.intValue = EditorGUILayout.IntSlider("AutoMove Ratio", autoMoveRatio.intValue/10,1,10)*10;
                 EditorGUILayout.PropertyField(padding,true);
                 EditorGUILayout.PropertyField(spacing);
-                EditorGUILayout.PropertyField(isUpdateEnable);
-                EditorGUILayout.PropertyField(isCircleEnable);
-                EditorGUILayout.PropertyField(isSlideEnable);
+                EditorGUILayout.BeginHorizontal();
+                isUpdateEnable.boolValue = EditorGUILayout.ToggleLeft("IsUpdateEnable",isUpdateEnable.boolValue, GUILayout.Width(140));
+                isCircleEnable.boolValue = EditorGUILayout.ToggleLeft("IsCircleEnable", isCircleEnable.boolValue, GUILayout.Width(140));
+                EditorGUILayout.EndHorizontal();
                 if (EditorApplication.isPlaying)
                 {
                     EditorGUILayout.BeginHorizontal();
@@ -125,7 +125,6 @@ namespace UIPlugs.ScrollCircleMaker.Editor
 
             isUpdateEnable = serializedObject.FindProperty("_isUpdateEnable");
             isCircleEnable = serializedObject.FindProperty("_isCircleEnable");
-            isSlideEnable = serializedObject.FindProperty("_isSlideEnable");
             limitNum = serializedObject.FindProperty("_limitNum");
             itemIdx = serializedObject.FindProperty("_itemIdx");
             dataIdx = serializedObject.FindProperty("_dataIdx");

@@ -6,6 +6,7 @@
 //------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,6 +31,16 @@ namespace UIPlugs.ScrollCircleMaker
             foreach (BaseItem<T> baseItem in _itemSet)
                 baseItem.OnUpdate();
         }
+        public virtual void OnSwitchlide(bool state)
+        {
+            try{
+                _scrollRect.enabled = state;
+            }
+            catch (Exception e){
+                Debug.LogError("_scrollRect.enabled = state" + e.Message);
+            }
+        }
+
         public abstract void AddItem(T data,int itemIdx = -1);//添加数据
         public abstract void UpdateItem(T data,int itemIdx);
         public abstract void ResetItems();//清空数据

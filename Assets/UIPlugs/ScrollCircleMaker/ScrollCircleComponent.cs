@@ -78,7 +78,7 @@ namespace UIPlugs.ScrollCircleMaker
         [SerializeField]
         private Vector2Int _spacing;  //x表示左右间距,y表示上下间距
         [SerializeField]
-        private bool _isUpdateEnable, _isCircleEnable, _isSlideEnable = true;
+        private bool _isUpdateEnable, _isCircleEnable;
         [SerializeField]
         private int _limitNum;
         [SerializeField]
@@ -175,13 +175,6 @@ namespace UIPlugs.ScrollCircleMaker
         {
             get {
                 return _isCircleEnable;
-            }
-        }
-
-        public bool isSlideEnable
-        {
-            get {
-                return _isSlideEnable;
             }
         }
 

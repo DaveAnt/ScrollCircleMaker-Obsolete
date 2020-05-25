@@ -22,13 +22,13 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
     public class MultipleRectCircleHelper<T> : BaseScrollCircleHelper<T>
     {
         private GridLayoutGroup _gridLayoutGroup;
-        private SizeInt _wholeSize, _lookSize, _maxRanks;
+        private SizeInt _wholeSize, _maxRanks;
         private BoundaryInt _boundaryArea;
         private Vector2 _tmpContentPos;
         private bool _lockSlide, _firstRun;
         private float _timer = 0;
         
-        private int contentSite//偏移锚点
+        private int _contentSite//偏移锚点
         {
             get
             {
@@ -64,14 +64,32 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
         }
 
+        private int _contentExt//偏移
+        {
+            get
+            {
+                switch (_sProperty.scrollDir)
+                {
+                    case ScrollDir.TopToBottom:
+                        return _sProperty.TopExt;
+                    case ScrollDir.BottomToTop:
+                        return _sProperty.BottomExt;
+                    case ScrollDir.LeftToRight:
+                        return _sProperty.LeftExt;
+                    default:
+                        return _sProperty.RightExt;
+                }
+            }
+        }
+
         public MultipleRectCircleHelper(Transform contentTrans, Func<BaseItem<T>> createItemFunc)
         {
             _createItemFunc = createItemFunc;
             _contentRect = contentTrans as RectTransform;
             _viewRect = contentTrans.parent.GetComponent<RectTransform>();
-            _scrollRect = _viewRect.parent.GetComponent<ScrollRect>();
+            _scrollRect = _viewRect.parent.GetComponent<ScrollRect>(); 
             _sProperty = _contentRect.GetComponent<ScrollCircleComponent>();
-            if (_sProperty == null) Debug.LogError("content must have ScrollCircleComponent!");
+            if (_sProperty == null) Debug.LogError("Content must have ScrollCircleComponent!");
 
             _baseItem = _sProperty.baseItem;
             _gridLayoutGroup = _contentRect.GetComponent<GridLayoutGroup>() ?? _contentRect.gameObject.AddComponent<GridLayoutGroup>();
@@ -113,8 +131,6 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _gridLayoutGroup.padding.bottom = _sProperty.BottomExt;
             _gridLayoutGroup.spacing = new Vector2(_sProperty.WidthExt, _sProperty.HeightExt);
             _gridLayoutGroup.cellSize = _itemRect.rect.size;
-            _lookSize.Width = (int)(_maxRanks.Width * (_itemRect.rect.width + _sProperty.WidthExt) - _sProperty.WidthExt);
-            _lookSize.Height = (int)(_maxRanks.Height * (_itemRect.rect.height + _sProperty.HeightExt) - _sProperty.HeightExt);
         }
 
         private void OnResolveGroupEnum()
@@ -153,8 +169,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
 
         private void OnRefreshHandler(Vector2 v2)//刷新Item的移动
         {
-            if (!_sProperty.isSlideEnable || _lockSlide)
-                return;
+            if (_lockSlide) return;
             if (_timer <= _sProperty.refreshRatio){
                 _timer += Time.deltaTime;
                 return;
@@ -263,8 +278,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             int tmpItemIdx, tmpDataIdx;
             _tmpContentPos = _contentRect.anchoredPosition;
             _tmpContentPos.y = Mathf.Abs(_tmpContentPos.y);
-            while (_tmpContentPos.y + _viewRect.rect.height >
-                contentSite + _lookSize.Height + _sProperty.HeightExt)//向下
+            while (_tmpContentPos.y  > _contentSite  + _wholeSize.Height)//向下
             {
                 for (int i = 0; i < _maxRanks.Width; ++i)
                 {
@@ -285,10 +299,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     _dataSet.Count ? 0 : _sProperty.dataIdx + _maxRanks.Width;
                 _sProperty.itemIdx = _sProperty.itemIdx + _maxRanks.Width >=
                     _sProperty.maxItems ? 0 : _sProperty.itemIdx + _maxRanks.Width;
-                contentSite += _wholeSize.Height;
+                _contentSite += _wholeSize.Height;
                 _gridLayoutGroup.SetLayoutVertical();
             }
-            while (_tmpContentPos.y < contentSite - _sProperty.HeightExt)
+            while (_tmpContentPos.y < _contentSite - _sProperty.HeightExt)
             {
                 _sProperty.dataIdx = _sProperty.dataIdx - _maxRanks.Width < 0 ?
                     _boundaryArea.length - _maxRanks.Width : _sProperty.dataIdx - _maxRanks.Width;
@@ -310,7 +324,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                         _itemSet[tmpItemIdx].transform.localScale = Vector3.zero;
                     _itemSet[tmpItemIdx].transform.SetAsFirstSibling();
                 }
-                contentSite -= _wholeSize.Height;
+                _contentSite -= _wholeSize.Height;
                 _gridLayoutGroup.SetLayoutVertical();
             }
 
@@ -321,22 +335,30 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 _scrollRect.enabled = false;
                 tmpItemIdx = _sProperty.itemIdx;
                 _sProperty.itemIdx = _sProperty.dataIdx = 0;
-                _tmpContentPos.y = (int)_viewRect.rect.height * _boundaryArea.dir;
-                contentSite = (int)_viewRect.rect.height;
+                _contentSite = (int)_viewRect.rect.height + _sProperty.HeightExt;
+                _tmpContentPos.y = (int)(_viewRect.rect.height + _sProperty.HeightExt) * _boundaryArea.dir;
                 _contentRect.anchoredPosition = _tmpContentPos;
                 _gridLayoutGroup.SetLayoutVertical();
                 ToItemAline(tmpItemIdx);
-                RefreshItems();
+                RefreshItems();              
                 _scrollRect.enabled = true;
                 _scrollRect.velocity = tmpVelocity;
             }
 
             //强制下定位
-            if (_tmpContentPos.y <= 1)
+            else if (_tmpContentPos.y <= 1)
             {
                 Vector2 tmpVelocity = _scrollRect.velocity;
                 _scrollRect.enabled = false;
-
+                tmpItemIdx = _sProperty.itemIdx;
+                _sProperty.dataIdx = _boundaryArea.length - _sProperty.maxItems;
+                _sProperty.itemIdx = _sProperty.dataIdx % _sProperty.maxItems;
+                _contentSite = (int)_viewRect.rect.height + _sProperty.HeightExt + _sProperty.dataIdx * _wholeSize.Height / _maxRanks.Width;
+                _tmpContentPos.y = _boundaryArea.area * _boundaryArea.dir;
+                _contentRect.anchoredPosition = _tmpContentPos;
+                _gridLayoutGroup.SetLayoutVertical();
+                ToItemAline(tmpItemIdx);
+                RefreshItems();
                 _scrollRect.enabled = true;
                 _scrollRect.velocity = tmpVelocity;
             }
@@ -347,8 +369,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             int tmpItemIdx, tmpDataIdx;
             _tmpContentPos = _contentRect.anchoredPosition;
             _tmpContentPos.x = Mathf.Abs(_tmpContentPos.x);
-            while (_tmpContentPos.x + _viewRect.rect.width >
-                contentSite + _lookSize.Width + _sProperty.WidthExt)//向下
+            while (_tmpContentPos.x > _contentSite  + _sProperty.WidthExt)//向下
             {
                 for (int i = 0; i < _maxRanks.Height; ++i)
                 {
@@ -369,10 +390,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     _dataSet.Count ? 0 : _sProperty.dataIdx + _maxRanks.Height;
                 _sProperty.itemIdx = _sProperty.itemIdx + _maxRanks.Height >=
                     _sProperty.maxItems ? 0 : _sProperty.itemIdx + _maxRanks.Height;
-                contentSite += _wholeSize.Width;
+                _contentSite += _wholeSize.Width;
                 _gridLayoutGroup.SetLayoutHorizontal();
             }
-            while (_tmpContentPos.x < contentSite - _sProperty.WidthExt)
+            while (_tmpContentPos.x < _contentSite - _sProperty.WidthExt)
             {
                 _sProperty.dataIdx = _sProperty.dataIdx - _maxRanks.Height < 0 ?
                     _boundaryArea.length - _maxRanks.Height : _sProperty.dataIdx - _maxRanks.Height;
@@ -394,7 +415,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                         _itemSet[tmpItemIdx].transform.localScale = Vector3.zero;
                     _itemSet[tmpItemIdx].transform.SetAsFirstSibling();
                 }
-                contentSite -= _wholeSize.Width;
+                _contentSite -= _wholeSize.Width;
                 _gridLayoutGroup.SetLayoutHorizontal();
             }
         }
@@ -413,41 +434,41 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     _wholeSize.Height = (int)(_itemRect.rect.height + _sProperty.HeightExt);   
                     _boundaryArea.area = (int)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Width) * _wholeSize.Height;
                     _boundaryArea.length = (int)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Width) * _maxRanks.Width;
-                    contentSize.y = _boundaryArea.area;
+                    contentSize.y = _boundaryArea.area - _sProperty.HeightExt;
                     if (contentSize.y >= _viewRect.rect.height){
-                        contentSize.y += 2 * _viewRect.rect.height;
-                        contentPosition.y = (int)_viewRect.rect.height;
-                        _gridLayoutGroup.padding.top = (int)_viewRect.rect.height;
+                        contentSize.y += 2 * (_viewRect.rect.height + _sProperty.HeightExt);
+                        contentPosition.y = (int)_viewRect.rect.height + _sProperty.HeightExt;
+                        _gridLayoutGroup.padding.top = (int)_viewRect.rect.height + _sProperty.HeightExt;
                         _contentRect.anchoredPosition = contentPosition;
                     }else
                         contentSize.y = contentSize.y + _sProperty.TopExt + _sProperty.BottomExt;
                     break;
-                case ScrollDir.BottomToTop:                   
+                case ScrollDir.BottomToTop:
+                    _boundaryArea.dir = -1;
                     _contentRect.anchorMin = _contentRect.anchorMax = _contentRect.pivot = new Vector2(0.5f, 0);
                     _wholeSize.Height = (int)(_itemRect.rect.height + _sProperty.HeightExt);
                     _boundaryArea.area = (int)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Width) * _wholeSize.Height;
-                    _boundaryArea.length = (int)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Width) * _maxRanks.Width;
-                    _boundaryArea.dir = -1;
-                    contentSize.y = _boundaryArea.area;
+                    _boundaryArea.length = (int)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Width) * _maxRanks.Width;                   
+                    contentSize.y = _boundaryArea.area - _sProperty.HeightExt;
                     if (contentSize.y >= _viewRect.rect.height){
-                        contentSize.y += 2 * _viewRect.rect.height;
-                        contentPosition.y = -(int)_viewRect.rect.height;
-                        _gridLayoutGroup.padding.bottom = (int)_viewRect.rect.height;
+                        contentSize.y += 2 * (_viewRect.rect.height + _sProperty.HeightExt);
+                        contentPosition.y = -(int)_viewRect.rect.height - _sProperty.HeightExt;
+                        _gridLayoutGroup.padding.bottom = (int)_viewRect.rect.height + _sProperty.HeightExt;
                         _contentRect.anchoredPosition = contentPosition;
                     }else
                         contentSize.y = contentSize.y + _sProperty.TopExt + _sProperty.BottomExt;               
                     break;
                 case ScrollDir.LeftToRight:
+                    _boundaryArea.dir = -1;
                     _contentRect.anchorMin = _contentRect.anchorMax = _contentRect.pivot = new Vector2(0, 0.5f);
                     _wholeSize.Width = (int)(_itemRect.rect.width + _sProperty.WidthExt);              
                     _boundaryArea.area = (int)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Height) * _wholeSize.Width;
-                    _boundaryArea.length = (int)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Height) * _maxRanks.Height;
-                    _boundaryArea.dir = -1;
-                    contentSize.x = _boundaryArea.area;
+                    _boundaryArea.length = (int)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Height) * _maxRanks.Height;                
+                    contentSize.x = _boundaryArea.area - _sProperty.WidthExt;
                     if (contentSize.x >= _viewRect.rect.width){
-                        contentSize.x += 2 * _viewRect.rect.width;
-                        contentPosition.x = -(int)_viewRect.rect.width;
-                        _gridLayoutGroup.padding.left = (int)_viewRect.rect.width;
+                        contentSize.x += 2 * (_viewRect.rect.width + _sProperty.WidthExt);
+                        contentPosition.x = -(int)_viewRect.rect.width - _sProperty.WidthExt;
+                        _gridLayoutGroup.padding.left = (int)_viewRect.rect.width + _sProperty.WidthExt;
                         _contentRect.anchoredPosition = contentPosition;                       
                     }else
                         contentSize.x = contentSize.x + _sProperty.LeftExt + _sProperty.RightExt;                     
@@ -457,11 +478,11 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     _wholeSize.Width = (int)(_itemRect.rect.width + _sProperty.WidthExt);
                     _boundaryArea.area = (int)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Height) * _wholeSize.Width;
                     _boundaryArea.length = (int)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Height) * _maxRanks.Height;                   
-                    contentSize.x = _boundaryArea.area;
+                    contentSize.x = _boundaryArea.area - _sProperty.WidthExt;
                     if (contentSize.x >= _viewRect.rect.width){
-                        contentSize.x += 2 * _viewRect.rect.width;
-                        contentPosition.x = (int)_viewRect.rect.width;
-                        _gridLayoutGroup.padding.right = (int)_viewRect.rect.width;
+                        contentSize.x += 2 * (_viewRect.rect.width + _sProperty.WidthExt);
+                        contentPosition.x = (int)_viewRect.rect.width + _sProperty.WidthExt;
+                        _gridLayoutGroup.padding.right = (int)_viewRect.rect.width + _sProperty.WidthExt;
                         _contentRect.anchoredPosition = contentPosition;
                     }else
                         contentSize.x = contentSize.x + _sProperty.LeftExt + _sProperty.RightExt;
@@ -524,8 +545,8 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _tmpContentPos = _contentRect.anchoredPosition;
             _tmpContentPos.y = Mathf.Clamp(_tmpContentPos.y *
                 _boundaryArea.dir, 0,  _boundaryArea.area);
-            while (_tmpContentPos.y + _viewRect.rect.height >
-                contentSite + _lookSize.Height + _sProperty.HeightExt)//向下
+            while (_tmpContentPos.y + _contentExt >
+                _contentSite + _wholeSize.Height)//向下
             {
                 if (_sProperty.dataIdx + _maxRanks.Width >= _dataSet.Count) break;
 
@@ -548,10 +569,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 _sProperty.dataIdx = _sProperty.dataIdx + _maxRanks.Width;
                 _sProperty.itemIdx = _sProperty.itemIdx + _maxRanks.Width >=
                     _sProperty.maxItems ? 0 : _sProperty.itemIdx + _maxRanks.Width;
-                contentSite += _wholeSize.Height;
+                _contentSite += _wholeSize.Height;
                 _gridLayoutGroup.SetLayoutVertical();
             }
-            while (_tmpContentPos.y < contentSite - _sProperty.HeightExt)
+            while (_tmpContentPos.y < _contentSite - _sProperty.HeightExt)
             {
                 if (_sProperty.dataIdx <= 0) break;
                 _sProperty.dataIdx = _sProperty.dataIdx - _maxRanks.Width;
@@ -571,7 +592,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     }
                     _itemSet[tmpItemIdx].transform.SetAsFirstSibling();
                 }
-                contentSite -= _wholeSize.Height;
+                _contentSite -= _wholeSize.Height;
                 _gridLayoutGroup.SetLayoutVertical();
             }
         }
@@ -582,8 +603,8 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _tmpContentPos = _contentRect.anchoredPosition;
             _tmpContentPos.x = Mathf.Clamp(_tmpContentPos.x * 
                 _boundaryArea.dir,0, _boundaryArea.area);
-            while (_tmpContentPos.x + _viewRect.rect.width >
-                    contentSite + _lookSize.Width + _sProperty.WidthExt)
+            while (_tmpContentPos.x + _contentExt >
+                    _contentSite + _wholeSize.Width)
             {
                 if (_sProperty.dataIdx + _maxRanks.Height >= _dataSet.Count) break;
 
@@ -606,10 +627,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 _sProperty.dataIdx = _sProperty.dataIdx + _maxRanks.Height;
                 _sProperty.itemIdx = _sProperty.itemIdx + _maxRanks.Height >=
                     _sProperty.maxItems ? 0 : _sProperty.itemIdx + _maxRanks.Height;
-                contentSite += _wholeSize.Width;
+                _contentSite += _wholeSize.Width;
                 _gridLayoutGroup.SetLayoutHorizontal();
             }
-            while (_tmpContentPos.x < contentSite - _sProperty.WidthExt)
+            while (_tmpContentPos.x < _contentSite - _sProperty.WidthExt)
             {
                 if (_sProperty.dataIdx <= 0) break;
                 _sProperty.dataIdx = _sProperty.dataIdx - _maxRanks.Height;
@@ -629,7 +650,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     }
                     _itemSet[tmpItemIdx].transform.SetAsFirstSibling();
                 }
-                contentSite -= _wholeSize.Width;
+                _contentSite -= _wholeSize.Width;
                 _gridLayoutGroup.SetLayoutHorizontal();
             }
         }
@@ -641,8 +662,8 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
 
             _scrollRect.enabled = false;
             yield return new WaitForEndOfFrame();
-            while (toSeat + _viewRect.rect.height >
-                contentSite + _lookSize.Height + _sProperty.HeightExt)
+            while (toSeat + _contentExt >
+                _contentSite + _wholeSize.Height)
             {
                 if (_sProperty.dataIdx + _maxRanks.Width >= _dataSet.Count)
                 {
@@ -662,8 +683,8 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     yield break;
                 }
 
-                if (_tmpContentPos.y * _boundaryArea.dir + _viewRect.rect.height >
-                    contentSite + _lookSize.Height + _sProperty.HeightExt)
+                if (Mathf.Abs(_tmpContentPos.y) +  _contentExt>
+                    _contentSite + _wholeSize.Height)
                 {
                     for (int i = 0; i < _maxRanks.Width; ++i)
                     {
@@ -684,12 +705,12 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     _sProperty.dataIdx = _sProperty.dataIdx + _maxRanks.Width;
                     _sProperty.itemIdx = _sProperty.itemIdx + _maxRanks.Width >=
                         _sProperty.maxItems ? 0 : _sProperty.itemIdx + _maxRanks.Width;
-                    contentSite += _wholeSize.Height;
+                    _contentSite += _wholeSize.Height;
                     _gridLayoutGroup.SetLayoutVertical();
                     yield return new WaitForEndOfFrame();
                 }
             }
-            while (toSeat < contentSite - _sProperty.HeightExt)
+            while (toSeat < _contentSite - _sProperty.HeightExt)
             {
                 if (_sProperty.dataIdx <= 0)
                 {
@@ -709,7 +730,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     yield break;
                 }
 
-                if (_tmpContentPos.y * _boundaryArea.dir < contentSite - _sProperty.HeightExt)
+                if (_tmpContentPos.y * _boundaryArea.dir < _contentSite - _sProperty.HeightExt)
                 {
                     _sProperty.dataIdx = _sProperty.dataIdx - _maxRanks.Width;
                     _sProperty.itemIdx = _sProperty.itemIdx - _maxRanks.Width < 0 ?
@@ -728,7 +749,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                         }
                         _itemSet[tmpItemIdx].transform.SetAsFirstSibling();
                     }
-                    contentSite -= _wholeSize.Height;
+                    _contentSite -= _wholeSize.Height;
                     _gridLayoutGroup.SetLayoutVertical();
                     yield return new WaitForEndOfFrame();
                 }
@@ -744,8 +765,8 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             toSeat = Mathf.Clamp(toSeat, 0, _boundaryArea.area);
             _scrollRect.enabled = false;
             yield return new WaitForEndOfFrame();
-            while (toSeat + _viewRect.rect.width >
-                    contentSite + _lookSize.Width + _sProperty.WidthExt)
+            while (toSeat + _contentExt >
+                    _contentSite + _wholeSize.Width)
             {
                 if (_sProperty.dataIdx + _maxRanks.Height >= _dataSet.Count) {
                     _scrollRect.enabled = true;
@@ -763,8 +784,8 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     yield break;
                 }              
 
-                if (_tmpContentPos.x * _boundaryArea.dir + _viewRect.rect.width >
-                    contentSite + _lookSize.Width + _sProperty.WidthExt)
+                if (Mathf.Abs(_tmpContentPos.x) + _contentExt >
+                    _contentSite + _wholeSize.Width)
                 {
                     for (int i = 0; i < _maxRanks.Height; ++i)
                     {
@@ -785,12 +806,12 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     _sProperty.dataIdx = _sProperty.dataIdx + _maxRanks.Height;
                     _sProperty.itemIdx = _sProperty.itemIdx + _maxRanks.Height >=
                         _sProperty.maxItems ? 0 : _sProperty.itemIdx + _maxRanks.Height;
-                    contentSite += _wholeSize.Width;
+                    _contentSite += _wholeSize.Width;
                     _gridLayoutGroup.SetLayoutHorizontal();
                     yield return new WaitForEndOfFrame();
                 }
             }
-            while (toSeat < contentSite - _sProperty.WidthExt)
+            while (toSeat < _contentSite - _sProperty.WidthExt)
             {
                 if (_sProperty.dataIdx <= 0) {
                     _scrollRect.enabled = true;
@@ -808,7 +829,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     yield break;
                 }
 
-                if (_tmpContentPos.x * _boundaryArea.dir < contentSite - _sProperty.WidthExt)
+                if (_tmpContentPos.x * _boundaryArea.dir < _contentSite - _sProperty.WidthExt)
                 {
                     _sProperty.dataIdx = _sProperty.dataIdx - _maxRanks.Height;
                     _sProperty.itemIdx = _sProperty.itemIdx - _maxRanks.Height < 0 ?
@@ -827,7 +848,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                         }
                         _itemSet[tmpItemIdx].transform.SetAsFirstSibling();
                     }
-                    contentSite -= _wholeSize.Width;
+                    _contentSite -= _wholeSize.Width;
                     _gridLayoutGroup.SetLayoutHorizontal();
                     yield return new WaitForEndOfFrame();
                 }
@@ -846,24 +867,22 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _tmpContentPos.y = toSeat * _boundaryArea.dir;
             _contentRect.anchoredPosition = _tmpContentPos;
 
-            int tmpItemIdx;
-            if (Mathf.Abs(_tmpContentPos.y) + _viewRect.rect.height >
-                    contentSite + _lookSize.Height + _sProperty.HeightExt)//向下
+            int tmpItemIdx, tmpRow;
+            if (Mathf.Abs(_tmpContentPos.y) > _contentSite + _wholeSize.Height)//向下
             {
                 tmpItemIdx = _sProperty.itemIdx;
-                int tmpRow = (int)Math.Ceiling((Mathf.Abs(_tmpContentPos.y) + _viewRect.rect.height
-                        - contentSite - _lookSize.Height - _sProperty.HeightExt) / _wholeSize.Height);
-                contentSite += _wholeSize.Height * tmpRow;
+                tmpRow = (int)(Mathf.Abs(_tmpContentPos.y) - _contentSite) / _wholeSize.Height;
+                _contentSite += _wholeSize.Height * tmpRow;
                 _sProperty.dataIdx = _sProperty.dataIdx + _maxRanks.Width * tmpRow;
                 _sProperty.itemIdx = (tmpItemIdx + _maxRanks.Width * tmpRow) % _sProperty.maxItems;
                 ToItemAline(tmpItemIdx);
             }
-            else if (Mathf.Abs(_tmpContentPos.y) * _boundaryArea.dir < contentSite - _sProperty.HeightExt)
+            else if (Mathf.Abs(_tmpContentPos.y) < _contentSite - _sProperty.HeightExt)
             {
                 tmpItemIdx = _sProperty.itemIdx;
-                int tmpRow = (int)Math.Ceiling((contentSite
-                    - _sProperty.HeightExt - Mathf.Abs(_tmpContentPos.y)) / _wholeSize.Height);
-                contentSite -= _wholeSize.Height * tmpRow;
+                tmpRow = (int)Math.Ceiling((_contentSite - Mathf.Abs(_tmpContentPos.y)
+                    - _contentExt) / _wholeSize.Height);
+                _contentSite -= _wholeSize.Height * tmpRow;
                 _sProperty.dataIdx = _sProperty.dataIdx - _maxRanks.Width * tmpRow;
                 _sProperty.itemIdx = tmpItemIdx - _maxRanks.Width * tmpRow;
                 _sProperty.itemIdx = _sProperty.itemIdx < 0 ? _sProperty.maxItems - _maxRanks.Width : _sProperty.itemIdx;
@@ -882,24 +901,22 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _tmpContentPos.x = toSeat * _boundaryArea.dir;
             _contentRect.anchoredPosition = _tmpContentPos;
 
-            int tmpItemIdx;
-            if (Mathf.Abs(_tmpContentPos.x) + _viewRect.rect.width >
-                    contentSite + _lookSize.Width + _sProperty.WidthExt)//向下
+            int tmpItemIdx, tmpColumn;
+            if (Mathf.Abs(_tmpContentPos.x) > _contentSite + _wholeSize.Width)//向下
             {
                 tmpItemIdx = _sProperty.itemIdx;
-                int tmpColumn = (int)Math.Ceiling((Mathf.Abs(_tmpContentPos.x) + _viewRect.rect.width
-                        - contentSite - _lookSize.Width - _sProperty.WidthExt) / _wholeSize.Width);
-                contentSite += _wholeSize.Width * tmpColumn;
+                tmpColumn = (int)(Mathf.Abs(_tmpContentPos.x) - _contentSite) / _wholeSize.Width;
+                _contentSite += _wholeSize.Width * tmpColumn;
                 _sProperty.dataIdx = _sProperty.dataIdx + _maxRanks.Height * tmpColumn;
                 _sProperty.itemIdx = (tmpItemIdx + _maxRanks.Height * tmpColumn) % _sProperty.maxItems;
                 ToItemAline(tmpItemIdx);
             }
-            else if (Mathf.Abs(_tmpContentPos.x) < contentSite - _sProperty.HeightExt)
+            else if (Mathf.Abs(_tmpContentPos.x) < _contentSite - _sProperty.HeightExt)
             {
                 tmpItemIdx = _sProperty.itemIdx;
-                int tmpColumn = (int)Math.Ceiling((contentSite
-                    - _sProperty.HeightExt - Mathf.Abs(_tmpContentPos.x)) / _wholeSize.Width);
-                contentSite -= _wholeSize.Width * tmpColumn;
+                tmpColumn = (int)Math.Ceiling((_contentSite - Mathf.Abs(_tmpContentPos.x)
+                    - _contentExt) / _wholeSize.Width);
+                _contentSite -= _wholeSize.Width * tmpColumn;
                 _sProperty.dataIdx = _sProperty.dataIdx - _maxRanks.Height * tmpColumn;
                 _sProperty.itemIdx = tmpItemIdx - _maxRanks.Height * tmpColumn;
                 _sProperty.itemIdx = _sProperty.itemIdx < 0 ? _sProperty.maxItems - _maxRanks.Height : _sProperty.itemIdx;
