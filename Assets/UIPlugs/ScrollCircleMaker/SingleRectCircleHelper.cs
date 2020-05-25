@@ -13,26 +13,7 @@ namespace UIPlugs.ScrollCircleMaker       //单行矩形滑动循环  支持不�
 {
     public class SingleRectCircleHelper<T> : BaseScrollCircleHelper<T>
     {
-        public override void OnStart(List<T> _tmpDataSet = null)
-        {
-            
-        }
-        public override void OnDestroy()
-        {
-            throw new NotImplementedException();
-        }
-
         public override void AddItem(T data, int itemIdx = -1)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UpdateItem(T data, int itemIdx)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void ResetItems()
         {
             throw new NotImplementedException();
         }
@@ -42,7 +23,22 @@ namespace UIPlugs.ScrollCircleMaker       //单行矩形滑动循环  支持不�
             throw new NotImplementedException();
         }
 
-        public override void ToLocation(int locationNode, bool isDrawEnable = true)
+        public override void OnStart(List<T> _tmpDataSet = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ResetItems()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ToBottom(bool isDrawEnable = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ToLocation(int toSeat, bool isDrawEnable = true)
         {
             throw new NotImplementedException();
         }
@@ -52,7 +48,12 @@ namespace UIPlugs.ScrollCircleMaker       //单行矩形滑动循环  支持不�
             throw new NotImplementedException();
         }
 
-        public override void ToBottom(bool isDrawEnable = true)
+        public override void UpdateItem(T data, int itemIdx)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnRefreshHandler(Vector2 v2)
         {
             throw new NotImplementedException();
         }

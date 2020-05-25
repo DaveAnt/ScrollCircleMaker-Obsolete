@@ -6,6 +6,7 @@
 //------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace UIPlugs.ScrollCircleMaker
 {
@@ -52,6 +53,11 @@ namespace UIPlugs.ScrollCircleMaker
         }
 
         public override void UpdateItem(T data, int itemIdx)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnRefreshHandler(Vector2 v2)
         {
             throw new NotImplementedException();
         }

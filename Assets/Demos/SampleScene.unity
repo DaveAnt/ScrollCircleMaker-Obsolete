@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311992, g: 0.38074034, b: 0.35872713, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -362,19 +362,18 @@ MonoBehaviour:
     type: 3}
   _baseHelperIdx: 1
   _scrollType: 0
-  _scrollDir: 0
+  _scrollDir: 2
   _scrollSort: 1
   _refreshRatio: 0
-  _autoMoveRatio: 10
+  _autoMoveRatio: 30
   _padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  _spacing: {x: 10, y: 10}
+    m_Left: 200
+    m_Right: 200
+    m_Top: 100
+    m_Bottom: 300
+  _spacing: {x: 50, y: 50}
   _isUpdateEnable: 0
   _isCircleEnable: 1
-  _isSlideEnable: 1
   _limitNum: 0
   _dataIdx: 0
   _itemIdx: 0
