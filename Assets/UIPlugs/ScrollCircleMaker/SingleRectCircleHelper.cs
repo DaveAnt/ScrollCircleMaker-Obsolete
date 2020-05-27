@@ -11,11 +11,33 @@ using UnityEngine.UI;
 
 namespace UIPlugs.ScrollCircleMaker       //单行矩形滑动循环  支持不规则长宽 聊天框，收纳框等等
 {
-    public class SingleRectCircleHelper<T> : BaseScrollCircleHelper<T>
+    public class SingleRectCircleHelper<T> : BaseCircleHelper<T>
     {
+        public SingleRectCircleHelper(Transform contentTrans, Func<BaseItem<T>> createItemFunc)
+        {
+
+        }
+        protected override void OnRefreshHandler(Vector2 v2)
+        {
+            
+        }
+
+        public override void OnStart(List<T> _tmpDataSet = null)
+        {
+            
+        }
+
         public override void AddItem(T data, int itemIdx = -1)
         {
-            throw new NotImplementedException();
+            
+        }
+        public override void UpdateItem(T data, int itemIdx)
+        {
+            
+        }
+        public override void ResetItems()
+        {
+            
         }
 
         public override int GetLocation()
@@ -23,39 +45,19 @@ namespace UIPlugs.ScrollCircleMaker       //单行矩形滑动循环  支持不�
             throw new NotImplementedException();
         }
 
-        public override void OnStart(List<T> _tmpDataSet = null)
+        public override void ToLocation(int toSeat, bool isDrawEnable = true)
         {
-            throw new NotImplementedException();
-        }
-
-        public override void ResetItems()
-        {
-            throw new NotImplementedException();
+            
         }
 
         public override void ToBottom(bool isDrawEnable = true)
         {
-            throw new NotImplementedException();
-        }
-
-        public override void ToLocation(int toSeat, bool isDrawEnable = true)
-        {
-            throw new NotImplementedException();
+            
         }
 
         public override void ToTop(bool isDrawEnable = true)
         {
-            throw new NotImplementedException();
-        }
-
-        public override void UpdateItem(T data, int itemIdx)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void OnRefreshHandler(Vector2 v2)
-        {
-            throw new NotImplementedException();
+            
         }
     }
 }

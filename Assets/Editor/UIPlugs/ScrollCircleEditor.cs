@@ -4,8 +4,10 @@
 // Homepage: https://dagamestudio.top/
 // Github: https://github.com/DaveAnt/ScollCircleMaker
 //------------------------------------------------------------
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq.Expressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -55,7 +57,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         static bool itemPostfix = true;
         static bool makerPostfix = true;
         static bool forceGenerate = false;
-        static List<string> helperNames;
+        static List<string> helperNames = new List<string>();
         private void OnGUI()
         {
             //输入框控件        
@@ -107,38 +109,52 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Generate", GUILayout.Width(240)))
             {
-                if (saveMakerName == string.Empty)
-                {
-                    this.ShowNotification(new GUIContent("MakerName Empty!"));
+                if (saveMakerName == string.Empty ||
+                    saveItemName == string.Empty ||
+                    saveDataType == string.Empty ||
+                    savePath == string.Empty){
+                    Debug.LogError("please fill in !!!");
+                    ShowNotification(new GUIContent("Empty!"));
                     return;
                 }
-
-                if (saveItemName == string.Empty)
+                if (!Directory.Exists(savePath) ||
+                    !isLetterMark(saveMakerName[0])||
+                    !isLetterMark(saveItemName[0]) ||
+                    !isLetterMark(saveDataType[0]))
                 {
-                    this.ShowNotification(new GUIContent("ItemName Empty!"));
+                    Debug.LogError("invalid path or first character is not a letter");
+                    ShowNotification(new GUIContent("Invalid!"));
                     return;
                 }
-
-                if (saveDataType == string.Empty)
+                string tmpMakerName = saveMakerName, tmpItemName = saveItemName;
+                if (makerPostfix) tmpMakerName += "Maker";
+                if (itemPostfix) tmpItemName += "Item";
+                string filePath = savePath + tmpMakerName + ".cs";
+                try
                 {
-                    this.ShowNotification(new GUIContent("TypeName Empty!"));
-                    return;
+                    string helperName = helperNames[selectHepler].Substring(26);
+                    string tmpTemplate = File.ReadAllText(@"Assets\Editor\UIPlugs\TemplateMaker");
+                    tmpTemplate = string.Format(tmpTemplate,'{','}', tmpMakerName, saveDataType, helperName, tmpItemName);
+                    if (File.Exists(filePath))
+                    {
+                        if (!forceGenerate)
+                        {
+                            Debug.LogWarning("maker already exists, you can try to tick force");
+                            ShowNotification(new GUIContent("Exist!"));
+                            return;
+                        }                           
+                        File.Delete(filePath);
+                    }                  
+                    using (File.Create(filePath)){}
+                    File.WriteAllText(filePath, tmpTemplate);
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
+                    ShowNotification(new GUIContent("Success!"));
                 }
-
-                if (savePath == string.Empty)
+                catch (Exception e)
                 {
-                    this.ShowNotification(new GUIContent("SavePath Empty!"));
-                    return;
-                }
-
-                string templateMaker = File.ReadAllText(@"Assets\Editor\UIPlugs\TemplateMaker");
-                string helperName = helperNames[selectHepler].Substring(26);
-                Debug.LogError(helperName);
-                templateMaker = string.Format(templateMaker, saveMakerName+"Maker", saveDataType,helperNames[selectHepler],saveItemName+"Item");
-                File.WriteAllText(savePath,templateMaker);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
-                this.ShowNotification(new GUIContent("Success!"));
+                    Debug.LogError(e.Message);
+                }              
             }
             forceGenerate = EditorGUILayout.ToggleLeft("Force", forceGenerate);
             EditorGUILayout.EndHorizontal();
@@ -146,7 +162,14 @@ namespace UIPlugs.ScrollCircleMaker.Editor
 
         private void OnEnable()
         {
-            helperNames = TypesObtainer<BaseScrollCircleHelper<dynamic>>.GetNames();
+            helperNames.Clear();
+            foreach (var helperName in TypesObtainer<BaseCircleHelper<dynamic>>.GetNames())
+                helperNames.Add(helperName.Substring(0, helperName.Length - 2));
+        }
+
+        private bool isLetterMark(char Symbol)
+        {
+            return (Symbol >= 'a' && Symbol <= 'z') || (Symbol >= 'A' && Symbol <= 'Z');
         }
 
         private string OpenFolder()

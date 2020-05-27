@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 namespace UIPlugs.ScrollCircleMaker
 {
-    public abstract class BaseScrollCircleHelper<T>
+    public abstract class BaseCircleHelper<T>
     {
         protected List<T> _dataSet;
         protected List<BaseItem<T>> _itemSet;
@@ -39,6 +39,7 @@ namespace UIPlugs.ScrollCircleMaker
         public virtual void OnDestroy()
         {
             _toLocationEvent = null;
+            _createItemFunc = null;
             _scrollRect.onValueChanged.RemoveListener(OnRefreshHandler);
             _dataSet.Clear();
             _itemSet.Clear();

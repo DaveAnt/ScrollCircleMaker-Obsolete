@@ -7,38 +7,38 @@
 using UnityEngine;
 using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
-{0}
-    public class {2} : BaseCircleMaker<{3}>
-    {0}
+{
+    public class heroMaker : BaseCircleMaker<int>
+    {
         public override void OnStart(Transform transform)
-        {0}
-            baseHelper = new {4}<{3}>(transform,()=> {0}
-                return new {5}();
-            {1});
+        {
+            baseHelper = new MultipleRectCircleHelper<int>(transform,()=> {
+                return new shapItem();
+            });
             //How to load data?
-        {1}
-    {1}
+        }
+    }
     //How to update item?
-    public class {5} : BaseItem<{3}>
-    {0}
+    public class shapItem : BaseItem<int>
+    {
         public override void InitComponents()
-        {0}
+        {
             
-        {1}
+        }
 
         public override void InitEvents()
-        {0}
+        {
             
-        {1}
+        }
 
         public override void OnDestroy()
-        {0}
+        {
             
-        {1}
+        }
 
         public override void UpdateView(int data)
-        {0}
+        {
 
-        {1}
-    {1}
-{1}
+        }
+    }
+}

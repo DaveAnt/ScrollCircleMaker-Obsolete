@@ -8,20 +8,30 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
 {
-    public class testCircleMaker : BaseScrollCircleMaker<int>
+    public class testCircleMaker : BaseCircleMaker<int>
     {
         public override void OnStart(Transform transform)
         {
-            baseCircleHelper = new MultipleRectCircleHelper<int>(transform,()=> {
+            baseHelper = new MultipleRectCircleHelper<int>(transform,()=> {
                 return new HeroaItem();
             });
-            for (int i = 0; i < 98; ++i)
-                baseCircleHelper.AddItem(i);
-            baseCircleHelper.OnStart();
+            for (int i = 0; i < 3784; ++i)
+                baseHelper.AddItem(i);
+            baseHelper.OnStart();
+            baseHelper.ToLocation(100, false);
+            baseHelper.UpdateItem(-1,3760);
+            //baseHelper.UpdateItem(10000000,264);
             //baseCircleHelper.toLocationEvent += MoveOk;
-            //baseCircleHelper.ToLocation(10000,false);
+            //baseCircleHelper.ToLocation(10000, true);
+            //baseCircleHelper.toLocationEvent += MoveOk;
             //baseCircleHelper.ToBottom(false);
+            //baseHelper.ToBottom(true);
             //baseCircleHelper.ToTop(false);
+        }
+
+        public void MoveOk()
+        {
+           // Debug.LogError("1111111");
         }
     }
 

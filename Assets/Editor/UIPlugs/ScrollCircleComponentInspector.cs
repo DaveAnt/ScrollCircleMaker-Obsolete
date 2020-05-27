@@ -24,7 +24,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
 
         private int m_MakerIdx;
         private List<string> makerNames;
-        private List<string> helperNames;       
+        private List<string> helperNames = new List<string>();       
         private SerializedProperty baseItem;
         private SerializedProperty baseHelperIdx;
         private SerializedProperty scrollMaker;
@@ -110,8 +110,10 @@ namespace UIPlugs.ScrollCircleMaker.Editor
 
         private void OnEnable()
         {
-            makerNames = TypesObtainer<BaseScrollCircleMaker<dynamic>>.GetNames();
-            helperNames = TypesObtainer<BaseScrollCircleHelper<dynamic>>.GetNames();
+            helperNames.Clear();
+            foreach (var helperName in TypesObtainer<BaseCircleHelper<dynamic>>.GetNames())
+                helperNames.Add(helperName.Substring(0, helperName.Length - 2));
+            makerNames = TypesObtainer<BaseCircleMaker<dynamic>>.GetNames();
             scrollMaker = serializedObject.FindProperty("_scrollMaker");
             baseHelperIdx = serializedObject.FindProperty("_baseHelperIdx");
             baseItem = serializedObject.FindProperty("_baseItem");
@@ -122,7 +124,6 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             autoMoveRatio = serializedObject.FindProperty("_autoMoveRatio");
             padding = serializedObject.FindProperty("_padding");
             spacing = serializedObject.FindProperty("_spacing");
-
             isUpdateEnable = serializedObject.FindProperty("_isUpdateEnable");
             isCircleEnable = serializedObject.FindProperty("_isCircleEnable");
             limitNum = serializedObject.FindProperty("_limitNum");
@@ -130,9 +131,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             dataIdx = serializedObject.FindProperty("_dataIdx");
             maxItems = serializedObject.FindProperty("_maxItems");
             initItems = serializedObject.FindProperty("_initItems");
-
             m_MakerIdx = makerNames.IndexOf(scrollMaker.stringValue);
-
             //Maker的宏定义相关设置
             for (int i = 1; i < ScrollCircleDefine.Length; ++i)//移除不相关宏
             {
