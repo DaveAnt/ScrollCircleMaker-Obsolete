@@ -503,7 +503,7 @@ PlayerSettings:
   webGLLinkerTarget: 1
   webGLThreadsSupport: 0
   scriptingDefineSymbols:
-    1: IsMutipleHelper
+    1: IsMutipleHelper;IsCircleEnable
     7: IsMutipleHelper
     13: IsCircleEnable
   platformArchitecture: {}

@@ -8,11 +8,11 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
 {
-    public class heroMaker : BaseCircleMaker<int>
+    public class test2CircleMaker : BaseCircleMaker<int>
     {
         public override void OnStart(Transform transform)
         {
-            baseHelper = new MultipleRectCircleHelper<int>(transform,()=> {
+            baseHelper = new SingleRectCircleHelper<int>(transform,()=> {
                 return new shapItem();
             });
             //How to load data?

@@ -18,7 +18,7 @@ namespace UIPlugs.ScrollCircleMaker
             for (int i = 0; i < 3784; ++i)
                 baseHelper.AddItem(i);
             baseHelper.OnStart();
-            //baseHelper.ToLocation(1000000000);
+           // baseHelper.ToLocation(10000);
         }
 
         public void MoveOk()

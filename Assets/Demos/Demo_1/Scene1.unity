@@ -352,7 +352,7 @@ MonoBehaviour:
   _scrollDir: 0
   _scrollSort: 0
   _refreshRatio: 0
-  _autoMoveRatio: 70
+  _autoMoveRatio: 20
   _padding:
     m_Left: 200
     m_Right: 200
@@ -360,7 +360,7 @@ MonoBehaviour:
     m_Bottom: 100
   _spacing: {x: 50, y: 1}
   _isUpdateEnable: 0
-  _isCircleEnable: 0
+  _isCircleEnable: 1
   _limitNum: 4
   _dataIdx: 0
   _itemIdx: 0

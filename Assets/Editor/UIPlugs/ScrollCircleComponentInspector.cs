@@ -14,14 +14,6 @@ namespace UIPlugs.ScrollCircleMaker.Editor
     [CustomEditor(typeof(ScrollCircleComponent))]
     internal sealed class ScrollCircleComponentInspector : UnityEditor.Editor
     {
-        public static string[] ScrollCircleDefine =
-        {
-            "IsCircleEnable",
-            "IsCustomHelper",
-            "IsMutipleHelper",
-            "IsSingleHelper"
-        };
-
         private int m_MakerIdx;
         private List<string> makerNames;
         private List<string> helperNames = new List<string>();       
@@ -38,6 +30,9 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         private SerializedProperty isUpdateEnable;
         private SerializedProperty isCircleEnable;
         private SerializedProperty limitNum;
+        //单行矩形滑动循环
+        private SerializedProperty scaleFactor;
+        private SerializedProperty alphaFactor;
         //编辑器运行时显示
         private SerializedProperty maxItems;
         private SerializedProperty initItems;
@@ -53,11 +48,11 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                     EditorGUILayout.HelpBox("You must set BaseItem", MessageType.Error);
                 int helperIndex = EditorGUILayout.Popup("Base Helper", baseHelperIdx.intValue, helperNames.ToArray());
                 if (helperIndex != baseHelperIdx.intValue)
-                {
-                    //改变宏开关
-                    RemoveScriptingSymbol(ScrollCircleDefine[baseHelperIdx.intValue + 1]);
-                    AddScriptingSymbol(ScrollCircleDefine[helperIndex + 1]);
                     baseHelperIdx.intValue = helperIndex;
+                if (helperIndex == 2)
+                {
+                    scaleFactor.floatValue = (EditorGUILayout.IntSlider("Scale Factor", (int)(scaleFactor.floatValue * 10), 1, 10)) / 10f;
+                    alphaFactor.floatValue = (EditorGUILayout.IntSlider("Alpha Factor", (int)(alphaFactor.floatValue * 10), 1, 10)) / 10f;
                 }
                 if (baseHelperIdx.intValue == -1)
                     EditorGUILayout.HelpBox("You must set BaseHelper", MessageType.Error);
@@ -99,12 +94,6 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                 }
             }
             EditorGUI.EndDisabledGroup();
-
-            if (isCircleEnable.boolValue && !IsScriptingSymbolEnabled(ScrollCircleDefine[0]))
-                AddScriptingSymbol(ScrollCircleDefine[0]);
-            else if (!isCircleEnable.boolValue && IsScriptingSymbolEnabled(ScrollCircleDefine[0]))
-                RemoveScriptingSymbol(ScrollCircleDefine[0]);
-
             serializedObject.ApplyModifiedProperties();
         }
 
@@ -131,20 +120,9 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             dataIdx = serializedObject.FindProperty("_dataIdx");
             maxItems = serializedObject.FindProperty("_maxItems");
             initItems = serializedObject.FindProperty("_initItems");
+            scaleFactor = serializedObject.FindProperty("_scaleFactor");
+            alphaFactor = serializedObject.FindProperty("_alphaFactor");
             m_MakerIdx = makerNames.IndexOf(scrollMaker.stringValue);
-            //Maker的宏定义相关设置
-            for (int i = 1; i < ScrollCircleDefine.Length; ++i)//移除不相关宏
-            {
-                if (i == baseHelperIdx.intValue + 1) continue;
-                if (IsScriptingSymbolEnabled(ScrollCircleDefine[i]))
-                    RemoveScriptingSymbol(ScrollCircleDefine[i]);
-            }
-            if (!IsScriptingSymbolEnabled(ScrollCircleDefine[baseHelperIdx.intValue + 1]))
-                AddScriptingSymbol(ScrollCircleDefine[baseHelperIdx.intValue + 1]);            
-            if (isCircleEnable.boolValue && !IsScriptingSymbolEnabled(ScrollCircleDefine[0]))
-                AddScriptingSymbol(ScrollCircleDefine[0]);
-            else if (!isCircleEnable.boolValue && IsScriptingSymbolEnabled(ScrollCircleDefine[0]))
-                RemoveScriptingSymbol(ScrollCircleDefine[0]);
         }
 
         //移除宏定义

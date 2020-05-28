@@ -21,12 +21,10 @@ namespace UIPlugs.ScrollCircleMaker       //单行矩形滑动循环  支持不�
         {
             
         }
-
         public override void OnStart(List<T> _tmpDataSet = null)
         {
             
         }
-
         public override void AddItem(T data, int itemIdx = -1)
         {
             
@@ -39,7 +37,6 @@ namespace UIPlugs.ScrollCircleMaker       //单行矩形滑动循环  支持不�
         {
             
         }
-
         public override int GetLocation()
         {
             throw new NotImplementedException();
