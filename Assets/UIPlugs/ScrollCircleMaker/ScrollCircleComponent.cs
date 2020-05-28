@@ -6,6 +6,8 @@
 //------------------------------------------------------------
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
+
 namespace UIPlugs.ScrollCircleMaker
 {
     public struct Size
@@ -52,6 +54,7 @@ namespace UIPlugs.ScrollCircleMaker
     {
         Default, //默认  
         Limit, //限速 
+        Drag, //拖动
     }
 
     public class ScrollCircleComponent : MonoBehaviour
@@ -248,6 +251,5 @@ namespace UIPlugs.ScrollCircleMaker
         {
             baseMaker?.OnDestroy();
         }
-
     }
 }

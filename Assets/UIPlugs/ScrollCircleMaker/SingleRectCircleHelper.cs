@@ -15,7 +15,7 @@ namespace UIPlugs.ScrollCircleMaker       //单行矩形滑动循环  支持不�
     {
         public SingleRectCircleHelper(Transform contentTrans, Func<BaseItem<T>> createItemFunc)
         {
-
+            
         }
         protected override void OnRefreshHandler(Vector2 v2)
         {

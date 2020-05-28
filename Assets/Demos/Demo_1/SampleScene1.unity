@@ -305,7 +305,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1483326265}
   - component: {fileID: 1483326267}
-  - component: {fileID: 1483326266}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -332,18 +331,6 @@ RectTransform:
   m_AnchoredPosition: {x: -0.00018310547, y: 0}
   m_SizeDelta: {x: 1197.7, y: 750}
   m_Pivot: {x: 1, y: 0.5}
---- !u!122 &1483326266
-Halo:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1483326264}
-  m_Enabled: 1
-  m_Color:
-    serializedVersion: 2
-    rgba: 4286611584
-  m_Size: 5
 --- !u!114 &1483326267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -362,19 +349,19 @@ MonoBehaviour:
     type: 3}
   _baseHelperIdx: 1
   _scrollType: 0
-  _scrollDir: 2
-  _scrollSort: 1
+  _scrollDir: 0
+  _scrollSort: 0
   _refreshRatio: 0
-  _autoMoveRatio: 30
+  _autoMoveRatio: 70
   _padding:
     m_Left: 200
     m_Right: 200
-    m_Top: 100
-    m_Bottom: 300
-  _spacing: {x: 50, y: 50}
+    m_Top: 133
+    m_Bottom: 100
+  _spacing: {x: 50, y: 1}
   _isUpdateEnable: 0
-  _isCircleEnable: 1
-  _limitNum: 0
+  _isCircleEnable: 0
+  _limitNum: 4
   _dataIdx: 0
   _itemIdx: 0
   _maxItems: 0
@@ -542,8 +529,8 @@ MonoBehaviour:
   m_Vertical: 1
   m_MovementType: 1
   m_Elasticity: 0.1
-  m_Inertia: 1
-  m_DecelerationRate: 0.135
+  m_Inertia: 0
+  m_DecelerationRate: 0.2
   m_ScrollSensitivity: 1
   m_Viewport: {fileID: 2051051053}
   m_HorizontalScrollbar: {fileID: 0}
