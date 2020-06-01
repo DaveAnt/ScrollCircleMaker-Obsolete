@@ -15,30 +15,34 @@ namespace UIPlugs.ScrollCircleMaker
             baseHelper = new SingleRectCircleHelper<int>(transform,()=> {
                 return new shapItem();
             });
+            for (int i = 0; i < 3784; ++i)
+                baseHelper.AddItem(i);
+            baseHelper.OnStart();
             //How to load data?
         }
     }
     //How to update item?
     public class shapItem : BaseItem<int>
     {
+        Text text;
         public override void InitComponents()
         {
-            
+            text = _transform.Find("Text").GetComponent<Text>();
         }
 
         public override void InitEvents()
         {
-            
+
         }
 
         public override void OnDestroy()
         {
-            
+
         }
 
         public override void UpdateView(int data)
         {
-
+            text.text = data.ToString();
         }
     }
 }

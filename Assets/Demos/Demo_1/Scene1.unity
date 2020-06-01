@@ -358,7 +358,7 @@ MonoBehaviour:
     m_Right: 200
     m_Top: 133
     m_Bottom: 100
-  _spacing: {x: 50, y: 1}
+  _spacing: {x: 155, y: 150}
   _isUpdateEnable: 0
   _isCircleEnable: 1
   _limitNum: 4
@@ -366,6 +366,8 @@ MonoBehaviour:
   _itemIdx: 0
   _maxItems: 0
   _initItems: 0
+  _scaleFactor: 1
+  _alphaFactor: 1
 --- !u!1 &1956533081
 GameObject:
   m_ObjectHideFlags: 0

@@ -31,22 +31,48 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         [MenuItem("ScrollCircleMaker/Clear Order/Clear All Makers")]
         private static void ClerAllMakers()
         {
-            
+            List<string> baseMakers = TypesObtainer<BaseCircleMaker<dynamic>>.GetScripts();
+            List<string> resultFiles = new List<string>();
+            GetDirs("Assets/",baseMakers,resultFiles);
+            foreach (var fileName in resultFiles)
+            {
+                if (File.Exists(fileName))
+                    File.Delete(fileName);
+            }
+            AssetDatabase.Refresh();
         }
         [MenuItem("ScrollCircleMaker/Clear Order/Clear MultipleRect Maker")]
         private static void ClerMultipleRectMaker()
         {
-            
+            List<string> resultFiles = SeekFeatureMaker("MultipleRectCircleHelper");
+            foreach (var fileName in resultFiles)
+            {
+                if (File.Exists(fileName))
+                    File.Delete(fileName);
+            }
+            AssetDatabase.Refresh();
         }
         [MenuItem("ScrollCircleMaker/Clear Order/Clear SingleRect Maker")]
         private static void ClerSingleRectMaker()
         {
-            
+            List<string> resultFiles = SeekFeatureMaker("SingleRectCircleHelper");
+            foreach (var fileName in resultFiles)
+            {
+                if (File.Exists(fileName))
+                    File.Delete(fileName);
+            }
+            AssetDatabase.Refresh();
         }
         [MenuItem("ScrollCircleMaker/Clear Order/Clear CustomRect Maker")]
         private static void ClerCustomRectMaker()
         {
-            
+            List<string> resultFiles = SeekFeatureMaker("CustomRectCircleHelper");
+            foreach (var fileName in resultFiles)
+            {
+                if (File.Exists(fileName))
+                    File.Delete(fileName);
+            }
+            AssetDatabase.Refresh();
         }
 
         static string savePath = string.Empty;
@@ -186,5 +212,92 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             return tmpPath + '/';
         }
 
+        public static void GetDirs(string seekPath,List<string> seekFiles,List<string> resultFiles)//得到所有文件夹
+        {
+            string[] files = Directory.GetFiles(seekPath);//得到文件
+            for (int i = seekFiles.Count - 1; i >= 0; --i)
+            {
+                for (int j = 0; j < files.Length; ++j)
+                {
+                    if (files[j].Contains(seekFiles[i]))
+                    {
+                        resultFiles.Add(files[j].Replace("\\", "/"));
+                        seekFiles.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+            if (seekFiles.Count == 0)
+                return;
+            try
+            {
+                string[] dirs = Directory.GetDirectories(seekPath.Replace("\\", "/"));
+                foreach (string dir in dirs)
+                    GetDirs(dir.Replace("\\", "/"),seekFiles,resultFiles);//递归
+            }
+            catch
+            {
+
+            }
+        }
+
+        //移除宏定义
+        public static void RemoveScriptingSymbol(string symbol)
+        {
+            string symbolsString = PlayerSettings.GetScriptingDefineSymbolsForGroup(
+                EditorUserBuildSettings.selectedBuildTargetGroup);
+            string[] symbols = symbolsString.Split(';');
+            symbolsString = "";
+            foreach (string s in symbols)
+            {
+                if (!s.StartsWith(symbol))
+                {
+                    if (symbolsString.Length > 0)
+                        symbolsString += ';';
+                    symbolsString += s;
+                }
+            }
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(
+                EditorUserBuildSettings.selectedBuildTargetGroup, symbolsString);
+        }
+
+        //添加宏定义
+        public static void AddScriptingSymbol(string symbol)
+        {
+            if (!IsScriptingSymbolEnabled(symbol))
+            {
+                string symbolsString = PlayerSettings.GetScriptingDefineSymbolsForGroup(
+                        EditorUserBuildSettings.selectedBuildTargetGroup) + ";" + symbol;
+                PlayerSettings.SetScriptingDefineSymbolsForGroup(
+                    EditorUserBuildSettings.selectedBuildTargetGroup, symbolsString);
+            }
+        }
+
+        //判断宏定义是否存在
+        public static bool IsScriptingSymbolEnabled(string symbol)
+        {
+            string symbolsString = PlayerSettings.GetScriptingDefineSymbolsForGroup(
+                EditorUserBuildSettings.selectedBuildTargetGroup);
+            return symbolsString.Contains(symbol);
+        }
+
+        //寻找特征解决方案
+        public static List<string> SeekFeatureMaker(string helperName)
+        {
+            List<string> baseMakers = TypesObtainer<BaseCircleMaker<dynamic>>.GetScripts();
+            List<string> resultFiles = new List<string>();
+            GetDirs("Assets/", baseMakers, resultFiles);
+            string tmpContent;
+            for (int i = resultFiles.Count - 1; i >= 0; --i)
+            {
+                if (File.Exists(resultFiles[i]))
+                {
+                    tmpContent = File.ReadAllText(resultFiles[i]);
+                    if (!tmpContent.Contains(helperName))
+                        resultFiles.RemoveAt(i);
+                }
+            }
+            return resultFiles;
+        }
     }
 }

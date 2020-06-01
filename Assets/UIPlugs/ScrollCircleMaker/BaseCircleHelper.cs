@@ -11,6 +11,12 @@ using UnityEngine.UI;
 
 namespace UIPlugs.ScrollCircleMaker
 {
+    public struct BoundaryInt
+    {
+        public short dir;//方向1或-1
+        public int area;//最大显示区域高或宽
+        public int length;//数据向上取整的大小
+    }
     public abstract class BaseCircleHelper<T>
     {
         protected List<T> _dataSet;

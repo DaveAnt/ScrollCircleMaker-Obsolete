@@ -12,12 +12,7 @@ using UnityEngine.UI;
 
 namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
 {
-    public struct BoundaryInt
-    { 
-        public short dir;//方向1或-1
-        public int area;//最大显示区域高或宽
-        public int length;//数据向上取整的大小
-    }
+
     public sealed class MultipleRectCircleHelper<T> : BaseCircleHelper<T>
     {
         private GridLayoutGroup _gridLayoutGroup;
@@ -83,14 +78,16 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         }
         private void OnInit()
         {
+            _wholeSize.Width = (int)(_itemRect.rect.width + _sProperty.WidthExt);
+            _wholeSize.Height = (int)(_itemRect.rect.height + _sProperty.HeightExt);
             switch (_sProperty.scrollDir)
             {
                 case ScrollDir.TopToBottom:
                 case ScrollDir.BottomToTop:
                     _gridLayoutGroup.startAxis = GridLayoutGroup.Axis.Horizontal;
                     float tmpWidth = _contentRect.rect.width - _sProperty.LeftExt - _sProperty.RightExt;
-                    _maxRanks.Width = (int)((tmpWidth + _sProperty.WidthExt) / (_itemRect.rect.width + _sProperty.WidthExt));
-                    _maxRanks.Height = (int)(Math.Ceiling(_viewRect.rect.height / (_itemRect.rect.height + _sProperty.HeightExt)) + 1);
+                    _maxRanks.Width = (int)((tmpWidth + _sProperty.WidthExt) / _wholeSize.Width);
+                    _maxRanks.Height = (int)(Math.Ceiling(_viewRect.rect.height / _wholeSize.Height) + 1);
                     _sProperty.maxItems = _maxRanks.Width * _maxRanks.Height;
                     _scrollRect.horizontal = false;
                     _scrollRect.vertical = true;
@@ -99,21 +96,19 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 case ScrollDir.RightToLeft:
                     _gridLayoutGroup.startAxis = GridLayoutGroup.Axis.Vertical;
                     float tmpHeight = _contentRect.rect.height - _sProperty.TopExt - _sProperty.BottomExt;
-                    _maxRanks.Height = (int)((tmpHeight + _sProperty.HeightExt) / (_itemRect.rect.height + _sProperty.HeightExt));
-                    _maxRanks.Width = (int)(Math.Ceiling(_viewRect.rect.width / (_itemRect.rect.width + _sProperty.WidthExt)) + 1);
+                    _maxRanks.Height = (int)((tmpHeight + _sProperty.HeightExt) / _wholeSize.Height);
+                    _maxRanks.Width = (int)(Math.Ceiling(_viewRect.rect.width / _wholeSize.Width) + 1);
                     _sProperty.maxItems = _maxRanks.Width * _maxRanks.Height;
                     _scrollRect.horizontal = true;
                     _scrollRect.vertical = false;
                     break;
-            }            
+            }
+            _gridLayoutGroup.cellSize = _itemRect.rect.size;
             _gridLayoutGroup.padding.left = _sProperty.LeftExt;
             _gridLayoutGroup.padding.right = _sProperty.RightExt;
             _gridLayoutGroup.padding.top = _sProperty.TopExt;
             _gridLayoutGroup.padding.bottom = _sProperty.BottomExt;
             _gridLayoutGroup.spacing = new Vector2(_sProperty.WidthExt, _sProperty.HeightExt);
-            _gridLayoutGroup.cellSize = _itemRect.rect.size;
-            _wholeSize.Width = (int)(_itemRect.rect.width + _sProperty.WidthExt);
-            _wholeSize.Height = (int)(_itemRect.rect.height + _sProperty.HeightExt);
             OnResolveGroupEnum();
         }
 
@@ -217,13 +212,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _scrollRect.inertia = _sProperty.scrollType != ScrollType.Drag;
             if (_tmpDataSet != null)
             {
-                switch (_sProperty.scrollSort)
-                {
-                    case ScrollSort.BackDir:
-                    case ScrollSort.BackZDir:
-                        _tmpDataSet.Reverse();
-                        break;
-                }
+                if(_sProperty.scrollSort == ScrollSort.BackDir ||
+                _sProperty.scrollSort == ScrollSort.BackZDir)
+                    _tmpDataSet.Reverse();
                 _dataSet.AddRange(_tmpDataSet);
             }
             for (int i = 0; i < _sProperty.maxItems; ++i)
@@ -232,9 +223,13 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 InitItem(i);
             }
             if (_sProperty.isCircleEnable)
+            {
                 OnAnchorSet();
+            }         
             else
+            {
                 OnAnchorSetNo();
+            }              
         }
         public override void AddItem(T data, int itemIdx = -1)
         {
@@ -263,7 +258,14 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             {
                 if (_itemSet.Count < _sProperty.maxItems)
                     InitItem(_itemSet.Count);
-                OnAnchorSet();
+                if (_sProperty.isCircleEnable)
+                {
+                    OnAnchorSet();
+                }
+                else
+                {
+                    OnAnchorSetNo();
+                }                  
                 RefreshItems();
             }
         }
@@ -315,14 +317,6 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     _contentRect.sizeDelta = contentSize;
                     break;
             }
-        }
-
-        private void ToItemAline(int tmpItemIdx)//对齐偏移
-        { 
-            for (int i = tmpItemIdx; i < _sProperty.itemIdx; ++i)
-                _itemSet[i].transform.SetAsLastSibling();
-            for (int i = tmpItemIdx - 1; i >= _sProperty.itemIdx; --i)
-                _itemSet[i].transform.SetAsFirstSibling();
         }
 
         public override int GetLocation()
@@ -377,7 +371,6 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                         break;
                 }
             }
-
         }
 
         public override void ToTop(bool isDrawEnable = true)
@@ -404,6 +397,14 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         public override void ToBottom(bool isDrawEnable = true)
         {
             ToLocation(_cExtra.area, isDrawEnable);
+        }
+
+        private void ToItemAline(int tmpItemIdx)//对齐偏移
+        {
+            for (int i = tmpItemIdx; i < _sProperty.itemIdx; ++i)
+                _itemSet[i].transform.SetAsLastSibling();
+            for (int i = tmpItemIdx - 1; i >= _sProperty.itemIdx; --i)
+                _itemSet[i].transform.SetAsFirstSibling();
         }
 
         private void RefreshItems()
@@ -486,7 +487,8 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _contentSite -= tmpSize;
             _gridLayoutGroup.SetLayoutVertical();
         }
-//-------------------------------------循环滑动方式------------------------------------------//
+
+        //-------------------------------------循环滑动方式------------------------------------------//
         private bool _lowerDefine
         {
             get

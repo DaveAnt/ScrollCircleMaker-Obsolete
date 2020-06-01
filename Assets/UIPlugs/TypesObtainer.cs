@@ -43,6 +43,33 @@ namespace UIPlugs
             return getTypes;
         }
 
+        public static List<string> GetScripts()
+        {
+            var targetType = typeof(T);
+            List<string> getNames = new List<string>();
+            foreach (string assemblyName in AssemblyNames)
+            {
+                var allTypes = Assembly.Load(assemblyName).GetTypes();
+                foreach (var tmpType in allTypes)
+                {
+                    var baseType = tmpType.BaseType;  //获取基类
+                    while (baseType != null)  //获取所有基类
+                    {
+                        if (baseType.Name == targetType.Name)
+                        {
+                            getNames.Add(tmpType.FullName.Split('.')[2]+".cs");
+                            break;
+                        }
+                        else
+                        {
+                            baseType = baseType.BaseType;
+                        }
+                    }
+                }
+            }
+            return getNames;
+        }
+
         public static List<string> GetNames()
         {
             var targetType = typeof(T);
