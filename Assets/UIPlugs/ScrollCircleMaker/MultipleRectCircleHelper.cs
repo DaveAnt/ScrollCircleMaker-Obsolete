@@ -22,8 +22,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         private bool _lockSlide, _firstRun;
         private int _tmpTotalItems;
         private float _timer = 0;
-        
-        private int _contentSite//偏移锚点
+        /// <summary>
+        /// 偏移锚点
+        /// </summary>
+        private int _contentSite
         {
             get
             {
@@ -58,7 +60,11 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 }
             }
         }
-
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="contentTrans">content的transform组件</param>
+        /// <param name="createItemFunc">创建item函数</param>
         public MultipleRectCircleHelper(Transform contentTrans, Func<BaseItem<T>> createItemFunc)
         {
             _createItemFunc = createItemFunc;
@@ -76,6 +82,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _dataSet = new List<T>();
             OnInit();
         }
+        /// <summary>
+        /// 初始化配置
+        /// </summary>
         private void OnInit()
         {
             _wholeSize.Width = (int)(_itemRect.rect.width + _sProperty.WidthExt);
@@ -111,10 +120,11 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _gridLayoutGroup.spacing = new Vector2(_sProperty.WidthExt, _sProperty.HeightExt);
             OnResolveGroupEnum();
         }
-
+        /// <summary>
+        /// 解析排版
+        /// </summary>
         private void OnResolveGroupEnum()
         {
-            //解析排版
             int sign = (short)_sProperty.scrollDir * 10 + (short)_sProperty.scrollSort;
             switch (sign)
             {
@@ -155,7 +165,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     break;
             }
         }
-
+        /// <summary>
+        /// 刷新item定位
+        /// </summary>
+        /// <param name="v2">方向向量</param>
         protected override void OnRefreshHandler(Vector2 v2)//刷新Item的移动
         {
             if (_lockSlide) return;
@@ -206,7 +219,12 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
             _timer = 0;
         }
-        public override void OnStart(List<T> _tmpDataSet = null)
+        /// <summary>
+        /// 启动滑动
+        /// </summary>
+        /// <param name="_tmpDataSet">数据集</param>
+        /// <param name="_tmpItemSize">自定义items总长度,此辅助器不需要此参数</param>
+        public override void OnStart(List<T> _tmpDataSet = null, Func<int, float> countItemSizeFunc = null)
         {         
             _firstRun = true;
             _scrollRect.inertia = _sProperty.scrollType != ScrollType.Drag;
@@ -231,6 +249,11 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 OnAnchorSetNo();
             }              
         }
+        /// <summary>
+        /// 添加item
+        /// </summary>
+        /// <param name="data">数据</param>
+        /// <param name="itemIdx">位置</param>
         public override void AddItem(T data, int itemIdx = -1)
         {
             if (itemIdx != -1) itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count - 1);
@@ -269,7 +292,11 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 RefreshItems();
             }
         }
-
+        /// <summary>
+        /// 更新item样式
+        /// </summary>
+        /// <param name="data">数据</param>
+        /// <param name="itemIdx">位置</param>
         public override void UpdateItem(T data, int itemIdx)
         {
             itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count - 1); 
@@ -285,7 +312,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }      
         }
 
-        //内部接口
+        /// <summary>
+        /// 初始化item
+        /// </summary>
+        /// <param name="itemIdx">位置</param>
         private void InitItem(int itemIdx)
         {
             BaseItem<T> baseItem = _createItemFunc();
@@ -299,6 +329,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _itemSet.Add(baseItem);
         }
 
+        /// <summary>
+        /// 重置启动器
+        /// </summary>
         public override void ResetItems()
         {
             _dataSet.Clear();
@@ -318,7 +351,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     break;
             }
         }
-
+        /// <summary>
+        /// 获取当前定位信息
+        /// </summary>
+        /// <returns></returns>
         public override int GetLocation()
         {
             switch (_sProperty.scrollDir)
@@ -330,7 +366,11 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     return (int)Mathf.Abs(_contentRect.rect.x);
             }
         }
-
+        /// <summary>
+        /// 定位接口
+        /// </summary>
+        /// <param name="toSeat">位置</param>
+        /// <param name="isDrawEnable">是否需要动画</param>
         public override void ToLocation(int toSeat, bool isDrawEnable = true)
         {
             if (_sProperty.isCircleEnable)
@@ -372,7 +412,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 }
             }
         }
-
+        /// <summary>
+        /// 上定位
+        /// </summary>
+        /// <param name="isDrawEnable">是否需要动画</param>
         public override void ToTop(bool isDrawEnable = true)
         {
             if (_sProperty.isCircleEnable)
@@ -393,20 +436,28 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 ToLocation(0, isDrawEnable);
             }
         }
-
+        /// <summary>
+        /// 下定位
+        /// </summary>
+        /// <param name="isDrawEnable">是否需要动画</param>
         public override void ToBottom(bool isDrawEnable = true)
         {
             ToLocation(_cExtra.area, isDrawEnable);
         }
-
-        private void ToItemAline(int tmpItemIdx)//对齐偏移
+        /// <summary>
+        /// 对齐偏移
+        /// </summary>
+        /// <param name="tmpItemIdx"></param>
+        private void ToItemAline(int tmpItemIdx)
         {
             for (int i = tmpItemIdx; i < _sProperty.itemIdx; ++i)
                 _itemSet[i].transform.SetAsLastSibling();
             for (int i = tmpItemIdx - 1; i >= _sProperty.itemIdx; --i)
                 _itemSet[i].transform.SetAsFirstSibling();
         }
-
+        /// <summary>
+        /// 强制刷新所有items
+        /// </summary>
         private void RefreshItems()
         {
             int tmpItemIdx, tmpDataIdx;
@@ -427,8 +478,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
             _gridLayoutGroup.SetLayoutVertical();
         }
-
-        private void OnRefreshItemDown()  //true表示垂直
+        /// <summary>
+        /// 下滑动时刷新接口
+        /// </summary>
+        private void OnRefreshItemDown()
         {
             int tmpRow, tmpSize;
             tmpRow = _scrollRect.vertical ? _maxRanks.Width : _maxRanks.Height;
@@ -457,7 +510,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _contentSite += tmpSize;
             _gridLayoutGroup.SetLayoutVertical();
         }
-
+        /// <summary>
+        /// 上滑动时刷新接口
+        /// </summary>
         private void OnRefreshItemUp() //true表示水平
         {
             int tmpRow, tmpSize;
@@ -488,7 +543,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _gridLayoutGroup.SetLayoutVertical();
         }
 
-        //-------------------------------------循环滑动方式------------------------------------------//
+#region       //-------------------------------------循环滑动方式------------------------------------------//
+        /// <summary>
+        /// 上界限判断
+        /// </summary>
         private bool _lowerDefine
         {
             get
@@ -506,7 +564,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 }
             }
         }
-
+        /// <summary>
+        /// 下界限判断
+        /// </summary>
         private bool _highDefine
         {
             get
@@ -521,7 +581,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 }
             }
         }
-
+        /// <summary>
+        /// 垂直滑动循环成圈
+        /// </summary>
         private void OnCircleVertical()
         {
             int tmpItemIdx;Vector2 tmpForce;
@@ -566,7 +628,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 _scrollRect.velocity = tmpForce;
             }
         }
-
+        /// <summary>
+        /// 水平滑动循环成圈
+        /// </summary>
         private void OnCircleHorizontal()
         {
             int tmpItemIdx; Vector2 tmpForce;
@@ -610,7 +674,11 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 _scrollRect.velocity = tmpForce;
             }
         }
-
+        /// <summary>
+        /// 自动垂直定位循环成圈
+        /// </summary>
+        /// <param name="toSeat">位置参数</param>
+        /// <returns></returns>
         private IEnumerator ToAutoMoveVSeat(int toSeat)
         {
             if (_cExtra.area <= 0) yield break;
@@ -686,7 +754,11 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 }
             }
         }
-
+        /// <summary>
+        /// 自动水平定位循环成圈
+        /// </summary>
+        /// <param name="toSeat">位置参数</param>
+        /// <returns></returns>
         private IEnumerator ToAutoMoveHSeat(int toSeat)
         {
             if (_cExtra.area <= 0) yield break;
@@ -764,7 +836,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 }
             }
         }
-
+        /// <summary>
+        /// 强制垂直定位循环成圈
+        /// </summary>
+        /// <param name="toSeat">位置参数</param>
         private void ToDirectVSeat(int toSeat)
         {
             if (_cExtra.area <= 0) return;
@@ -796,7 +871,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
             RefreshItems();          
         }
-
+        /// <summary>
+        /// 强制水平定位循环成圈
+        /// </summary>
+        /// <param name="toSeat">位置参数</param>
         private void ToDirectHSeat(int toSeat)
         {
             if (_cExtra.area <= 0) return;
@@ -827,7 +905,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
             RefreshItems();
         }
-
+        /// <summary>
+        /// 自适应高宽循环成圈
+        /// </summary>
         private void OnAnchorSet()
         {           
             _sProperty.initItems = _itemSet.Count;
@@ -875,7 +955,11 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
             _contentRect.sizeDelta = contentSize;
         }
-//-------------------------------------普通滑动方式------------------------------------------//
+#endregion
+#region//-------------------------------------普通滑动方式------------------------------------------//
+        /// <summary>
+        /// 垂直滑动
+        /// </summary>
         private void OnCircleVerticalNo()
         {
             _tmpContentPos = _contentRect.anchoredPosition;
@@ -892,7 +976,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 OnRefreshItemUp();
             }
         }
-
+        /// <summary>
+        /// 水平滑动
+        /// </summary>
         private void OnCircleHorizontalNo()
         {
             _tmpContentPos = _contentRect.anchoredPosition;
@@ -909,7 +995,11 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 OnRefreshItemUp();
             }
         }
-
+        /// <summary>
+        /// 垂直动画定位
+        /// </summary>
+        /// <param name="toSeat">位置参数</param>
+        /// <returns></returns>
         private IEnumerator ToAutoMoveVSeatNo(int toSeat)
         {           
             if(_cExtra.area <= 0) yield break;
@@ -969,7 +1059,11 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _scrollRect.enabled = true;
             _toLocationEvent?.Invoke();
         }
-
+        /// <summary>
+        /// 水平动画定位
+        /// </summary>
+        /// <param name="toSeat">位置参数</param>
+        /// <returns></returns>
         private IEnumerator ToAutoMoveHSeatNo(int toSeat)
         {
             if (_cExtra.area <= 0) yield break;
@@ -1026,7 +1120,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _scrollRect.enabled = true;
             _toLocationEvent?.Invoke();
         }
-
+        /// <summary>
+        /// 强制垂直定位
+        /// </summary>
+        /// <param name="toSeat">位置参数</param>
         private void ToDirectVSeatNo(int toSeat)
         {
             if (_cExtra.area <= 0) return;
@@ -1058,7 +1155,10 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
             RefreshItems();
         }
-
+        /// <summary>
+        /// 强制水平定位
+        /// </summary>
+        /// <param name="toSeat">位置参数</param>
         private void ToDirectHSeatNo(int toSeat)
         {
             if (_cExtra.area <= 0) return;
@@ -1089,7 +1189,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
             RefreshItems();
         }  
-
+        /// <summary>
+        /// 自适应高宽
+        /// </summary>
         private void OnAnchorSetNo()
         {
             _sProperty.initItems = _itemSet.Count;
@@ -1117,5 +1219,6 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _tmpContentPos = _contentRect.anchoredPosition;
             _contentRect.sizeDelta = _contentSize;
         }
+#endregion
     }
 }

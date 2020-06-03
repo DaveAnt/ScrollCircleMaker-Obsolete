@@ -22,6 +22,7 @@ namespace UIPlugs.ScrollCircleMaker
         protected List<T> _dataSet;
         protected List<BaseItem<T>> _itemSet;
         protected Func<BaseItem<T>> _createItemFunc;
+        protected Func<int,float> _countItemSizeFunc;  //计算不规则的item需要设置
         protected Action _toLocationEvent;   //定位动画结束的回调
 
         protected ScrollRect _scrollRect;
@@ -41,7 +42,8 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
 
-        public abstract void OnStart(List<T> _tmpDataSet = null);//启动
+        public abstract void OnStart(List<T> _tmpDataSet = null,Func<int,float> countItemSizeFunc = null);//启动
+        
         public virtual void OnDestroy()
         {
             _toLocationEvent = null;

@@ -349,7 +349,7 @@ MonoBehaviour:
     type: 3}
   _baseHelperIdx: 1
   _scrollType: 0
-  _scrollDir: 0
+  _scrollDir: 1
   _scrollSort: 0
   _refreshRatio: 0
   _autoMoveRatio: 20
