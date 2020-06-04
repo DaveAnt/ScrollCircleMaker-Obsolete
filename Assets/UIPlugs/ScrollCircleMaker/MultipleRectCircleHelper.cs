@@ -224,7 +224,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         /// </summary>
         /// <param name="_tmpDataSet">数据集</param>
         /// <param name="_tmpItemSize">自定义items总长度,此辅助器不需要此参数</param>
-        public override void OnStart(List<T> _tmpDataSet = null, Func<int, float> countItemSizeFunc = null)
+        public override void OnStart(List<T> _tmpDataSet = null)
         {         
             _firstRun = true;
             _scrollRect.inertia = _sProperty.scrollType != ScrollType.Drag;
@@ -248,6 +248,15 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             {
                 OnAnchorSetNo();
             }              
+        }
+        public override void DelItem(int itemIdx)
+        {
+
+        }
+
+        public override void DelItem(T data)
+        {
+
         }
         /// <summary>
         /// 添加item
@@ -681,7 +690,6 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         /// <returns></returns>
         private IEnumerator ToAutoMoveVSeat(int toSeat)
         {
-            if (_cExtra.area <= 0) yield break;
             int tmpToSeat = toSeat;
             toSeat = Mathf.Clamp(toSeat, 0, (int)(_contentRect.rect.height - _viewRect.rect.height));
             _scrollRect.enabled = false;
@@ -761,7 +769,6 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         /// <returns></returns>
         private IEnumerator ToAutoMoveHSeat(int toSeat)
         {
-            if (_cExtra.area <= 0) yield break;
             int tmpToSeat = toSeat;
             toSeat = Mathf.Clamp(toSeat, 0, (int)(_contentRect.rect.width - _viewRect.rect.width));
             _scrollRect.enabled = false;
@@ -842,9 +849,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         /// <param name="toSeat">位置参数</param>
         private void ToDirectVSeat(int toSeat)
         {
-            if (_cExtra.area <= 0) return;
             toSeat = Mathf.Clamp(toSeat, 0, _cExtra.area + (int)_viewRect.rect.height);
-
             _tmpContentPos = _contentRect.anchoredPosition;
             _tmpContentPos.y = toSeat * _cExtra.dir;
             _contentRect.anchoredPosition = _tmpContentPos;
@@ -877,7 +882,6 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         /// <param name="toSeat">位置参数</param>
         private void ToDirectHSeat(int toSeat)
         {
-            if (_cExtra.area <= 0) return;
             toSeat = Mathf.Clamp(toSeat, 0, _cExtra.area + (int)_viewRect.rect.width);
             _tmpContentPos = _contentRect.anchoredPosition;
             _tmpContentPos.x = toSeat * _cExtra.dir;
@@ -1002,9 +1006,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         /// <returns></returns>
         private IEnumerator ToAutoMoveVSeatNo(int toSeat)
         {           
-            if(_cExtra.area <= 0) yield break;
             toSeat = Mathf.Clamp(toSeat, 0, _cExtra.area);
-
             _scrollRect.enabled = false;
             yield return new WaitForEndOfFrame();
             while (toSeat > _contentSite + _wholeSize.Height)
@@ -1066,7 +1068,6 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         /// <returns></returns>
         private IEnumerator ToAutoMoveHSeatNo(int toSeat)
         {
-            if (_cExtra.area <= 0) yield break;
             toSeat = Mathf.Clamp(toSeat, 0, _cExtra.area);
             _scrollRect.enabled = false;
             yield return new WaitForEndOfFrame();
@@ -1126,9 +1127,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         /// <param name="toSeat">位置参数</param>
         private void ToDirectVSeatNo(int toSeat)
         {
-            if (_cExtra.area <= 0) return;
-            toSeat = Mathf.Clamp(toSeat, 0, _cExtra.area);
-   
+            toSeat = Mathf.Clamp(toSeat, 0, _cExtra.area); 
             _tmpContentPos = _contentRect.anchoredPosition;
             _tmpContentPos.y = toSeat * _cExtra.dir;
             _contentRect.anchoredPosition = _tmpContentPos;
@@ -1161,7 +1160,6 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         /// <param name="toSeat">位置参数</param>
         private void ToDirectHSeatNo(int toSeat)
         {
-            if (_cExtra.area <= 0) return;
             toSeat = Mathf.Clamp(toSeat, 0, _cExtra.area);
             _tmpContentPos = _contentRect.anchoredPosition;
             _tmpContentPos.x = toSeat * _cExtra.dir;

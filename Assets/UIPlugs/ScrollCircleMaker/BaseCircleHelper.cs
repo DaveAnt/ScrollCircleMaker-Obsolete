@@ -22,8 +22,7 @@ namespace UIPlugs.ScrollCircleMaker
         protected List<T> _dataSet;
         protected List<BaseItem<T>> _itemSet;
         protected Func<BaseItem<T>> _createItemFunc;
-        protected Func<int,float> _countItemSizeFunc;  //计算不规则的item需要设置
-        protected Action _toLocationEvent;   //定位动画结束的回调
+        protected Action _toLocationEvent;//动画结束回调
 
         protected ScrollRect _scrollRect;
         protected RectTransform _viewRect, _contentRect, _itemRect;
@@ -42,7 +41,24 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
 
-        public abstract void OnStart(List<T> _tmpDataSet = null,Func<int,float> countItemSizeFunc = null);//启动
+        public ScrollCircleComponent sProperty
+        {
+            get{
+                return _sProperty;
+            }
+        }
+
+        public int itemCount
+        {
+            get {
+                if (_dataSet == null)
+                    return 0;
+                else
+                    return _dataSet.Count;
+            }
+        }
+
+        public abstract void OnStart(List<T> _tmpDataSet = null);//启动
         
         public virtual void OnDestroy()
         {
@@ -69,7 +85,9 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         protected abstract void OnRefreshHandler(Vector2 v2);//刷新监听方式
-        public abstract void AddItem(T data,int itemIdx = -1);//添加数据
+        public abstract void DelItem(int itemIdx);//移除数据
+        public abstract void DelItem(T data);//移除数据
+        public abstract void AddItem(T data, int itemIdx = -1);//添加数据
         public abstract void UpdateItem(T data,int itemIdx);
         public abstract void ResetItems();//清空数据
         public abstract int GetLocation();//获取定位

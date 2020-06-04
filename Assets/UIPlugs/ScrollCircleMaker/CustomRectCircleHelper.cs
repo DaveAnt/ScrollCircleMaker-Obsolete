@@ -21,7 +21,17 @@ namespace UIPlugs.ScrollCircleMaker
 
         }
 
-        public override void OnStart(List<T> _tmpDataSet = null, Func<int, float> countItemSizeFunc = null)
+        public override void OnStart(List<T> _tmpDataSet = null)
+        {
+
+        }
+
+        public override void DelItem(int itemIdx)
+        {
+
+        }
+
+        public override void DelItem(T data)
         {
 
         }

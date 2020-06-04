@@ -88,12 +88,6 @@ namespace UIPlugs.ScrollCircleMaker
         private int _dataIdx = 0, _itemIdx = 0;
         [SerializeField]
         private int _maxItems, _initItems;
-
-        //单行矩形循环
-        [SerializeField]
-        private float _scaleFactor = 1f;
-        [SerializeField]
-        private float _alphaFactor = 1f;
         public GameObject baseItem
         {
             get {
@@ -232,28 +226,6 @@ namespace UIPlugs.ScrollCircleMaker
             set
             {
                 _initItems = value;
-            }
-        }
-
-        public float scaleFactor
-        {
-            get {
-                return _scaleFactor;
-            }
-            set {
-                _scaleFactor = value;
-            }
-        }
-
-        public float alphaFactor
-        {
-            get
-            {
-                return _alphaFactor;
-            }
-            set
-            {
-                _alphaFactor = value;
             }
         }
 

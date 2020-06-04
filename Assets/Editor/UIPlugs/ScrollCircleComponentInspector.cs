@@ -30,9 +30,6 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         private SerializedProperty isUpdateEnable;
         private SerializedProperty isCircleEnable;
         private SerializedProperty limitNum;
-        //单行矩形滑动循环
-        private SerializedProperty scaleFactor;
-        private SerializedProperty alphaFactor;
         //编辑器运行时显示
         private SerializedProperty maxItems;
         private SerializedProperty initItems;
@@ -90,8 +87,6 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                 autoMoveRatio.intValue = EditorGUILayout.IntSlider("AutoMove Ratio", autoMoveRatio.intValue/10,1,10)*10;
                 if (helperIndex == 2)
                 {
-                    scaleFactor.floatValue = (EditorGUILayout.IntSlider("Scale Factor", (int)(scaleFactor.floatValue * 10), 1, 10)) / 10f;
-                    alphaFactor.floatValue = (EditorGUILayout.IntSlider("Alpha Factor", (int)(alphaFactor.floatValue * 10), 1, 10)) / 10f;
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField("Spacing", GUILayout.Width(116));
                     Vector2Int tmpSpacing = spacing.vector2IntValue;
@@ -163,8 +158,6 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             dataIdx = serializedObject.FindProperty("_dataIdx");
             maxItems = serializedObject.FindProperty("_maxItems");
             initItems = serializedObject.FindProperty("_initItems");
-            scaleFactor = serializedObject.FindProperty("_scaleFactor");
-            alphaFactor = serializedObject.FindProperty("_alphaFactor");
             m_MakerIdx = makerNames.IndexOf(scrollMaker.stringValue);
         }        
     }
