@@ -10,6 +10,13 @@ namespace UIPlugs.ScrollCircleMaker
     public abstract class BaseCircleMaker<T> : BaseMaker//启动器
     {
         protected BaseCircleHelper<T> baseHelper;
+
+        public BaseCircleHelper<T> Helper
+        {
+            get{
+                return baseHelper;
+            }
+        }
         public override void OnDestroy()
         {
             baseHelper?.OnDestroy();

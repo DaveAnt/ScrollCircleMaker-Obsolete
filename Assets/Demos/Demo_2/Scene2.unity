@@ -196,7 +196,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1110895025}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_GeneratorAsset: {fileID: 0}
   m_Script: {fileID: -1200242548, guid: f70555f144d8491a825f0804e09c671c, type: 3}
@@ -683,27 +683,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fae2f24c9de61914793286874ecf4d79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _scrollMaker: UIPlugs.ScrollCircleMaker.test2CircleMaker
+  _scrollMaker: UIPlugs.ScrollCircleMaker.testCircleMaker
   _baseItem: {fileID: 7749687860297296843, guid: 12f9543447ce02c44bfc7b6e08238efd,
     type: 3}
-  _baseHelperIdx: 2
+  _baseHelperIdx: 1
   _scrollType: 0
-  _scrollDir: 1
+  _scrollDir: 0
   _scrollSort: 0
   _refreshRatio: 0
-  _autoMoveRatio: 10
+  _autoMoveRatio: 80
   _padding:
-    m_Left: 117
+    m_Left: 296
     m_Right: 0
-    m_Top: 0
+    m_Top: 140
     m_Bottom: 0
-  _spacing: {x: 50, y: 0}
+  _spacing: {x: 146, y: 107}
   _isUpdateEnable: 0
   _isCircleEnable: 0
-  _limitNum: 0
+  _limitNum: 1
   _dataIdx: 0
   _itemIdx: 0
   _maxItems: 0
   _initItems: 0
-  _scaleFactor: 1
-  _alphaFactor: 1

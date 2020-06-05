@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -61,6 +62,43 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
         }
         /// <summary>
+        /// 上界限判断
+        /// </summary>
+        private bool _lowerDefine
+        {
+            get
+            {
+                switch (_sProperty.scrollDir)
+                {
+                    case ScrollDir.TopToBottom:
+                        return _contentRect.anchoredPosition.y <= _cExtra.dir;
+                    case ScrollDir.BottomToTop:
+                        return _contentRect.anchoredPosition.y >= _cExtra.dir;
+                    case ScrollDir.LeftToRight:
+                        return _contentRect.anchoredPosition.x >= _cExtra.dir;
+                    default:
+                        return _contentRect.anchoredPosition.x <= _cExtra.dir;
+                }
+            }
+        }
+        /// <summary>
+        /// 下界限判断
+        /// </summary>
+        private bool _highDefine
+        {
+            get
+            {
+                switch (_sProperty.scrollDir)
+                {
+                    case ScrollDir.TopToBottom:
+                    case ScrollDir.BottomToTop:
+                        return Mathf.Abs(_contentRect.anchoredPosition.y) >= (int)(_contentRect.rect.height - _viewRect.rect.height);
+                    default:
+                        return Mathf.Abs(_contentRect.anchoredPosition.x) >= (int)(_contentRect.rect.width - _viewRect.rect.width);
+                }
+            }
+        }
+        /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="contentTrans">content的transform组件</param>
@@ -72,7 +110,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _viewRect = contentTrans.parent.GetComponent<RectTransform>();
             _scrollRect = _viewRect.parent.GetComponent<ScrollRect>(); 
             _sProperty = _contentRect.GetComponent<ScrollCircleComponent>();
-            if (_sProperty == null) Debug.LogError("Content must have ScrollCircleComponent!");
+            if (_sProperty == null) UnityEngine.Debug.LogError("Content must have ScrollCircleComponent!");
 
             _baseItem = _sProperty.baseItem;
             _gridLayoutGroup = _contentRect.GetComponent<GridLayoutGroup>() ?? _contentRect.gameObject.AddComponent<GridLayoutGroup>();
@@ -176,6 +214,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 _timer += Time.deltaTime;
                 return;
             }
+
             switch (_sProperty.scrollDir)
             {
                 case ScrollDir.TopToBottom:
@@ -189,13 +228,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                         ToLocation((int)_tmpContentPos.y);
                     }
                     else if (_sProperty.isCircleEnable)
-                    {
                         OnCircleVertical();
-                    }
                     else
-                    {
                         OnCircleVerticalNo();
-                    }
                     break;
                 case ScrollDir.LeftToRight:
                 case ScrollDir.RightToLeft:
@@ -208,13 +243,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                         ToLocation((int)_tmpContentPos.x);
                     }
                     else if (_sProperty.isCircleEnable)
-                    {
                         OnCircleHorizontal();
-                    }
                     else
-                    {
                         OnCircleHorizontalNo();
-                    }
                     break;
             }
             _timer = 0;
@@ -223,11 +254,8 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         /// 启动滑动
         /// </summary>
         /// <param name="_tmpDataSet">数据集</param>
-        /// <param name="_tmpItemSize">自定义items总长度,此辅助器不需要此参数</param>
         public override void OnStart(List<T> _tmpDataSet = null)
-        {         
-            _firstRun = true;
-            _scrollRect.inertia = _sProperty.scrollType != ScrollType.Drag;
+        {                    
             if (_tmpDataSet != null)
             {
                 if(_sProperty.scrollSort == ScrollSort.BackDir ||
@@ -241,22 +269,48 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                 InitItem(i);
             }
             if (_sProperty.isCircleEnable)
-            {
-                OnAnchorSet();
-            }         
+                OnAnchorSet();    
             else
-            {
                 OnAnchorSetNo();
-            }              
+            _scrollRect.inertia = _sProperty.scrollType != ScrollType.Drag;
+            _firstRun = true;
         }
+        /// <summary>
+        /// 移除Item by 索引
+        /// </summary>
+        /// <param name="itemIdx">索引</param>
         public override void DelItem(int itemIdx)
         {
-
+            if (itemIdx < 0 || itemIdx >= _dataSet.Count)
+            {
+                UnityEngine.Debug.LogError("DelItem超范围！");
+                return;
+            }
+                
+            _dataSet.RemoveAt(itemIdx);
+            if (_firstRun)//表示已经初始化，需要计算偏移
+                ToAutoSite(false);
         }
-
-        public override void DelItem(T data)
+        /// <summary>
+        /// 移除Item by 匹配函数
+        /// </summary>
+        /// <param name="seekFunc">1是需要移除的数据，2是数据集里的数据</param>
+        /// <param name="data">需要移除的参数</param>
+        public override void DelItem(Func<T,T,bool> seekFunc,T data)
         {
+            bool seekSwitch = false;
+            for (int i = _dataSet.Count - 1; i >= 0; ++i)
+            {
+                seekSwitch = seekFunc(data, _dataSet[i]);
+                if (seekSwitch)
+                {
+                    _dataSet.RemoveAt(i);
+                    break;
+                }
+            }
 
+            if (_firstRun && seekSwitch)//表示已经初始化，需要计算偏移
+                ToAutoSite(false);
         }
         /// <summary>
         /// 添加item
@@ -265,7 +319,8 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         /// <param name="itemIdx">位置</param>
         public override void AddItem(T data, int itemIdx = -1)
         {
-            if (itemIdx != -1) itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count - 1);
+            if (itemIdx != -1) 
+                itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count - 1);
 
             switch (_sProperty.scrollSort)
             {
@@ -284,22 +339,8 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                         _dataSet.Insert(0, data);
                     break;
             }
-
-            //扩展边距
-            if (_firstRun)//表示已经初始化，需要计算偏移
-            {
-                if (_itemSet.Count < _sProperty.maxItems)
-                    InitItem(_itemSet.Count);
-                if (_sProperty.isCircleEnable)
-                {
-                    OnAnchorSet();
-                }
-                else
-                {
-                    OnAnchorSetNo();
-                }                  
-                RefreshItems();
-            }
+            if(_firstRun)
+                ToAutoSite(true);
         }
         /// <summary>
         /// 更新item样式
@@ -308,7 +349,11 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
         /// <param name="itemIdx">位置</param>
         public override void UpdateItem(T data, int itemIdx)
         {
-            itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count - 1); 
+            if (itemIdx < 0 || itemIdx >= _dataSet.Count)
+            {
+                UnityEngine.Debug.LogError("UpdateItem超范围！");
+                return;
+            }
             _dataSet[itemIdx] = data;
             int tmpItemIdx,tmpOffset;
             tmpOffset = _sProperty.dataIdx > itemIdx ?_tmpTotalItems - 
@@ -320,24 +365,6 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     _itemSet[tmpItemIdx].UpdateView(data);
             }      
         }
-
-        /// <summary>
-        /// 初始化item
-        /// </summary>
-        /// <param name="itemIdx">位置</param>
-        private void InitItem(int itemIdx)
-        {
-            BaseItem<T> baseItem = _createItemFunc();
-            RectTransform itemRect = UnityEngine.Object.Instantiate(_baseItem, _contentRect).transform as RectTransform;
-            baseItem.transform = itemRect as Transform;
-            baseItem.gameObject = itemRect.gameObject;
-            baseItem.gameObject.name = _baseItem.name + itemIdx;
-            baseItem.InitComponents();
-            baseItem.InitEvents();
-            baseItem.UpdateView(_dataSet[itemIdx]);
-            _itemSet.Add(baseItem);
-        }
-
         /// <summary>
         /// 重置启动器
         /// </summary>
@@ -454,6 +481,48 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             ToLocation(_cExtra.area, isDrawEnable);
         }
         /// <summary>
+        /// 销毁item
+        /// </summary>
+        /// <param name="itemIdx">位置</param>
+        private void ClearItem(int itemIdx)
+        {
+            GameObject.Destroy(_itemSet[itemIdx - 1].gameObject);
+            _itemSet.RemoveAt(itemIdx - 1);
+        }
+        /// <summary>
+        /// 初始化item
+        /// </summary>
+        /// <param name="itemIdx">位置</param>
+        private void InitItem(int itemIdx)
+        {
+            BaseItem<T> baseItem = _createItemFunc();
+            RectTransform itemRect = UnityEngine.Object.Instantiate(_baseItem, _contentRect).transform as RectTransform;
+            baseItem.transform = itemRect as Transform;
+            baseItem.gameObject = itemRect.gameObject;
+            baseItem.gameObject.name = _baseItem.name + itemIdx;
+            baseItem.InitComponents();
+            baseItem.InitEvents();
+            baseItem.UpdateView(_dataSet[itemIdx]);
+            _itemSet.Add(baseItem);
+        }
+        /// <summary>
+        /// 自适应改变
+        /// </summary>
+        /// <param name="state">t添加f移除</param>
+        private void ToAutoSite(bool state)
+        {
+            if (state && _itemSet.Count < _sProperty.maxItems)
+                InitItem(_itemSet.Count);
+            else if(!state && _dataSet.Count < _itemSet.Count)
+                ClearItem(_itemSet.Count);
+
+            if (_sProperty.isCircleEnable)
+                OnAnchorSet();
+            else
+                OnAnchorSetNo();
+            RefreshItems();
+        }
+        /// <summary>
         /// 对齐偏移
         /// </summary>
         /// <param name="tmpItemIdx"></param>
@@ -472,7 +541,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             int tmpItemIdx, tmpDataIdx;
             for (int i = 0; i < _sProperty.maxItems; ++i)
             {
-                if (i > _itemSet.Count - 1) return;
+                if (i >= _itemSet.Count) return;
                 tmpDataIdx = (_sProperty.dataIdx + i) % _tmpTotalItems;
                 tmpItemIdx = (_sProperty.itemIdx + i) % _sProperty.maxItems;
                 _itemSet[tmpItemIdx].gameObject.name = _baseItem.name + tmpDataIdx;
@@ -552,46 +621,9 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             _gridLayoutGroup.SetLayoutVertical();
         }
 
-#region       //-------------------------------------循环滑动方式------------------------------------------//
+#region//-------------------------------------循环滑动方式------------------------------------------//
         /// <summary>
-        /// 上界限判断
-        /// </summary>
-        private bool _lowerDefine
-        {
-            get
-            {
-                switch (_sProperty.scrollDir)
-                {
-                    case ScrollDir.TopToBottom:
-                        return _contentRect.anchoredPosition.y <= _cExtra.dir;
-                    case ScrollDir.BottomToTop:
-                        return _contentRect.anchoredPosition.y >= _cExtra.dir;
-                    case ScrollDir.LeftToRight:
-                        return _contentRect.anchoredPosition.x >= _cExtra.dir;
-                    default:
-                        return _contentRect.anchoredPosition.x <= _cExtra.dir;
-                }
-            }
-        }
-        /// <summary>
-        /// 下界限判断
-        /// </summary>
-        private bool _highDefine
-        {
-            get
-            {
-                switch (_sProperty.scrollDir)
-                {
-                    case ScrollDir.TopToBottom:
-                    case ScrollDir.BottomToTop:
-                        return Mathf.Abs(_contentRect.anchoredPosition.y) >= (int)(_contentRect.rect.height - _viewRect.rect.height);
-                    default:
-                        return Mathf.Abs(_contentRect.anchoredPosition.x) >= (int)(_contentRect.rect.width - _viewRect.rect.width);
-                }
-            }
-        }
-        /// <summary>
-        /// 垂直滑动循环成圈
+        /// 垂直滑动循环式
         /// </summary>
         private void OnCircleVertical()
         {
@@ -638,7 +670,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
         }
         /// <summary>
-        /// 水平滑动循环成圈
+        /// 水平滑动循环式
         /// </summary>
         private void OnCircleHorizontal()
         {
@@ -684,7 +716,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
         }
         /// <summary>
-        /// 自动垂直定位循环成圈
+        /// 自动垂直定位循环式
         /// </summary>
         /// <param name="toSeat">位置参数</param>
         /// <returns></returns>
@@ -763,7 +795,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
         }
         /// <summary>
-        /// 自动水平定位循环成圈
+        /// 自动水平定位循环式
         /// </summary>
         /// <param name="toSeat">位置参数</param>
         /// <returns></returns>
@@ -844,7 +876,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             }
         }
         /// <summary>
-        /// 强制垂直定位循环成圈
+        /// 强制垂直定位循环式
         /// </summary>
         /// <param name="toSeat">位置参数</param>
         private void ToDirectVSeat(int toSeat)
@@ -877,7 +909,7 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             RefreshItems();          
         }
         /// <summary>
-        /// 强制水平定位循环成圈
+        /// 强制水平定位循环式
         /// </summary>
         /// <param name="toSeat">位置参数</param>
         private void ToDirectHSeat(int toSeat)
@@ -910,14 +942,14 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
             RefreshItems();
         }
         /// <summary>
-        /// 自适应高宽循环成圈
+        /// 自适应高宽循环式
         /// </summary>
         private void OnAnchorSet()
         {           
             _sProperty.initItems = _itemSet.Count;
             _lockSlide = _sProperty.maxItems >= _dataSet.Count;
-            Vector2 contentSize = _contentRect.sizeDelta;
             _tmpContentPos = _contentRect.anchoredPosition;
+            Vector2 contentSize = _contentRect.sizeDelta;
             switch (_sProperty.scrollDir)
             {
                 case ScrollDir.TopToBottom:
@@ -926,16 +958,13 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     _cExtra.area = _cExtra.length * _wholeSize.Height;
                     _tmpTotalItems = _cExtra.length * _maxRanks.Width;
                     contentSize.y = _cExtra.area - _sProperty.HeightExt;
-                    if (contentSize.y >= _viewRect.rect.height)
+                    contentSize.y += _lockSlide ? _sProperty.TopExt + _sProperty.BottomExt :
+                        2 * (_viewRect.rect.height + _sProperty.HeightExt);
+                    if (!_lockSlide)
                     {
-                        contentSize.y += 2 * (_viewRect.rect.height + _sProperty.HeightExt);
-                        _tmpContentPos.y = (_viewRect.rect.height + _sProperty.HeightExt)*_cExtra.dir;
-                        _contentSite = (int)_viewRect.rect.height + _sProperty.HeightExt;
+                        _tmpContentPos.y = (_viewRect.rect.height + _sProperty.HeightExt) * _cExtra.dir;
+                        _contentSite = (int)_tmpContentPos.y * _cExtra.dir;
                         _contentRect.anchoredPosition = _tmpContentPos;
-                    }
-                    else
-                    {
-                        contentSize.y = contentSize.y + _sProperty.TopExt + _sProperty.BottomExt;
                     }
                     break;
                 case ScrollDir.LeftToRight:
@@ -944,19 +973,16 @@ namespace UIPlugs.ScrollCircleMaker       //多行矩形滑动循环
                     _cExtra.area = _cExtra.length * _wholeSize.Width;
                     _tmpTotalItems = _cExtra.length * _maxRanks.Height;
                     contentSize.x = _cExtra.area - _sProperty.WidthExt;
-                    if (contentSize.x >= _viewRect.rect.width)
+                    contentSize.x += _lockSlide ? _sProperty.LeftExt + _sProperty.RightExt :
+                        2 * (_viewRect.rect.width + _sProperty.WidthExt);
+                    if (!_lockSlide)
                     {
-                        contentSize.x += 2 * (_viewRect.rect.width + _sProperty.WidthExt);
-                        _tmpContentPos.x = (_viewRect.rect.width + _sProperty.WidthExt)*_cExtra.dir;
-                        _contentSite = (int)_viewRect.rect.width + _sProperty.WidthExt;
+                        _tmpContentPos.x = (_viewRect.rect.width + _sProperty.WidthExt) * _cExtra.dir;
+                        _contentSite = (int)_tmpContentPos.x * _cExtra.dir;
                         _contentRect.anchoredPosition = _tmpContentPos;
                     }
-                    else
-                    {
-                        contentSize.x = contentSize.x + _sProperty.LeftExt + _sProperty.RightExt;
-                    }
                     break;
-            }
+            }              
             _contentRect.sizeDelta = contentSize;
         }
 #endregion

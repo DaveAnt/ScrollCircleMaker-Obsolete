@@ -31,7 +31,7 @@ namespace UIPlugs.ScrollCircleMaker
 
         }
 
-        public override void DelItem(T data)
+        public override void DelItem(Func<T, T, bool> seekFunc, T data)
         {
 
         }

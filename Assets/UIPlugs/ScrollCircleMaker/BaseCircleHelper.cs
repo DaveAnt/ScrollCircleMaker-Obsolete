@@ -86,7 +86,7 @@ namespace UIPlugs.ScrollCircleMaker
         }
         protected abstract void OnRefreshHandler(Vector2 v2);//刷新监听方式
         public abstract void DelItem(int itemIdx);//移除数据
-        public abstract void DelItem(T data);//移除数据
+        public abstract void DelItem(Func<T, T, bool> seekFunc, T data);//查询匹配数据移除
         public abstract void AddItem(T data, int itemIdx = -1);//添加数据
         public abstract void UpdateItem(T data,int itemIdx);
         public abstract void ResetItems();//清空数据
