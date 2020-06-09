@@ -33,11 +33,26 @@ namespace UIPlugs.ScrollCircleMaker
                 _gameObject = value;
             }
         }
-
+        /// <summary>
+        /// 初始化组件
+        /// </summary>
         public abstract void InitComponents();
+        /// <summary>
+        /// 初始化事件
+        /// </summary>
         public abstract void InitEvents();
+        /// <summary>
+        /// 更新Item样式
+        /// </summary>
+        /// <param name="data"></param>
         public abstract void UpdateView(T data);
+        /// <summary>
+        /// 销毁
+        /// </summary>
         public abstract void OnDestroy();
+        /// <summary>
+        /// 持续更新样式
+        /// </summary>
         public virtual void OnUpdate() { }
     }
 }

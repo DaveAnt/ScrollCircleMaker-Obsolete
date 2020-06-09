@@ -11,25 +11,21 @@ using UnityEngine.UI;
 
 namespace UIPlugs.ScrollCircleMaker
 {
-    public struct BoundaryInt
-    {
-        public short dir;//方向1或-1
-        public int area;//最大显示区域高或宽
-        public int length;//数据向上取整的大小
-    }
     public abstract class BaseCircleHelper<T>
     {
         protected List<T> _dataSet;
         protected List<BaseItem<T>> _itemSet;
         protected Func<BaseItem<T>> _createItemFunc;
-        protected Action _toLocationEvent;//动画结束回调
+        protected Action _toLocationEvent;
 
         protected ScrollRect _scrollRect;
         protected RectTransform _viewRect, _contentRect, _itemRect;
 
         protected ScrollCircleComponent _sProperty;
         protected GameObject _baseItem;
-
+        /// <summary>
+        /// 动画结束回调
+        /// </summary>
         public event Action toLocationEvent 
         {
             add {
@@ -40,14 +36,18 @@ namespace UIPlugs.ScrollCircleMaker
                 _toLocationEvent -= value;
             }
         }
-
+        /// <summary>
+        /// 插件组件
+        /// </summary>
         public ScrollCircleComponent sProperty
         {
             get{
                 return _sProperty;
             }
         }
-
+        /// <summary>
+        /// Item数量
+        /// </summary>
         public int itemCount
         {
             get {
@@ -57,11 +57,18 @@ namespace UIPlugs.ScrollCircleMaker
                     return _dataSet.Count;
             }
         }
-
-        public abstract void OnStart(List<T> _tmpDataSet = null);//启动
-        
+        /// <summary>
+        /// 启动插件
+        /// </summary>
+        /// <param name="_tmpDataSet"></param>
+        public abstract void OnStart(List<T> _tmpDataSet = null);
+        /// <summary>
+        /// 释放插件
+        /// </summary>
         public virtual void OnDestroy()
         {
+            foreach (var baseItem in _itemSet)
+                baseItem.OnDestroy();
             _toLocationEvent = null;
             _createItemFunc = null;
             _scrollRect.onValueChanged.RemoveListener(OnRefreshHandler);
@@ -69,30 +76,80 @@ namespace UIPlugs.ScrollCircleMaker
             _itemSet.Clear();
             GC.Collect();
         }
+        /// <summary>
+        /// item更新接口
+        /// </summary>
         public virtual void OnUpdate()
         {
             if (_itemSet == null) return;
             foreach (BaseItem<T> baseItem in _itemSet)
                 baseItem.OnUpdate();
         }
+        /// <summary>
+        /// 控制滑动开关
+        /// </summary>
+        /// <param name="state"></param>
         public virtual void OnSwitchSlide(bool state)
         {
             try{
                 _scrollRect.enabled = state;
             }
             catch (Exception e){
-                Debug.LogError("_scrollRect.enabled = ..." + e.Message);
+                Debug.LogError("OnSwitchSlide Error!" + e.Message);
             }
         }
-        protected abstract void OnRefreshHandler(Vector2 v2);//刷新监听方式
-        public abstract void DelItem(int itemIdx);//移除数据
-        public abstract void DelItem(Func<T, T, bool> seekFunc, T data);//查询匹配数据移除
-        public abstract void AddItem(T data, int itemIdx = -1);//添加数据
+        /// <summary>
+        /// 刷新方式
+        /// </summary>
+        /// <param name="v2"></param>
+        protected abstract void OnRefreshHandler(Vector2 v2);
+        /// <summary>
+        /// 移除数据
+        /// </summary>
+        /// <param name="itemIdx">索引</param>
+        public abstract void DelItem(int itemIdx);
+        /// <summary>
+        /// 移除数据
+        /// </summary>
+        /// <param name="seekFunc">匹配函数</param>
+        /// <param name="data">移除数据</param>
+        public abstract void DelItem(Func<T, T, bool> seekFunc, T data);
+        /// <summary>
+        /// 添加数据
+        /// </summary>
+        /// <param name="data">数据</param>
+        /// <param name="itemIdx">索引</param>
+        public abstract void AddItem(T data, int itemIdx = -1);
+        /// <summary>
+        /// 更新Item样式
+        /// </summary>
+        /// <param name="data">数据</param>
+        /// <param name="itemIdx">索引</param>
         public abstract void UpdateItem(T data,int itemIdx);
-        public abstract void ResetItems();//清空数据
-        public abstract int GetLocation();//获取定位
-        public abstract void ToLocation(int toSeat, bool isDrawEnable = true);//定位
-        public abstract void ToTop(bool isDrawEnable = true);//置顶 true存在过程动画
-        public abstract void ToBottom(bool isDrawEnable = true);//置底
+        /// <summary>
+        /// 重置插件
+        /// </summary>
+        public abstract void ResetItems();
+        /// <summary>
+        /// 获取定位
+        /// </summary>
+        /// <returns>位置</returns>
+        public abstract int GetLocation();
+        /// <summary>
+        /// 定位接口
+        /// </summary>
+        /// <param name="toSeat">位置</param>
+        /// <param name="isDrawEnable">是否存在动画过程</param>
+        public abstract void ToLocation(int toSeat, bool isDrawEnable = true);
+        /// <summary>
+        /// 置顶
+        /// </summary>
+        /// <param name="isDrawEnable">是否存在动画过程</param>
+        public abstract void ToTop(bool isDrawEnable = true);
+        /// <summary>
+        /// 置底
+        /// </summary>
+        /// <param name="isDrawEnable">是否存在动画过程</param>
+        public abstract void ToBottom(bool isDrawEnable = true);
     }
 }
