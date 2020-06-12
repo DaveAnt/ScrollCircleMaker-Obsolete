@@ -15,10 +15,10 @@ namespace UIPlugs.ScrollCircleMaker
             baseHelper = new SingleRectCircleHelper<int>(transform,()=> {
                 return new shapItem();
             });
-            for (int i = 0; i < 3784; ++i)
+            for (int i = 0; i < 37; ++i)
                 baseHelper.AddItem(i);
             baseHelper.OnStart();
-            baseHelper.ToLocation(10000,false);
+            //baseHelper.ToBottom(false);s
             //How to load data?
         }
     }
@@ -41,9 +41,10 @@ namespace UIPlugs.ScrollCircleMaker
 
         }
 
-        public override void UpdateView(int data)
+        public override void UpdateView(int data, int? globalSeat = null)
         {
             text.text = data.ToString();
+            rectTrans.sizeDelta = new Vector2(100,100+ globalSeat.Value);
         }
     }
 }

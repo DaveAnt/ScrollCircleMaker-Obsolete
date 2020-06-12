@@ -4,6 +4,7 @@
 // Homepage: https://dagamestudio.top/
 // Github: https://github.com/DaveAnt/ScollCircleMaker
 //------------------------------------------------------------
+using System;
 using UnityEngine;
 namespace UIPlugs.ScrollCircleMaker
 {
@@ -12,14 +13,17 @@ namespace UIPlugs.ScrollCircleMaker
         protected Transform _transform;
         protected GameObject _gameObject;
 
+        public RectTransform rectTrans
+        {
+            get {
+                return _transform as RectTransform;
+            }
+        }
+
         public Transform transform
         {
             get {
                 return _transform;
-            }
-            set
-            {
-                _transform = value;
             }
         }
 
@@ -28,10 +32,15 @@ namespace UIPlugs.ScrollCircleMaker
             get {
                 return _gameObject;
             }
-            set
-            {
-                _gameObject = value;
-            }
+        }
+        /// <summary>
+        /// 设置Item关联transform
+        /// </summary>
+        /// <param name="transform">Item的Transform</param>
+        public virtual void SetTransform(Transform transform)
+        {
+            _transform = transform;
+            _gameObject = _transform.gameObject;
         }
         /// <summary>
         /// 初始化组件
@@ -44,8 +53,9 @@ namespace UIPlugs.ScrollCircleMaker
         /// <summary>
         /// 更新Item样式
         /// </summary>
-        /// <param name="data"></param>
-        public abstract void UpdateView(T data);
+        /// <param name="data">数据源</param>
+        /// <param name="globalSeat">位置信息 *单行辅助器仅有* </param>
+        public abstract void UpdateView(T data,int? globalSeat = null);
         /// <summary>
         /// 销毁
         /// </summary>

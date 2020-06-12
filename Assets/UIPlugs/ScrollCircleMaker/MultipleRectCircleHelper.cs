@@ -78,10 +78,9 @@ namespace UIPlugs.ScrollCircleMaker
             set
             {
                 _tmpContentPos = _contentRect.anchoredPosition;
-                switch (_sProperty.scrollDir)
+                switch (_scrollRect.vertical)
                 {
-                    case ScrollDir.TopToBottom:
-                    case ScrollDir.BottomToTop:
+                    case true:
                         _tmpContentPos.y = value * _cExtra.dir;
                         _contentRect.anchoredPosition = _tmpContentPos;
                         break;
@@ -147,10 +146,9 @@ namespace UIPlugs.ScrollCircleMaker
         {
             get
             {
-                switch (_sProperty.scrollDir)
+                switch (_scrollRect.vertical)
                 {
-                    case ScrollDir.TopToBottom:
-                    case ScrollDir.BottomToTop:
+                    case true:
                         return Mathf.Abs(_contentRect.anchoredPosition.y) >= (int)(_contentRect.rect.height - _viewRect.rect.height);
                     default:
                         return Mathf.Abs(_contentRect.anchoredPosition.x) >= (int)(_contentRect.rect.width - _viewRect.rect.width);
@@ -186,10 +184,9 @@ namespace UIPlugs.ScrollCircleMaker
         {
             _wholeSize.Width = (int)(_itemRect.rect.width + _sProperty.WidthExt);
             _wholeSize.Height = (int)(_itemRect.rect.height + _sProperty.HeightExt);
-            switch (_sProperty.scrollDir)
+            switch (_scrollRect.vertical)
             {
-                case ScrollDir.TopToBottom:
-                case ScrollDir.BottomToTop:
+                case true:
                     _gridLayoutGroup.startAxis = GridLayoutGroup.Axis.Horizontal;
                     float tmpWidth = _contentRect.rect.width - _sProperty.LeftExt - _sProperty.RightExt;
                     _maxRanks.Width = (int)((tmpWidth + _sProperty.WidthExt) / _wholeSize.Width);
@@ -198,8 +195,7 @@ namespace UIPlugs.ScrollCircleMaker
                     _scrollRect.horizontal = false;
                     _scrollRect.vertical = true;
                     break;
-                case ScrollDir.LeftToRight:
-                case ScrollDir.RightToLeft:
+                default:
                     _gridLayoutGroup.startAxis = GridLayoutGroup.Axis.Vertical;
                     float tmpHeight = _contentRect.rect.height - _sProperty.TopExt - _sProperty.BottomExt;
                     _maxRanks.Height = (int)((tmpHeight + _sProperty.HeightExt) / _wholeSize.Height);
@@ -271,10 +267,9 @@ namespace UIPlugs.ScrollCircleMaker
                 return;
             }
 
-            switch (_sProperty.scrollDir)
+            switch (_scrollRect.vertical)
             {
-                case ScrollDir.TopToBottom:
-                case ScrollDir.BottomToTop:
+                case true:
                     if (_sProperty.scrollType == ScrollType.Limit)
                     {
                         _tmpContentPos.y = Mathf.Abs(_tmpContentPos.y);
@@ -288,8 +283,7 @@ namespace UIPlugs.ScrollCircleMaker
                     else
                         OnCircleVerticalNo();
                     break;
-                case ScrollDir.LeftToRight:
-                case ScrollDir.RightToLeft:
+                default:
                     if (_sProperty.scrollType == ScrollType.Limit)
                     {
                         _tmpContentPos.x = Mathf.Abs(_tmpContentPos.x);
@@ -321,12 +315,15 @@ namespace UIPlugs.ScrollCircleMaker
                 if (i >= _dataSet.Count) break;//表示没有数据
                 InitItem(i);
             }
+
             if (_sProperty.isCircleEnable)
                 OnAnchorSet();    
             else
                 OnAnchorSetNo();
-            _scrollRect.inertia = _sProperty.scrollType != ScrollType.Drag;
+
             _firstRun = true;
+            _scrollRect.inertia = _sProperty.scrollType != ScrollType.Drag;
+            
         }
 
         public override void DelItem(int itemIdx)
@@ -338,8 +335,7 @@ namespace UIPlugs.ScrollCircleMaker
             }
                 
             _dataSet.RemoveAt(itemIdx);
-            if (_firstRun)//表示已经初始化，需要计算偏移
-                ToAutoSite(false);
+            if (_firstRun)  ToAutoSite(false);
         }
 
         public override void DelItem(Func<T,T,bool> seekFunc,T data)
@@ -355,8 +351,7 @@ namespace UIPlugs.ScrollCircleMaker
                 }
             }
 
-            if (_firstRun && seekSwitch)//表示已经初始化，需要计算偏移
-                ToAutoSite(false);
+            if (_firstRun && seekSwitch) ToAutoSite(false);
         }
         public override void AddItem(T data, int itemIdx = -1)
         {
@@ -380,8 +375,7 @@ namespace UIPlugs.ScrollCircleMaker
                         _dataSet.Insert(0, data);
                     break;
             }
-            if(_firstRun)
-                ToAutoSite(true);
+            if(_firstRun) ToAutoSite(true);
         }
         public override void UpdateItem(T data, int itemIdx)
         {
@@ -416,10 +410,9 @@ namespace UIPlugs.ScrollCircleMaker
         }
         public override int GetLocation()
         {
-            switch (_sProperty.scrollDir)
+            switch (_scrollRect.vertical)
             {
-                case ScrollDir.TopToBottom:
-                case ScrollDir.BottomToTop:
+                case true:
                     return (int)Mathf.Abs(_contentRect.rect.y);
                 default:
                     return (int)Mathf.Abs(_contentRect.rect.x);
@@ -427,10 +420,9 @@ namespace UIPlugs.ScrollCircleMaker
         }
         public override void ToLocation(int toSeat, bool isDrawEnable = true)
         {
-            switch (_sProperty.scrollDir)
+            switch (_scrollRect.vertical)
             {
-                case ScrollDir.TopToBottom:
-                case ScrollDir.BottomToTop:
+                case true:
                     if (_sProperty.isCircleEnable&& isDrawEnable)
                         _sProperty.StartCoroutine(ToAutoMoveVSeat(toSeat));
                     else if(_sProperty.isCircleEnable)
@@ -483,13 +475,11 @@ namespace UIPlugs.ScrollCircleMaker
         private void InitItem(int itemIdx)
         {
             BaseItem<T> baseItem = _createItemFunc();
-            RectTransform itemRect = UnityEngine.Object.Instantiate(_baseItem, _contentRect).transform as RectTransform;
-            baseItem.transform = itemRect as Transform;
-            baseItem.gameObject = itemRect.gameObject;
-            baseItem.gameObject.name = _baseItem.name + itemIdx;
+            baseItem.SetTransform(UnityEngine.Object.Instantiate(_baseItem, _contentRect).transform);
             baseItem.InitComponents();
             baseItem.InitEvents();
             baseItem.UpdateView(_dataSet[itemIdx]);
+            baseItem.gameObject.name = _baseItem.name + itemIdx;
             _itemSet.Add(baseItem);
         }
         /// <summary>
@@ -507,7 +497,7 @@ namespace UIPlugs.ScrollCircleMaker
                 GameObject.Destroy(_itemSet[_itemSet.Count - 1].gameObject);
                 _itemSet.RemoveAt(_itemSet.Count - 1);
             }
-
+            _sProperty.initItems = _itemSet.Count;
             if (_sProperty.isCircleEnable)
                 OnAnchorSet();
             else
@@ -943,14 +933,13 @@ namespace UIPlugs.ScrollCircleMaker
         /// 自适应高宽
         /// </summary>
         private void OnAnchorSet()
-        {           
+        {
             _sProperty.initItems = _itemSet.Count;
             _lockSlide = _sProperty.maxItems >= _dataSet.Count;
             Vector2 contentSize = _contentRect.sizeDelta;
-            switch (_sProperty.scrollDir)
+            switch (_scrollRect.vertical)
             {
-                case ScrollDir.TopToBottom:
-                case ScrollDir.BottomToTop:
+                case true:
                     _cExtra.length = (int)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Width);         
                     _cExtra.area = _cExtra.length * _wholeSize.Height;
                     _tmpTotalItems = _cExtra.length * _maxRanks.Width;
@@ -958,8 +947,7 @@ namespace UIPlugs.ScrollCircleMaker
                     contentSize.y += _lockSlide ? _sProperty.TopExt + _sProperty.BottomExt :
                         2 * (_viewRect.rect.height + _sProperty.HeightExt);
                     break;
-                case ScrollDir.LeftToRight:
-                case ScrollDir.RightToLeft:
+                default:
                     _cExtra.length = (int)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Height);
                     _cExtra.area = _cExtra.length * _wholeSize.Width;
                     _tmpTotalItems = _cExtra.length * _maxRanks.Height;
@@ -969,6 +957,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
             }
             if (!_lockSlide && !_firstRun) _contentSite = _contentPos = _contentPadding;
+            _tmpContentPos = _contentRect.anchoredPosition;
             _contentRect.sizeDelta = contentSize;
         }
 #endregion
@@ -1203,18 +1192,16 @@ namespace UIPlugs.ScrollCircleMaker
             _sProperty.initItems = _itemSet.Count;
             _lockSlide = _sProperty.maxItems >= _dataSet.Count;
             Vector2 contentSize = _contentRect.sizeDelta;
-            switch (_sProperty.scrollDir)
+            switch (_scrollRect.vertical)
             {
-                case ScrollDir.TopToBottom:
-                case ScrollDir.BottomToTop:
+                case true:
                     _cExtra.length = (int)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Width);              
                     _cExtra.area = (int)(_sProperty.TopExt + _sProperty.BottomExt + _cExtra.length 
                         * _wholeSize.Height - _sProperty.HeightExt - _viewRect.rect.height);
                     contentSize.y = _cExtra.area + _viewRect.rect.height;
                     _tmpTotalItems = _cExtra.length * _maxRanks.Width;
                     break;
-                case ScrollDir.LeftToRight:
-                case ScrollDir.RightToLeft:
+                default:
                     _cExtra.length = (int)Math.Ceiling(_dataSet.Count / (float)_maxRanks.Height);
                     _cExtra.area = (int)(_sProperty.LeftExt + _sProperty.RightExt + _cExtra.length 
                         * _wholeSize.Width - _sProperty.WidthExt - _viewRect.rect.width);

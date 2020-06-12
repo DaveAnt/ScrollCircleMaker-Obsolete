@@ -37,7 +37,7 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
-        /// 插件组件
+        /// 插件参数
         /// </summary>
         public ScrollCircleComponent sProperty
         {
@@ -46,15 +46,30 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
+        /// 视图中心
+        /// </summary>
+        public int itemCore
+        {
+            get {
+                return ((_sProperty.dataIdx + _sProperty.maxItems) / 2) % _dataSet.Count;
+            }
+        }
+        /// <summary>
         /// Item数量
+        /// </summary>
+        public int dataCount
+        {
+            get {
+                return _dataSet == null ? 0 : _dataSet.Count;
+            }
+        }
+        /// <summary>
+        /// Item实例数量
         /// </summary>
         public int itemCount
         {
             get {
-                if (_dataSet == null)
-                    return 0;
-                else
-                    return _dataSet.Count;
+                return _itemSet == null ? 0 : _itemSet.Count;
             }
         }
         /// <summary>

@@ -36,7 +36,7 @@ namespace UIPlugs.ScrollCircleMaker
             
         }
 
-        public override void UpdateView(int data)
+        public override void UpdateView(int data, int? globalSeat = null)
         {
 
         }
