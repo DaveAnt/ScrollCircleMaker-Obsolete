@@ -508,8 +508,9 @@ MonoBehaviour:
     m_Bottom: 100
   _spacing: {x: 155, y: 150}
   _isUpdateEnable: 0
-  _isCircleEnable: 1
+  _isCircleEnable: 0
   _limitNum: 4
+  _itemsPos: []
   _dataIdx: 0
   _itemIdx: 0
   _maxItems: 0

@@ -17,12 +17,77 @@ namespace UIPlugs.ScrollCircleMaker
         protected List<BaseItem<T>> _itemSet;
         protected Func<BaseItem<T>> _createItemFunc;
         protected Action _toLocationEvent;
-
         protected ScrollRect _scrollRect;
         protected RectTransform _viewRect, _contentRect, _itemRect;
-
         protected ScrollCircleComponent _sProperty;
         protected GameObject _baseItem;
+
+        /// <summary>
+        /// 自适应的高宽
+        /// </summary>
+        protected float _contentSize
+        {
+            get
+            {
+                switch (_scrollRect.vertical)
+                {
+                    case true:
+                        return _contentRect.sizeDelta.y;
+                    default:
+                        return _contentRect.sizeDelta.x;
+                }
+            }
+            set
+            {
+                switch (_scrollRect.vertical)
+                {
+                    case true:
+                        _contentRect.sizeDelta = new Vector2(_contentRect.sizeDelta.x, value);
+                        break;
+                    default:
+                        _contentRect.sizeDelta = new Vector2(value, _contentRect.sizeDelta.y);
+                        break;
+                }
+            }
+        }
+        /// <summary>
+        /// 上界限判断
+        /// </summary>
+        protected bool _lowerDefine
+        {
+            get
+            {
+                switch (_sProperty.scrollDir)
+                {
+                    case ScrollDir.TopToBottom:
+                        return _contentRect.anchoredPosition.y <= 1;
+                    case ScrollDir.BottomToTop:
+                        return _contentRect.anchoredPosition.y >= -1;
+                    case ScrollDir.LeftToRight:
+                        return _contentRect.anchoredPosition.x >= -1;
+                    default:
+                        return _contentRect.anchoredPosition.x <= 1;
+                }
+            }
+        }
+        /// <summary>
+        /// 下界限判断
+        /// </summary>
+        protected bool _highDefine
+        {
+            get
+            {
+                switch (_scrollRect.vertical)
+                {
+                    case true:
+                        return Mathf.Abs(_contentRect.anchoredPosition.y) >=
+                            (int)(_contentRect.rect.height - _viewRect.rect.height);
+                    default:
+                        return Mathf.Abs(_contentRect.anchoredPosition.x) >=
+                            (int)(_contentRect.rect.width - _viewRect.rect.width);
+                }
+            }
+        }
         /// <summary>
         /// 动画结束回调
         /// </summary>

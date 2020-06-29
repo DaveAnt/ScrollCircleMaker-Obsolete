@@ -23,22 +23,22 @@ namespace UIPlugs.ScrollCircleMaker
     {0}
         public override void InitComponents()
         {0}
-            
+			throw new System.NotImplementedException();            
         {1}
 
         public override void InitEvents()
         {0}
-            
+			throw new System.NotImplementedException();            
         {1}
 
         public override void OnDestroy()
         {0}
-            
+			throw new System.NotImplementedException();            
         {1}
 
-        public override void UpdateView(int data)
+        public override void UpdateView(int data, int? globalSeat = null)
         {0}
-
+        	throw new System.NotImplementedException();
         {1}
     {1}
 {1}
