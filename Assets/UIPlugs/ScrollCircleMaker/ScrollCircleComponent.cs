@@ -22,10 +22,10 @@ namespace UIPlugs.ScrollCircleMaker
 
     public struct SizeInt
     {
-        public int Width;
-        public int Height;
+        public ushort Width;
+        public ushort Height;
 
-        public SizeInt(int Width, int Height)
+        public SizeInt(ushort Width, ushort Height)
         {
             this.Width = Width;
             this.Height = Height;

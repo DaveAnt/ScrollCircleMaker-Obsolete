@@ -16,10 +16,9 @@ namespace UIPlugs.ScrollCircleMaker
             baseHelper = new MultipleRectCircleHelper<int>(transform,()=> {
                 return new HeroaItem();
             });
-            for (int i = 0; i < 138; ++i)
+            for (int i = 0; i < 3; ++i)
                 baseHelper.AddItem(i);
             baseHelper.OnStart();
-            //baseHelper.ToTop(false);
         }
 
     }
@@ -27,8 +26,9 @@ namespace UIPlugs.ScrollCircleMaker
     public class HeroaItem : BaseItem<int>
     {
         Text text;
-        public override void InitComponents()
+        public override void InitComponents(Transform transform)
         {
+            base.InitComponents(transform);
             text = _transform.Find("Text").GetComponent<Text>();
         }
 

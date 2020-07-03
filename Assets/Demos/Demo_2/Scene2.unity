@@ -667,7 +667,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.00001663654, y: 0.000010500423}
+  m_AnchoredPosition: {x: 0.0000166893, y: 0.000010500423}
   m_SizeDelta: {x: 1029.1, y: 445.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1969231613
@@ -691,17 +691,27 @@ MonoBehaviour:
   _scrollDir: 0
   _scrollSort: 0
   _refreshRatio: 0
-  _autoMoveRatio: 10
+  _autoMoveRatio: 70
   _padding:
     m_Left: 0
     m_Right: 0
-    m_Top: 314
-    m_Bottom: 260
-  _spacing: {x: 100, y: 0}
+    m_Top: 100
+    m_Bottom: 379
+  _spacing: {x: 100, y: 100}
   _isUpdateEnable: 0
   _isCircleEnable: 0
-  _limitNum: 0
-  _itemsPos: []
+  _limitNum: 4
+  _itemsPos:
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
   _dataIdx: 0
   _itemIdx: 0
   _maxItems: 0

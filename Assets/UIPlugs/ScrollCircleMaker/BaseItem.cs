@@ -34,18 +34,13 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
-        /// 设置Item关联transform
-        /// </summary>
-        /// <param name="transform">Item的Transform</param>
-        public virtual void SetTransform(Transform transform)
-        {
-            _transform = transform;
-            _gameObject = _transform.gameObject;
-        }
-        /// <summary>
         /// 初始化组件
         /// </summary>
-        public abstract void InitComponents();
+        public virtual void InitComponents(Transform transform)
+        {
+            _transform = transform;
+            _gameObject = transform.gameObject;
+        }
         /// <summary>
         /// 初始化事件
         /// </summary>

@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 namespace UIPlugs.ScrollCircleMaker
 {
-    public class CustomRectCircleHelper<T> : BaseCircleHelper<T> //自定义轨迹
+    public sealed class CustomRectCircleHelper<T> : BaseCircleHelper<T> //自定义轨迹
     {
         public CustomRectCircleHelper(Transform contentTrans, Func<BaseItem<T>> createItemFunc)
         {

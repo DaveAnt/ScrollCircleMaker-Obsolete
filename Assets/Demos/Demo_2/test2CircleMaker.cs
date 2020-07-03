@@ -26,14 +26,14 @@ namespace UIPlugs.ScrollCircleMaker
     public class shapItem : BaseItem<int>
     {
         Text text;
-        public override void InitComponents()
+        public override void InitComponents(Transform transform)
         {
             text = _transform.Find("Text").GetComponent<Text>();
         }
 
         public override void InitEvents()
         {
-
+            
         }
 
         public override void OnDestroy()
@@ -44,7 +44,7 @@ namespace UIPlugs.ScrollCircleMaker
         public override void UpdateView(int data, int? globalSeat = null)
         {
             text.text = data.ToString();
-            rectTrans.sizeDelta = new Vector2(100,100+ globalSeat.Value);
+            rectTrans.sizeDelta = new Vector2(100,100+ globalSeat.Value * 3);
         }
     }
 }

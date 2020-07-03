@@ -21,7 +21,7 @@ namespace UIPlugs.ScrollCircleMaker
     //How to update item?
     public class sssssItem : BaseItem<int>
     {
-        public override void InitComponents()
+        public override void InitComponents(Transform transform)
         {
             
         }

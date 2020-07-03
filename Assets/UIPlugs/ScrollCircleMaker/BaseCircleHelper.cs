@@ -51,6 +51,26 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
+        /// 边距拉伸
+        /// </summary>
+        protected int _contentStretch
+        {
+            get
+            {
+                switch (_sProperty.scrollDir)
+                {
+                    case ScrollDir.TopToBottom:
+                        return _sProperty.TopExt;
+                    case ScrollDir.BottomToTop:
+                        return _sProperty.BottomExt;
+                    case ScrollDir.LeftToRight:
+                        return _sProperty.LeftExt;
+                    default:
+                        return _sProperty.RightExt;
+                }
+            }
+        }
+        /// <summary>
         /// 上界限判断
         /// </summary>
         protected bool _lowerDefine
