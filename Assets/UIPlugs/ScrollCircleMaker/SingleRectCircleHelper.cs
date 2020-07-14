@@ -124,7 +124,6 @@ namespace UIPlugs.ScrollCircleMaker
         private HorizontalOrVerticalLayoutGroup _singleLayoutGroup;
         private float _cacheItemsOffset = 0; //当前偏移量
         private SizeInt _wholeSize;
-        private float _timer = 0;
 
         /// <summary>
         /// 不规则单行滑动构造函数
@@ -158,7 +157,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
             }
             if (_sProperty.initItems <= 0)
-                throw new Exception("当前参数设置,无法容纳Item!");
+                throw new Exception("Initialize item is 0!");
 
             _singleLayoutGroup.childControlHeight = false;
             _singleLayoutGroup.childControlWidth = false;
@@ -237,8 +236,14 @@ namespace UIPlugs.ScrollCircleMaker
         }
         public override void DelItem(int itemIdx)
         {
-            if (itemIdx < 0 || itemIdx >= _dataSet.Count)
-                throw new Exception("DelItem超范围！");
+            itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count);
+            switch (_sProperty.scrollSort)
+            {
+                case ScrollSort.BackDir:
+                case ScrollSort.BackZDir:
+                    itemIdx = _dataSet.Count - itemIdx;
+                    break;
+            }
             _dataSet.RemoveAt(itemIdx);
             ToAdaptionContent(default, itemIdx, 0);
         }
@@ -254,7 +259,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
                 }
             }
-            Debug.LogWarning("DelItem超范围！");
+            Debug.LogWarning("DelItem SeekFunc Fail!");
         }
         public override void AddItem(T data, int itemIdx = int.MaxValue)
         {
@@ -272,7 +277,7 @@ namespace UIPlugs.ScrollCircleMaker
         public override void UpdateItem(T data, int itemIdx)
         {
             if (itemIdx < 0 || itemIdx >= _dataSet.Count)
-                throw new Exception("UpdateItem超范围！");
+                throw new Exception("UpdateItem Overflow!");
             int tmpOffset = _sProperty.dataIdx > itemIdx ? _dataSet.Count -
                     _sProperty.dataIdx + itemIdx : itemIdx - _sProperty.dataIdx;
             if (tmpOffset < _sProperty.initItems)
@@ -286,14 +291,18 @@ namespace UIPlugs.ScrollCircleMaker
         }
         public override void ToLocation(float toSeat, bool isDrawEnable = true)
         {
-            if (isDrawEnable)
+            if (Mathf.Abs(toSeat - nowSeat) < 0.01f)
+                Debug.LogWarning("The Target Point Has Arrived!");
+            else if (isDrawEnable)
                 _sProperty.StartCoroutine(ToAutoMoveSeat(toSeat));
             else
                 ToDirectSeat(toSeat);
         }
         public override void ToLocation(int toIndex, bool isDrawEnable = true)
         {
-            if (isDrawEnable)
+            if (_dataSet.Count < _sProperty.initItems)
+                Debug.LogWarning("ToLocation Item Index Overflow!");
+            else if (isDrawEnable)
                 _sProperty.StartCoroutine(ToAutoMoveIndex(toIndex));
             else
                 ToDirectIndex(toIndex);
@@ -308,7 +317,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
                 }
             }
-            Debug.LogError("匹配数据定位,无法找到对应数据:" + data);
+            Debug.LogError("ToLocation SeekFunc Fail!" + data);
         }
 
         #region//---------------------------内置函数-------------------------------//
@@ -317,11 +326,29 @@ namespace UIPlugs.ScrollCircleMaker
         /// </summary>
         /// <param name="data">数据</param>
         /// <param name="globalSeat">位置</param>
-        /// <param name="handle">标志位</param>
+        /// <param name="opHandle">标志位</param>
         /// <returns></returns>
-        private void ToAdaptionContent(T data,int globalSeat,byte tag)
+        private void ToAdaptionContent(T data,int globalSeat,byte opHandle)
         {
             if (!_firstRun) return;
+            _sProperty.visibleItems = _dataSet.Count;
+            lockRefresh = _sProperty.initItems >= _dataSet.Count;
+            switch (opHandle)
+            {
+                case 0://删除
+
+                    break;
+                case 1://添加
+                    
+                    break;
+                case 2://更新
+
+                    break;
+                default:
+                    Debug.LogError("ToAdaptionContent opHandle error:" + opHandle);
+                    break;
+            }
+            OnRefreshItems();
         }
         /// <summary>
         /// 对齐偏移
@@ -517,8 +544,7 @@ namespace UIPlugs.ScrollCircleMaker
             if (_sProperty.scrollType == ScrollType.Limit && _sProperty.isCircleEnable)
             {
                 ToItemCircle();
-                if (toCacheSeat != toSeat)
-                    ToLocation(nowSeat + toCacheSeat - toSeat);
+                ToLocation(nowSeat + toCacheSeat - toSeat);
             }
         }
         /// <summary>

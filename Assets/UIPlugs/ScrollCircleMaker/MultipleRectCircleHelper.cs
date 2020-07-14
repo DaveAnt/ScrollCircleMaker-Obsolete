@@ -63,7 +63,6 @@ namespace UIPlugs.ScrollCircleMaker
         private GridLayoutGroup _gridLayoutGroup;
         private SizeInt _wholeSize, _maxRanks;
         private ContentExtra _cExtra;
-        private float _timer = 0;
         /// <summary>
         /// 多行规则滑动构造函数
         /// </summary>
@@ -100,7 +99,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
             }
             if (_sProperty.initItems <= 0)
-                throw new Exception("当前参数设置,无法容纳Item!");
+                throw new Exception("Initialize item is 0!");
 
             _gridLayoutGroup.cellSize = _itemRect.rect.size;
             _gridLayoutGroup.padding.left = _sProperty.LeftExt;
@@ -211,7 +210,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
                 }
             }
-            Debug.LogWarning("无法找到对应Item！");
+            Debug.LogWarning("DelItem SeekFunc Fail!");
         }
         public override void AddItem(T data, int itemIdx = int.MaxValue)
         {
@@ -229,7 +228,7 @@ namespace UIPlugs.ScrollCircleMaker
         public override void UpdateItem(T data, int itemIdx)
         {
             if (itemIdx < 0 || itemIdx >= _dataSet.Count)
-                throw new Exception("UpdateItem超范围！");
+                throw new Exception("UpdateItem Overflow!");
             _dataSet[itemIdx] = data;
             int tmpOffset = _sProperty.dataIdx > itemIdx ? _cExtra.totalItems -
                     _sProperty.dataIdx + itemIdx : itemIdx - _sProperty.dataIdx;
@@ -240,17 +239,20 @@ namespace UIPlugs.ScrollCircleMaker
                     _itemSet[tmpItemIdx].UpdateView(data, itemIdx);
             }
         }
-
         public override void ToLocation(float toSeat, bool isDrawEnable = true)
         {
-            if (isDrawEnable)
+            if (Mathf.Abs(toSeat - nowSeat) < 0.01f)
+                Debug.LogWarning("The Target Point Has Arrived!");
+            else if (isDrawEnable)
                 _sProperty.StartCoroutine(ToAutoMoveSeat(toSeat));
             else
                 ToDirectSeat(toSeat);
         }
         public override void ToLocation(int toIndex, bool isDrawEnable = true)
         {
-            if (isDrawEnable)
+            if (_cExtra.totalItems < _sProperty.initItems)
+                Debug.LogWarning("ToLocation Item Index Overflow!");
+            else if (isDrawEnable)
                 _sProperty.StartCoroutine(ToAutoMoveIndex(toIndex));
             else
                 ToDirectIndex(toIndex);
@@ -265,7 +267,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
                 }
             }
-            Debug.LogError("匹配数据定位失败,无法找到对应数据:" + data);
+            Debug.LogError("ToLocation SeekFunc Fail!" + data);
         }
 
         #region//-------------------------------------内置函数------------------------------------------//    
@@ -490,8 +492,7 @@ namespace UIPlugs.ScrollCircleMaker
             if (_sProperty.scrollType == ScrollType.Limit && _sProperty.isCircleEnable)
             {
                 ToItemCircle();
-                if(toCacheSeat != toSeat)
-                    ToLocation(nowSeat + toCacheSeat - toSeat);
+                ToLocation(nowSeat + toCacheSeat - toSeat);
             }
         }
         /// <summary>

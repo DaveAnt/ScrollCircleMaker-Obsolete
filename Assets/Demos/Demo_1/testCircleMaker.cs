@@ -16,10 +16,10 @@ namespace UIPlugs.ScrollCircleMaker
             baseHelper = new MultipleRectCircleHelper<int>(transform,()=> {
                 return new HeroaItem();
             });
-            for (int i = 0; i < 1113; ++i)
+            for (int i = 0; i < 113; ++i)
                 baseHelper.AddItem(i);
             baseHelper.OnStart();
-            baseHelper.ToLocation(340);
+            //baseHelper.ToLocation(340);
         }
     }
 

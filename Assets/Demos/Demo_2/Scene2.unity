@@ -683,12 +683,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fae2f24c9de61914793286874ecf4d79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _scrollMaker: UIPlugs.ScrollCircleMaker.testCircleMaker
+  _baseHelperIdx: 2
+  _scrollMaker: UIPlugs.ScrollCircleMaker.test2CircleMaker
   _baseItem: {fileID: 7749687860297296843, guid: 12f9543447ce02c44bfc7b6e08238efd,
     type: 3}
-  _baseHelperIdx: 1
-  _scrollType: 0
-  _scrollDir: 1
+  _scrollType: 1
+  _scrollDir: 0
   _scrollSort: 0
   _refreshRatio: 0
   _autoMoveRatio: 80
@@ -696,11 +696,11 @@ MonoBehaviour:
     m_Left: 152
     m_Right: 135
     m_Top: 100
-    m_Bottom: 111
+    m_Bottom: 600
   _spacing: {x: 100, y: 100}
   _isUpdateEnable: 0
-  _isCircleEnable: 1
-  _stepSize: 1814
+  _isCircleEnable: 0
+  _stepLen: 1000
   _itemsPos:
   - {x: 111, y: -10}
   - {x: 1111, y: -222}
@@ -714,5 +714,5 @@ MonoBehaviour:
   - {x: 0, y: -111}
   _dataIdx: 0
   _itemIdx: 0
-  _maxItems: 0
+  _visibleItems: 0
   _initItems: 0

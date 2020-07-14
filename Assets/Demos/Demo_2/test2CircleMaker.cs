@@ -15,10 +15,10 @@ namespace UIPlugs.ScrollCircleMaker
             baseHelper = new SingleRectCircleHelper<int>(transform,()=> {
                 return new shapItem();
             });
-            for (int i = 0; i < 115; ++i)
+            for (int i = 0; i < 1135; ++i)
                 baseHelper.AddItem(i);
             baseHelper.OnStart();
-            //baseHelper.ToBottom(false);s
+            //baseHelper.ToBottom(false);
             //How to load data?
         }
     }

@@ -244,6 +244,10 @@ namespace UIPlugs.ScrollCircleMaker
 
         #region 辅助器内置共需属性
         /// <summary>
+        /// 刷新速率
+        /// </summary>
+        protected float _timer = 0;
+        /// <summary>
         /// 缓存位置
         /// </summary>
         protected Vector2 _cacheSeat;
