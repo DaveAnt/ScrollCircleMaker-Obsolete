@@ -1,7 +1,7 @@
 ﻿//------------------------------------------------------------
 // ScrollCircleMaker v1.0
 // Copyright © 2020 DaveAnt. All rights reserved.
-// Homepage: https://dagamestudio.top/
+// Homepage: https://daveant.gitee.io/
 // Github: https://github.com/DaveAnt/ScollCircleMaker
 //------------------------------------------------------------
 using System;
@@ -25,13 +25,13 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         [MenuItem("ScrollCircleMaker/Document")]
         private static void OpenWebSite()
         {
-            System.Diagnostics.Process.Start("https://dagamestudio.top/");
+            System.Diagnostics.Process.Start("https://daveant.gitee.io/");
         }
 
         [MenuItem("ScrollCircleMaker/Clear Order/Clear All Makers")]
         private static void ClerAllMakers()
         {
-            List<string> baseMakers = TypesObtainer<BaseCircleMaker<dynamic>>.GetScripts();
+            List<string> baseMakers = TypesObtainer<BaseDirectMaker<dynamic>>.GetScripts();
             List<string> resultFiles = new List<string>();
             GetDirs("Assets/",baseMakers,resultFiles);
             foreach (var fileName in resultFiles)
@@ -284,7 +284,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         //寻找特征解决方案
         public static List<string> SeekFeatureMaker(string helperName)
         {
-            List<string> baseMakers = TypesObtainer<BaseCircleMaker<dynamic>>.GetScripts();
+            List<string> baseMakers = TypesObtainer<BaseDirectMaker<dynamic>>.GetScripts();
             List<string> resultFiles = new List<string>();
             GetDirs("Assets/", baseMakers, resultFiles);
             string tmpContent;

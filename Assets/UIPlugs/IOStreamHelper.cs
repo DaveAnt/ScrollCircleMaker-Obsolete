@@ -1,7 +1,7 @@
 ﻿//------------------------------------------------------------
 // ScrollCircleMaker v1.0
 // Copyright © 2020 DaveAnt. All rights reserved.
-// Homepage: https://dagamestudio.top/
+// Homepage: https://daveant.gitee.io/
 // Github: https://github.com/DaveAnt/ScollCircleMaker
 //------------------------------------------------------------
 using System;
@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
 
-namespace UIPlugs
+namespace UIPlugs.ScrollCircleMaker
 {
     public class IOStreamHelper
     {

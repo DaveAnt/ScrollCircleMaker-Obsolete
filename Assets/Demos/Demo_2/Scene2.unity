@@ -667,8 +667,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.0000166893, y: 0.000010500423}
-  m_SizeDelta: {x: 1029.1, y: 445.7}
+  m_AnchoredPosition: {x: -0.00022609768, y: -0.09998966}
+  m_SizeDelta: {x: 1731.3, y: 814.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1969231613
 MonoBehaviour:
@@ -683,35 +683,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fae2f24c9de61914793286874ecf4d79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _scrollMaker: UIPlugs.ScrollCircleMaker.test2CircleMaker
+  _scrollMaker: UIPlugs.ScrollCircleMaker.testCircleMaker
   _baseItem: {fileID: 7749687860297296843, guid: 12f9543447ce02c44bfc7b6e08238efd,
     type: 3}
-  _baseHelperIdx: 2
+  _baseHelperIdx: 1
   _scrollType: 0
-  _scrollDir: 0
+  _scrollDir: 1
   _scrollSort: 0
   _refreshRatio: 0
-  _autoMoveRatio: 70
+  _autoMoveRatio: 80
   _padding:
-    m_Left: 0
-    m_Right: 0
+    m_Left: 152
+    m_Right: 135
     m_Top: 100
-    m_Bottom: 379
+    m_Bottom: 111
   _spacing: {x: 100, y: 100}
   _isUpdateEnable: 0
-  _isCircleEnable: 0
-  _limitNum: 4
+  _isCircleEnable: 1
+  _stepSize: 1814
   _itemsPos:
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
-  - {x: 0, y: 0}
+  - {x: 111, y: -10}
+  - {x: 1111, y: -222}
+  - {x: 800, y: -600}
+  - {x: 323, y: -123}
+  - {x: 434, y: -322}
+  - {x: 22, y: 0}
+  - {x: 233, y: -567}
+  - {x: 600, y: -400}
+  - {x: 657, y: -11}
+  - {x: 0, y: -111}
   _dataIdx: 0
   _itemIdx: 0
   _maxItems: 0

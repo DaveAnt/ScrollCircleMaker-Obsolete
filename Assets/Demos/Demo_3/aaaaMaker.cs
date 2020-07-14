@@ -1,14 +1,14 @@
 //------------------------------------------------------------
 // ScrollCircleMaker v1.0
 // Copyright © 2020 DaveAnt. All rights reserved.
-// Homepage: https://dagamestudio.top/
+// Homepage: https://daveant.gitee.io/
 // Github: https://github.com/DaveAnt/ScollCircleMaker
 //------------------------------------------------------------
 using UnityEngine;
 using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
 {
-    public class aaaaMaker : BaseCircleMaker<int>
+    public class aaaaMaker : BaseDirectMaker<int>
     {
         public override void OnStart(Transform transform)
         {
@@ -16,14 +16,17 @@ namespace UIPlugs.ScrollCircleMaker
                 return new customItem();
             });
             //How to load data?
+            for (int i = 0; i < 37; ++i)
+                baseHelper.AddItem(i);
+            baseHelper.OnStart();
         }
     }
     //How to update item?
     public class customItem : BaseItem<int>
     {
-        public override void InitComponents(Transform transform)
+        public override void InitComponents()
         {
-            base.InitComponents(transform);
+            
         }
 
         public override void InitEvents()
@@ -36,7 +39,7 @@ namespace UIPlugs.ScrollCircleMaker
             
         }
 
-        public override void UpdateView(int data, int? globalSeat = null)
+        public override void UpdateView(int data, int globalSeat)
         {
 
         }

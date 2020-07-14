@@ -497,23 +497,33 @@ MonoBehaviour:
     type: 3}
   _baseHelperIdx: 1
   _scrollType: 0
-  _scrollDir: 1
+  _scrollDir: 0
   _scrollSort: 0
   _refreshRatio: 0
-  _autoMoveRatio: 20
+  _autoMoveRatio: 100
   _padding:
     m_Left: 200
     m_Right: 200
-    m_Top: 133
-    m_Bottom: 100
-  _spacing: {x: 155, y: 150}
+    m_Top: 333
+    m_Bottom: 111
+  _spacing: {x: 100, y: 100}
   _isUpdateEnable: 0
-  _isCircleEnable: 0
-  _limitNum: 4
-  _itemsPos: []
+  _isCircleEnable: 1
+  _stepLen: 0
+  _itemsPos:
+  - {x: 0, y: 1}
+  - {x: 0, y: 2}
+  - {x: 0, y: 9}
+  - {x: 0, y: 3}
+  - {x: 0, y: 11}
+  - {x: 0, y: 90}
+  - {x: 0, y: 200}
+  - {x: 0, y: 300}
+  - {x: 0, y: 110}
+  - {x: 0, y: 22}
   _dataIdx: 0
   _itemIdx: 0
-  _maxItems: 0
+  _visibleItems: 0
   _initItems: 0
 --- !u!1 &1524243104
 GameObject:

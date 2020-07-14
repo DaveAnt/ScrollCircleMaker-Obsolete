@@ -1,7 +1,7 @@
 ﻿//------------------------------------------------------------
 // ScrollCircleMaker v1.0
 // Copyright © 2020 DaveAnt. All rights reserved.
-// Homepage: https://dagamestudio.top/
+// Homepage: https://daveant.gitee.io/
 // Github: https://github.com/DaveAnt/ScollCircleMaker
 //------------------------------------------------------------
 using System;
@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-namespace UIPlugs
+namespace UIPlugs.ScrollCircleMaker
 {
     public static class TypesObtainer<T>
     {

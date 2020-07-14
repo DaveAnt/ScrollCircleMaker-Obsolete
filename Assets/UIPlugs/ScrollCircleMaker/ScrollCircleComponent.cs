@@ -1,7 +1,7 @@
 ﻿//------------------------------------------------------------
 // ScrollCircleMaker v1.0
 // Copyright © 2020 DaveAnt. All rights reserved.
-// Homepage: https://dagamestudio.top/
+// Homepage: https://daveant.gitee.io/
 // Github: https://github.com/DaveAnt/ScollCircleMaker
 //------------------------------------------------------------
 using UnityEngine;
@@ -59,11 +59,11 @@ namespace UIPlugs.ScrollCircleMaker
     {
         //参数面板
         [SerializeField]
+        private int _baseHelperIdx = 1;//默认是multiple
+        [SerializeField]
         private string _scrollMaker;
         [SerializeField]
         private GameObject _baseItem;
-        [SerializeField]
-        private int _baseHelperIdx = 1;//默认是multiple
         [SerializeField]
         private ScrollType _scrollType;
         [SerializeField]
@@ -81,13 +81,13 @@ namespace UIPlugs.ScrollCircleMaker
         [SerializeField]
         private bool _isUpdateEnable, _isCircleEnable;
         [SerializeField]
-        private int _limitNum;
+        private int _stepLen;
         [SerializeField]
         private Vector2[] _itemsPos;
         [SerializeField]
         private int _dataIdx = 0, _itemIdx = 0;
         [SerializeField]
-        private int _maxItems, _initItems;
+        private int _visibleItems, _initItems;
         /// <summary>
         /// Item实例
         /// </summary>
@@ -204,9 +204,13 @@ namespace UIPlugs.ScrollCircleMaker
             get {
                 return _itemsPos;
             }
+            set
+            {
+                _itemsPos = value;
+            }
         }
         /// <summary>
-        /// 是否圈型
+        /// 是否环形
         /// </summary>
         public bool isCircleEnable
         {
@@ -217,14 +221,14 @@ namespace UIPlugs.ScrollCircleMaker
         /// <summary>
         /// 限速步数
         /// </summary>
-        public int limitNum
+        public int stepLen
         {
             get {
-                return _limitNum;
+                return _stepLen;
             }
         }
         /// <summary>
-        /// item索引
+        /// 物品索引
         /// </summary>
         public int itemIdx
         {
@@ -248,19 +252,19 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
-        /// 可视化最大数量
+        /// 可见物品数量
         /// </summary>
-        public int maxItems
+        public int visibleItems
         {
             get {
-                return _maxItems;
+                return _visibleItems;
             }
             set {
-                _maxItems = value;
+                _visibleItems = value;
             }
         }
         /// <summary>
-        /// 实例化Item数量
+        /// 实例物品数量
         /// </summary>
         public int initItems
         {
@@ -292,11 +296,12 @@ namespace UIPlugs.ScrollCircleMaker
             baseMaker?.OnStart(transform);
         }
         /// <summary>
-        /// 持续更新Item
+        /// 持续更新物品
         /// </summary>
         public void Update()
         {
-            if(_isUpdateEnable) baseMaker?.OnUpdate();
+            if(_isUpdateEnable) 
+                baseMaker?.OnUpdate();
         }
         /// <summary>
         /// 销毁解决方案
@@ -304,6 +309,7 @@ namespace UIPlugs.ScrollCircleMaker
         public void OnDestroy()
         {
             baseMaker?.OnDestroy();
+            StopAllCoroutines();
         }
     }
 }

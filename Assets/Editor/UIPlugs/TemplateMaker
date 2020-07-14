@@ -1,7 +1,7 @@
 //------------------------------------------------------------
 // ScrollCircleMaker v1.0
 // Copyright © 2020 DaveAnt. All rights reserved.
-// Homepage: https://dagamestudio.top/
+// Homepage: https://daveant.gitee.io/
 // Github: https://github.com/DaveAnt/ScollCircleMaker
 //------------------------------------------------------------
 using UnityEngine;
@@ -21,9 +21,9 @@ namespace UIPlugs.ScrollCircleMaker
     //How to update item?
     public class {5} : BaseItem<{3}>
     {0}
-        public override void InitComponents(Transform transform)
+        public override void InitComponents()
         {0}
-            base.InitComponents(transform);//must first call         
+        
         {1}
 
         public override void InitEvents()
@@ -36,7 +36,7 @@ namespace UIPlugs.ScrollCircleMaker
 			         
         {1}
 
-        public override void UpdateView(int data, int? globalSeat = null)
+        public override void UpdateView(int data, int globalSeat)
         {0}
         	
         {1}

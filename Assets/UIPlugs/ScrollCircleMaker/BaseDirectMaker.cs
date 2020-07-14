@@ -1,13 +1,16 @@
 ﻿//------------------------------------------------------------
 // ScrollCircleMaker v1.0
 // Copyright © 2020 DaveAnt. All rights reserved.
-// Homepage: https://dagamestudio.top/
+// Homepage: https://daveant.gitee.io/
 // Github: https://github.com/DaveAnt/ScollCircleMaker
 //------------------------------------------------------------
-using UnityEngine;
 namespace UIPlugs.ScrollCircleMaker
 {
-    public abstract class BaseCircleMaker<T> : BaseMaker//启动器
+    /// <summary>
+    /// 纵横轨迹解决方案
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class BaseDirectMaker<T> : BaseMaker//启动器
     {
         protected BaseCircleHelper<T> baseHelper;
 

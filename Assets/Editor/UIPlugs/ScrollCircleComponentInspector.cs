@@ -1,7 +1,7 @@
 ﻿//------------------------------------------------------------
 // ScrollCircleMaker v1.0
 // Copyright © 2020 DaveAnt. All rights reserved.
-// Homepage: https://dagamestudio.top/
+// Homepage: https://daveant.gitee.io/
 // Github: https://github.com/DaveAnt/ScollCircleMaker
 //------------------------------------------------------------
 using UnityEditor;
@@ -29,10 +29,10 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         private SerializedProperty spacing;
         private SerializedProperty isUpdateEnable;
         private SerializedProperty isCircleEnable;
-        private SerializedProperty limitNum;
+        private SerializedProperty stepLen;
         private SerializedProperty itemsPos;
         //编辑器运行时显示
-        private SerializedProperty maxItems;
+        private SerializedProperty visibleItems;
         private SerializedProperty initItems;
         private SerializedProperty itemIdx;
         private SerializedProperty dataIdx;
@@ -49,7 +49,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                 {
                     makerNames.Clear();
                     baseHelperIdx.intValue = helperIndex;               
-                    List<string> tmpMakerNames = TypesObtainer<BaseCircleMaker<dynamic>>.GetNames();
+                    List<string> tmpMakerNames = TypesObtainer<BaseDirectMaker<dynamic>>.GetNames();
                     List<string> resultFiles = ScrollCircleEditor.SeekFeatureMaker(helperNames[baseHelperIdx.intValue].Split('.')[2]);
                     foreach (var filesName in resultFiles)
                     {
@@ -62,6 +62,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                             }
                         }
                     }
+                    m_MakerIdx = -1;
                     tmpMakerNames.Clear();
                     resultFiles.Clear();
                 }              
@@ -80,14 +81,28 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                 EditorGUILayout.PropertyField(scrollType);
                 if (scrollType.enumValueIndex == 1)
                 {
-                    EditorGUILayout.PropertyField(limitNum);
-                    if (limitNum.intValue <= 0)
-                        limitNum.intValue = 1;
+                    EditorGUILayout.PropertyField(stepLen);
+                    if (stepLen.intValue < 0)
+                        stepLen.intValue = 0;
                 }
                 refreshRatio.floatValue = (EditorGUILayout.IntSlider("Refresh Ratio", (int)(refreshRatio.floatValue*10+1), 1, 3)-1)/10f;
                 autoMoveRatio.intValue = EditorGUILayout.IntSlider("AutoMove Ratio", autoMoveRatio.intValue/10,1,10)*10;
                 if (helperIndex == 0)
-                    EditorGUILayout.PropertyField(itemsPos,true);
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField("Spacing", GUILayout.Width(116));
+                    Vector2Int tmpSpacing = spacing.vector2IntValue;
+                    tmpSpacing.x = EditorGUILayout.IntField(spacing.vector2IntValue.x);
+                    spacing.vector2IntValue = tmpSpacing;
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.PropertyField(padding, true);
+                    EditorGUILayout.PropertyField(itemsPos, true);
+                }                   
+                else if(helperIndex == 1)
+                {
+                    EditorGUILayout.PropertyField(spacing, true);
+                    EditorGUILayout.PropertyField(padding, true);
+                }
                 else if (helperIndex == 2)
                 {
                     EditorGUILayout.BeginHorizontal();
@@ -98,12 +113,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.PropertyField(padding, true);
                 }
-                else if(helperIndex == 1)
-                {
-                    EditorGUILayout.PropertyField(spacing, true);
-                    EditorGUILayout.PropertyField(padding, true);
-                }                               
-                
+
                 EditorGUILayout.BeginHorizontal();
                 isUpdateEnable.boolValue = EditorGUILayout.ToggleLeft("IsUpdateEnable",isUpdateEnable.boolValue, GUILayout.Width(140));
                 isCircleEnable.boolValue = EditorGUILayout.ToggleLeft("IsCircleEnable", isCircleEnable.boolValue, GUILayout.Width(140));
@@ -111,8 +121,8 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                 if (EditorApplication.isPlaying)
                 {
                     EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField("MaxItems:"+maxItems.intValue.ToString(), GUILayout.Width(100)) ;
-                    EditorGUILayout.LabelField("InitItems:"+initItems.intValue.ToString(), GUILayout.Width(100));
+                    EditorGUILayout.LabelField("VisibleItems:" + visibleItems.intValue.ToString(), GUILayout.Width(100)) ;
+                    EditorGUILayout.LabelField("InitItems:" + initItems.intValue.ToString(), GUILayout.Width(100));
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField("ItemIdx:" + itemIdx.intValue.ToString(), GUILayout.Width(100));
@@ -129,7 +139,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             baseHelperIdx = serializedObject.FindProperty("_baseHelperIdx");
             foreach (var helperName in TypesObtainer<BaseCircleHelper<dynamic>>.GetNames())
                 helperNames.Add(helperName.Substring(0, helperName.Length - 2));   
-            List<string> tmpMakerNames = TypesObtainer<BaseCircleMaker<dynamic>>.GetNames();
+            List<string> tmpMakerNames = TypesObtainer<BaseDirectMaker<dynamic>>.GetNames();
             List<string> resultFiles = ScrollCircleEditor.SeekFeatureMaker(helperNames[baseHelperIdx.intValue].Split('.')[2]);
             foreach (var filesName in resultFiles)
             {
@@ -156,11 +166,11 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             spacing = serializedObject.FindProperty("_spacing");
             isUpdateEnable = serializedObject.FindProperty("_isUpdateEnable");
             isCircleEnable = serializedObject.FindProperty("_isCircleEnable");
-            limitNum = serializedObject.FindProperty("_limitNum");
+            stepLen = serializedObject.FindProperty("_stepLen");
             itemsPos = serializedObject.FindProperty("_itemsPos");
             itemIdx = serializedObject.FindProperty("_itemIdx");
             dataIdx = serializedObject.FindProperty("_dataIdx");
-            maxItems = serializedObject.FindProperty("_maxItems");
+            visibleItems = serializedObject.FindProperty("_visibleItems");
             initItems = serializedObject.FindProperty("_initItems");
             m_MakerIdx = makerNames.IndexOf(scrollMaker.stringValue);
         }        
