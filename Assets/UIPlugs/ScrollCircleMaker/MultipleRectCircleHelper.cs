@@ -13,9 +13,9 @@ using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
 {
     /// <summary>
-    /// 多行规则长度滑动循环
+    /// 多行规则滑动循环
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">数据结构</typeparam>
     public sealed class MultipleRectCircleHelper<T> : BaseCircleHelper<T>
     {
         #region 多行所需属性
@@ -64,10 +64,10 @@ namespace UIPlugs.ScrollCircleMaker
         private SizeInt _wholeSize, _maxRanks;
         private ContentExtra _cExtra;
         /// <summary>
-        /// 多行规则滑动构造函数
+        /// 多行规则滑动构造
         /// </summary>
-        /// <param name="contentTrans">content的transform组件</param>
-        /// <param name="createItemFunc">创建item函数</param>
+        /// <param name="contentTrans">内容组件</param>
+        /// <param name="createItemFunc">创建物品函数</param>
         public MultipleRectCircleHelper(Transform contentTrans, Func<BaseItem<T>> createItemFunc) :
             base(contentTrans, createItemFunc)
         {
@@ -111,7 +111,7 @@ namespace UIPlugs.ScrollCircleMaker
             OnResolveGroupEnum();
         }
         /// <summary>
-        /// 解析GridLayoutGroup排版
+        /// 解析布局排版
         /// </summary>
         private void OnResolveGroupEnum()
         {
@@ -154,19 +154,10 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
 
-        protected override void OnRefreshHandler(Vector2 v2)//刷新Item的移动
+        protected override void OnRefreshHandler(Vector2 v2)
         {
-            if (lockRefresh) return;
-            if (_timer < _sProperty.refreshRatio) {
-                _timer += Time.deltaTime;
-                return;
-            }
-
-            if (_sProperty.scrollType == ScrollType.Limit)
-                ToLocation(nowSeat + _sProperty.stepLen * slideDir);
-            else
-                OnRefreshCircle();
-            _timer = 0;
+            base.OnRefreshHandler(v2);
+            OnRefreshCircle();
         }
 
         public override void OnStart(List<T> tmpDataSet = null)
@@ -179,7 +170,7 @@ namespace UIPlugs.ScrollCircleMaker
             if (_sProperty.isCircleEnable)
             {
                 nowSeat = topSeat;
-                contentSite = (int)(topSeat + spacingExt);
+                contentSite = (int)topSeatExt;
                 contentRectangle += spacingExt;
             }
             OnRefreshItems();
@@ -196,7 +187,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
             }
             _dataSet.RemoveAt(itemIdx);
-            ToAdaptionContent(default, itemIdx, 0);
+            OnRefreshOwn(0);
         }
 
         public override void DelItem(Func<T, T, bool> seekFunc, T data)
@@ -206,8 +197,8 @@ namespace UIPlugs.ScrollCircleMaker
                 if (seekFunc(data, _dataSet[i]))
                 {
                     _dataSet.RemoveAt(i);
-                    ToAdaptionContent(default, i, 0);
-                    break;
+                    OnRefreshOwn(0);
+                    return;
                 }
             }
             Debug.LogWarning("DelItem SeekFunc Fail!");
@@ -223,7 +214,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
             }
             _dataSet.Insert(itemIdx, data);
-            ToAdaptionContent(data, itemIdx, 1);
+            OnRefreshOwn(1);
         }
         public override void UpdateItem(T data, int itemIdx)
         {
@@ -241,8 +232,8 @@ namespace UIPlugs.ScrollCircleMaker
         }
         public override void ToLocation(float toSeat, bool isDrawEnable = true)
         {
-            if (Mathf.Abs(toSeat - nowSeat) < 0.01f)
-                Debug.LogWarning("The Target Point Has Arrived!");
+            if (Mathf.Abs(toSeat - nowSeat) < 0.1f)
+                Debug.LogWarning("ToLocation Has Arrived!");
             else if (isDrawEnable)
                 _sProperty.StartCoroutine(ToAutoMoveSeat(toSeat));
             else
@@ -251,66 +242,17 @@ namespace UIPlugs.ScrollCircleMaker
         public override void ToLocation(int toIndex, bool isDrawEnable = true)
         {
             if (_cExtra.totalItems < _sProperty.initItems)
-                Debug.LogWarning("ToLocation Item Index Overflow!");
+                Debug.LogWarning("ToLocation ItemIndex Overflow!");
             else if (isDrawEnable)
                 _sProperty.StartCoroutine(ToAutoMoveIndex(toIndex));
             else
                 ToDirectIndex(toIndex);
         }
-        public override void ToLocation(Func<T, T, bool> seekFunc, T data, bool isDrawEnable = true)
-        {
-            for (int i = _dataSet.Count - 1; i >= 0; ++i)
-            {
-                if (seekFunc(data, _dataSet[i]))
-                {
-                    ToLocation(i, isDrawEnable);
-                    break;
-                }
-            }
-            Debug.LogError("ToLocation SeekFunc Fail!" + data);
-        }
-
         #region//-------------------------------------内置函数------------------------------------------//    
-        /// <summary>
-        /// 计算删除0、添加1导致的位移
-        /// </summary>
-        /// <param name="data">数据</param>
-        /// <param name="globalSeat">位置</param>
-        /// <param name="opHandle">操作标志位</param>
-        /// <returns></returns>
-        private void ToAdaptionContent(T data, int globalSeat, byte opHandle)
-        {
-            if (!_firstRun) return;
-            _sProperty.visibleItems = _dataSet.Count;
-            lockRefresh = _sProperty.initItems >= _dataSet.Count;
-            switch (opHandle)
-            {
-                case 0://删除
-                    if (_dataSet.Count + autoRanks == _cExtra.totalItems)
-                    {
-                        _cExtra.length -= 1;
-                        _cExtra.totalItems -= (ushort)autoRanks;
-                        contentRectangle -= itemLen;
-                    }
-                    break;
-                case 1://添加
-                    if (_dataSet.Count > _cExtra.totalItems)
-                    {
-                        _cExtra.length += 1;
-                        _cExtra.totalItems += (ushort)autoRanks;
-                        contentRectangle += itemLen;
-                    }
-                    break;
-                default:
-                    Debug.LogError("ToAdaptionContent opHandle error:" + opHandle);
-                    break;
-            }
-            OnRefreshItems();
-        }
         /// <summary>
         /// 对齐偏移
         /// </summary>
-        /// <param name="tmpItemIdx"></param>
+        /// <param name="tmpItemIdx">需要对齐到的索引</param>
         private void ToItemOffset(int tmpItemIdx)
         {
             for (int i = tmpItemIdx; i < _sProperty.itemIdx; ++i)
@@ -331,8 +273,7 @@ namespace UIPlugs.ScrollCircleMaker
                 tmpItemIdx = _sProperty.itemIdx;
                 _sProperty.itemIdx = _sProperty.dataIdx = 0;
                 nowSeat = topSeat;
-                contentSite = (int)(topSeat + spacingExt);
-                _gridLayoutGroup.SetLayoutVertical();
+                contentSite = (int)topSeatExt;
                 ToItemOffset(tmpItemIdx);
                 OnRefreshItems();
                 _scrollRect.enabled = true;
@@ -347,13 +288,46 @@ namespace UIPlugs.ScrollCircleMaker
                 _sProperty.dataIdx = _sProperty.dataIdx < 0 ? 0 : _sProperty.dataIdx;
                 _sProperty.itemIdx = _sProperty.dataIdx % _sProperty.initItems;
                 nowSeat = bottomSeat;
-                contentSite = (int)(topSeat + spacingExt + _sProperty.dataIdx * itemLen / autoRanks);
-                _gridLayoutGroup.SetLayoutVertical();
+                contentSite = (int)(topSeatExt + _sProperty.dataIdx * itemLen / autoRanks);
                 ToItemOffset(tmpItemIdx);
                 OnRefreshItems();
                 _scrollRect.enabled = true;
                 _scrollRect.velocity = tmpForce;
             }
+        }
+        /// <summary>
+        /// 刷新当前样式
+        /// </summary>
+        /// <param name="opHandle">操作标志位</param>
+        /// <returns></returns>
+        private void OnRefreshOwn(byte opHandle)
+        {
+            if (!_firstRun) return;
+            _sProperty.visibleItems = _dataSet.Count;
+            lockRefresh = _sProperty.initItems >= _dataSet.Count;
+            switch (opHandle)
+            {
+                case 0:
+                    if (_dataSet.Count + autoRanks == _cExtra.totalItems)
+                    {
+                        _cExtra.length -= 1;
+                        _cExtra.totalItems -= (ushort)autoRanks;
+                        contentRectangle -= itemLen;
+                    }
+                    break;
+                case 1:
+                    if (_dataSet.Count > _cExtra.totalItems)
+                    {
+                        _cExtra.length += 1;
+                        _cExtra.totalItems += (ushort)autoRanks;
+                        contentRectangle += itemLen;
+                    }
+                    break;
+                default:
+                    Debug.LogError("ToAdaptionContent opHandle error:" + opHandle);
+                    break;
+            }
+            OnRefreshItems();
         }
         /// <summary>
         /// 刷新所有物品
@@ -435,7 +409,7 @@ namespace UIPlugs.ScrollCircleMaker
             _gridLayoutGroup.SetLayoutVertical();
         }
         /// <summary>
-        /// 循环刷新
+        /// 物品循环刷新
         /// </summary>
         private void OnRefreshCircle()
         {
@@ -527,7 +501,7 @@ namespace UIPlugs.ScrollCircleMaker
         /// <summary>
         /// 动画定位
         /// </summary>
-        /// <param name="toIndex">位置索引</param>
+        /// <param name="toIndex">数据索引</param>
         /// <returns></returns>
         private IEnumerator ToAutoMoveIndex(int toIndex)
         {
@@ -553,7 +527,7 @@ namespace UIPlugs.ScrollCircleMaker
         /// <summary>
         /// 直接定位
         /// </summary>
-        /// <param name="toIndex">位置索引</param>
+        /// <param name="toIndex">数据索引</param>
         private void ToDirectIndex(int toIndex)
         {
             toIndex = Mathf.Clamp(toIndex, 0, _cExtra.totalItems - _sProperty.initItems);

@@ -92,7 +92,10 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField("Spacing", GUILayout.Width(116));
                     Vector2Int tmpSpacing = spacing.vector2IntValue;
-                    tmpSpacing.x = EditorGUILayout.IntField(spacing.vector2IntValue.x);
+                    if (scrollDir.enumValueIndex <= 1)
+                        tmpSpacing.y = EditorGUILayout.IntField(spacing.vector2IntValue.y);
+                    else
+                        tmpSpacing.x = EditorGUILayout.IntField(spacing.vector2IntValue.x);
                     spacing.vector2IntValue = tmpSpacing;
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.PropertyField(padding, true);
@@ -108,7 +111,10 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField("Spacing", GUILayout.Width(116));
                     Vector2Int tmpSpacing = spacing.vector2IntValue;
-                    tmpSpacing.x = EditorGUILayout.IntField(spacing.vector2IntValue.x);
+                    if(scrollDir.enumValueIndex <= 1)
+                        tmpSpacing.y = EditorGUILayout.IntField(spacing.vector2IntValue.y);
+                    else
+                        tmpSpacing.x = EditorGUILayout.IntField(spacing.vector2IntValue.x);
                     spacing.vector2IntValue = tmpSpacing;
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.PropertyField(padding, true);

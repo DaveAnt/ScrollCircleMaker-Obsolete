@@ -665,11 +665,11 @@ RectTransform:
   m_Father: {fileID: 1446088876}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.00022609768, y: -0.09998966}
-  m_SizeDelta: {x: 1731.3, y: 814.3}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: -0.00023269662, y: -0.20043945}
+  m_SizeDelta: {x: 1731.3, y: 814.30005}
+  m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1969231613
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -687,19 +687,19 @@ MonoBehaviour:
   _scrollMaker: UIPlugs.ScrollCircleMaker.test2CircleMaker
   _baseItem: {fileID: 7749687860297296843, guid: 12f9543447ce02c44bfc7b6e08238efd,
     type: 3}
-  _scrollType: 1
+  _scrollType: 0
   _scrollDir: 0
   _scrollSort: 0
   _refreshRatio: 0
-  _autoMoveRatio: 80
+  _autoMoveRatio: 50
   _padding:
-    m_Left: 152
-    m_Right: 135
-    m_Top: 100
+    m_Left: 600
+    m_Right: 600
+    m_Top: 333
     m_Bottom: 600
   _spacing: {x: 100, y: 100}
   _isUpdateEnable: 0
-  _isCircleEnable: 0
+  _isCircleEnable: 1
   _stepLen: 1000
   _itemsPos:
   - {x: 111, y: -10}

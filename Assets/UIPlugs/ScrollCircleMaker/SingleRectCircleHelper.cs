@@ -13,7 +13,7 @@ using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
 {
     /// <summary>
-    /// 单行不规则长度滑动循环
+    /// 单行不规则滑动循环
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public sealed class SingleRectCircleHelper<T> : BaseCircleHelper<T>
@@ -46,9 +46,9 @@ namespace UIPlugs.ScrollCircleMaker
                 switch (_scrollRect.vertical)
                 {
                     case true:
-                        return (int)headItemRect.rect.height + _sProperty.WidthExt;
+                        return (int)headItemRect.rect.height + spacingExt;
                     default:
-                        return (int)headItemRect.rect.width + _sProperty.WidthExt;
+                        return (int)headItemRect.rect.width + spacingExt;
                 }
             }
         }
@@ -79,9 +79,9 @@ namespace UIPlugs.ScrollCircleMaker
                 switch (_scrollRect.vertical)
                 {
                     case true:
-                        return (int)footItemRect.rect.height + _sProperty.WidthExt;
+                        return (int)footItemRect.rect.height + spacingExt;
                     default:
-                        return (int)footItemRect.rect.width + _sProperty.WidthExt;
+                        return (int)footItemRect.rect.width + spacingExt;
                 }
             }
         }
@@ -102,39 +102,40 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
-        /// 可见物品偏移
+        /// 内容组件高宽
         /// </summary>
-        private float itemsOffset
+        private float calRectangle
         {
             get 
             {
+                float calRectangle = contentBorder + _dataSet.Count * minItemLen;
                 for (int i = 0; i < _sProperty.initItems; ++i)
                 {
                     if (_itemSet[i].transform.localScale == Vector3.zero)
                         continue;
                     if (_scrollRect.vertical)
-                        _cacheItemsOffset += _itemSet[i].rectTrans.rect.height - _itemRect.rect.height;
+                        calRectangle += _itemSet[i].rectTrans.rect.height - _itemRect.rect.height;
                     else
-                        _cacheItemsOffset += _itemSet[i].rectTrans.rect.width - _itemRect.rect.width;
+                        calRectangle += _itemSet[i].rectTrans.rect.width - _itemRect.rect.width;
                 }
-                return _cacheItemsOffset;
+                if (!_sProperty.isCircleEnable)
+                    calRectangle -= spacingExt;
+                return calRectangle;
             }
         }
         #endregion
         private HorizontalOrVerticalLayoutGroup _singleLayoutGroup;
-        private float _cacheItemsOffset = 0; //当前偏移量
         private SizeInt _wholeSize;
-
         /// <summary>
-        /// 不规则单行滑动构造函数
+        /// 单行不规则构造
         /// </summary>
-        /// <param name="contentTrans">content的transform组件</param>
-        /// <param name="createItemFunc">创建item函数</param>
+        /// <param name="contentTrans">内容组件</param>
+        /// <param name="createItemFunc">创建物品函数</param>
         public SingleRectCircleHelper(Transform contentTrans, Func<BaseItem<T>> createItemFunc):
             base(contentTrans,createItemFunc)
-        {         
-            _wholeSize.Width = (ushort)(_itemRect.rect.width + _sProperty.WidthExt);
-            _wholeSize.Height = (ushort)(_itemRect.rect.height + _sProperty.WidthExt);
+        {
+            _wholeSize.Width = (ushort)(_itemRect.rect.width + spacingExt);
+            _wholeSize.Height = (ushort)(_itemRect.rect.height + spacingExt);
             switch (_sProperty.scrollDir)
             {
                 case ScrollDir.TopToBottom:
@@ -163,7 +164,7 @@ namespace UIPlugs.ScrollCircleMaker
             _singleLayoutGroup.childControlWidth = false;
             _singleLayoutGroup.childForceExpandHeight = false;
             _singleLayoutGroup.childForceExpandWidth = false;
-            _singleLayoutGroup.spacing = _sProperty.WidthExt;
+            _singleLayoutGroup.spacing = spacingExt;
             _singleLayoutGroup.padding.top = _sProperty.TopExt;
             _singleLayoutGroup.padding.bottom = _sProperty.BottomExt;
             _singleLayoutGroup.padding.right = _sProperty.RightExt;
@@ -171,7 +172,9 @@ namespace UIPlugs.ScrollCircleMaker
             _scrollRect.inertia = _sProperty.scrollType != ScrollType.Drag;
             OnResolveGroupEnum();
         }
-
+        /// <summary>
+        /// 解析排版
+        /// </summary>
         private void OnResolveGroupEnum()
         {
             switch (_sProperty.scrollDir)
@@ -199,18 +202,8 @@ namespace UIPlugs.ScrollCircleMaker
 
         protected override void OnRefreshHandler(Vector2 v2)//刷新Item的移动
         {
-            if (lockRefresh) return;
-            if (_timer < _sProperty.refreshRatio)
-            {
-                _timer += Time.deltaTime;
-                return;
-            }
-
-            if (_sProperty.scrollType == ScrollType.Limit)
-                ToLocation(nowSeat + _sProperty.stepLen * slideDir);
-            else
-                OnRefreshCircle();
-            _timer = 0;
+            base.OnRefreshHandler(v2);
+            OnRefreshCircle();        
         }
 
         public override void OnStart(List<T> tmpDataSet = null)
@@ -225,12 +218,10 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
             }
             _sProperty.visibleItems = _dataSet.Count;
-            contentRectangle = contentBorder + _dataSet.Count * minItemLen - _sProperty.WidthExt;
             if (_sProperty.isCircleEnable)
             {
                 nowSeat = topSeat;
-                contentSite = (int)(topSeat + _sProperty.WidthExt);
-                contentRectangle += spacingExt;
+                contentSite = (int)topSeatExt;
             }
             OnRefreshItems();
         }
@@ -245,7 +236,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
             }
             _dataSet.RemoveAt(itemIdx);
-            ToAdaptionContent(default, itemIdx, 0);
+            OnRefreshOwn();
         }
 
         public override void DelItem(Func<T, T, bool> seekFunc, T data)
@@ -255,8 +246,8 @@ namespace UIPlugs.ScrollCircleMaker
                 if (seekFunc(data, _dataSet[i]))
                 {
                     _dataSet.RemoveAt(i);
-                    ToAdaptionContent(default, i, 0);
-                    break;
+                    OnRefreshOwn();
+                    return;
                 }
             }
             Debug.LogWarning("DelItem SeekFunc Fail!");
@@ -272,27 +263,19 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
             }
             _dataSet.Insert(itemIdx, data);
-            ToAdaptionContent(data, itemIdx, 1);
+            OnRefreshOwn();
         }
         public override void UpdateItem(T data, int itemIdx)
         {
             if (itemIdx < 0 || itemIdx >= _dataSet.Count)
                 throw new Exception("UpdateItem Overflow!");
-            int tmpOffset = _sProperty.dataIdx > itemIdx ? _dataSet.Count -
-                    _sProperty.dataIdx + itemIdx : itemIdx - _sProperty.dataIdx;
-            if (tmpOffset < _sProperty.initItems)
-            {
-                int tmpItemIdx = (_sProperty.itemIdx + tmpOffset) % _sProperty.initItems;
-                if (tmpItemIdx < _itemSet.Count)
-                    _itemSet[tmpItemIdx].UpdateView(data,itemIdx);
-            }
             _dataSet[itemIdx] = data;
-            ToAdaptionContent(data, itemIdx, 2);
+            OnRefreshOwn();
         }
         public override void ToLocation(float toSeat, bool isDrawEnable = true)
         {
-            if (Mathf.Abs(toSeat - nowSeat) < 0.01f)
-                Debug.LogWarning("The Target Point Has Arrived!");
+            if (Mathf.Abs(toSeat - nowSeat) < 0.1f)
+                Debug.LogWarning("ToLocation Has Arrived!");
             else if (isDrawEnable)
                 _sProperty.StartCoroutine(ToAutoMoveSeat(toSeat));
             else
@@ -301,55 +284,13 @@ namespace UIPlugs.ScrollCircleMaker
         public override void ToLocation(int toIndex, bool isDrawEnable = true)
         {
             if (_dataSet.Count < _sProperty.initItems)
-                Debug.LogWarning("ToLocation Item Index Overflow!");
+                Debug.LogWarning("ToLocation ItemIndex Overflow!");
             else if (isDrawEnable)
                 _sProperty.StartCoroutine(ToAutoMoveIndex(toIndex));
             else
                 ToDirectIndex(toIndex);
         }
-        public override void ToLocation(Func<T, T, bool> seekFunc, T data, bool isDrawEnable = true)
-        {
-            for (int i = _dataSet.Count - 1; i >= 0; ++i)
-            {
-                if (seekFunc(data, _dataSet[i]))
-                {
-                    ToLocation(i, isDrawEnable);
-                    break;
-                }
-            }
-            Debug.LogError("ToLocation SeekFunc Fail!" + data);
-        }
-
         #region//---------------------------内置函数-------------------------------//
-        /// <summary>
-        /// 计算删除0、添加1、更新2导致的位移
-        /// </summary>
-        /// <param name="data">数据</param>
-        /// <param name="globalSeat">位置</param>
-        /// <param name="opHandle">标志位</param>
-        /// <returns></returns>
-        private void ToAdaptionContent(T data,int globalSeat,byte opHandle)
-        {
-            if (!_firstRun) return;
-            _sProperty.visibleItems = _dataSet.Count;
-            lockRefresh = _sProperty.initItems >= _dataSet.Count;
-            switch (opHandle)
-            {
-                case 0://删除
-
-                    break;
-                case 1://添加
-                    
-                    break;
-                case 2://更新
-
-                    break;
-                default:
-                    Debug.LogError("ToAdaptionContent opHandle error:" + opHandle);
-                    break;
-            }
-            OnRefreshItems();
-        }
         /// <summary>
         /// 对齐偏移
         /// </summary>
@@ -374,7 +315,7 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
-        /// Item循环位置自适应
+        /// 物品循环自适应
         /// </summary>
         private void ToItemCircle()
         {
@@ -385,10 +326,10 @@ namespace UIPlugs.ScrollCircleMaker
                 _scrollRect.enabled = false;
                 tmpItemIdx = _sProperty.itemIdx;
                 _sProperty.itemIdx = _sProperty.dataIdx = 0;
-                nowSeat = contentSite = (int)topSeat;
-                _singleLayoutGroup.SetLayoutVertical();
                 ToItemOffset(tmpItemIdx);
                 OnRefreshItems();
+                nowSeat = topSeat;
+                contentSite = (int)topSeatExt;
                 _scrollRect.enabled = true;
                 _scrollRect.velocity = tmpForce;
             }
@@ -399,11 +340,10 @@ namespace UIPlugs.ScrollCircleMaker
                 tmpItemIdx = _sProperty.itemIdx;
                 _sProperty.dataIdx = _dataSet.Count - _sProperty.initItems;
                 _sProperty.itemIdx = _sProperty.dataIdx % _sProperty.initItems;
-                nowSeat = bottomSeat;
-                contentSite = (int)(topSeat + spacingExt + _sProperty.dataIdx * minItemLen);
-                _singleLayoutGroup.SetLayoutVertical();
                 ToItemOffset(tmpItemIdx);
                 OnRefreshItems();
+                nowSeat = bottomSeat;
+                contentSite = (int)(topSeatExt + _sProperty.dataIdx * minItemLen);
                 _scrollRect.enabled = true;
                 _scrollRect.velocity = tmpForce;
             }
@@ -433,6 +373,16 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
+        /// 刷新当前样式
+        /// </summary>
+        private void OnRefreshOwn()
+        {
+            if (!_firstRun) return;
+            _sProperty.visibleItems = _dataSet.Count;
+            lockRefresh = _sProperty.initItems >= _dataSet.Count;
+            OnRefreshItems();
+        }
+        /// <summary>
         /// 刷新所有物品
         /// </summary>
         private void OnRefreshItems()
@@ -448,7 +398,7 @@ namespace UIPlugs.ScrollCircleMaker
                 else
                     _itemSet[tmpItemIdx].UpdateView(_dataSet[tmpDataIdx],tmpDataIdx);
             }
-            contentRectangle = contentRectangle - _cacheItemsOffset + itemsOffset;
+            contentRectangle = calRectangle;
             _singleLayoutGroup.SetLayoutVertical();
         }
         /// <summary>
@@ -456,35 +406,40 @@ namespace UIPlugs.ScrollCircleMaker
         /// </summary>
         private void OnRefreshItemDown()
         {
-            int tmpItemOffset = headItemLen;
-            contentSite += minItemLen;
-            nowSeat -= headItemLen - minItemLen;
-            int tmpDataIdx = (_sProperty.dataIdx + _sProperty.initItems) % _dataSet.Count;
+            int tmpItemLen = headItemLen,tmpDataIdx = (_sProperty.dataIdx + _sProperty.initItems) % _dataSet.Count;
             _itemSet[_sProperty.itemIdx].gameObject.name = _baseItem.name + tmpDataIdx;
             _itemSet[_sProperty.itemIdx].UpdateView(_dataSet[tmpDataIdx], tmpDataIdx);
-            SetItemSibling(_sProperty.itemIdx,true);
+            SetItemSibling(_sProperty.itemIdx, true);
             _sProperty.itemIdx = (_sProperty.itemIdx + 1) % _sProperty.initItems;
             _sProperty.dataIdx = (_sProperty.dataIdx + 1) % _dataSet.Count;
-            tmpItemOffset = footItemLen - tmpItemOffset;
-            _cacheItemsOffset += tmpItemOffset;
-            contentRectangle += tmpItemOffset;
+            if (isCircleStatus || _sProperty.dataIdx == 0)
+                contentSite += tmpItemLen;
+            else
+            {
+                contentRectangle += footItemLen - tmpItemLen;
+                nowSeat += minItemLen - tmpItemLen;
+                contentSite += minItemLen;
+            }
         }
         /// <summary>
         /// 上滑动刷新物品
         /// </summary>
         private void OnRefreshItemUp()
         {
-            int tmpItemOffset = footItemLen;
+            int tmpItemLen = footItemLen;
             _sProperty.itemIdx = _sProperty.itemIdx - 1 < 0 ? _sProperty.initItems - 1 : _sProperty.itemIdx - 1;
             _sProperty.dataIdx = _sProperty.dataIdx - 1 < 0 ? _dataSet.Count - 1 : _sProperty.dataIdx - 1;
             _itemSet[_sProperty.itemIdx].gameObject.name = _baseItem.name + _sProperty.dataIdx;
             _itemSet[_sProperty.itemIdx].UpdateView(_dataSet[_sProperty.dataIdx],_sProperty.dataIdx);
             SetItemSibling(_sProperty.itemIdx,false);
-            contentSite -= minItemLen;
-            nowSeat += headItemLen - minItemLen;
-            tmpItemOffset = headItemLen - tmpItemOffset;
-            _cacheItemsOffset += tmpItemOffset;
-            contentRectangle += tmpItemOffset;
+            if (isCircleStatus)
+                contentSite -= headItemLen;
+            else
+            {
+                contentRectangle += headItemLen - tmpItemLen;
+                nowSeat += headItemLen - minItemLen;
+                contentSite -= minItemLen;
+            }
         }
         /// <summary>
         /// 循环刷新物品
@@ -492,7 +447,7 @@ namespace UIPlugs.ScrollCircleMaker
         private void OnRefreshCircle()
         {
             while (nowSeat > contentSite + headItemLen)
-            {
+            {  
                 if (_sProperty.dataIdx + _sProperty.initItems >= _dataSet.Count && !_sProperty.isCircleEnable) break;
                 OnRefreshItemDown();
             }
@@ -558,16 +513,16 @@ namespace UIPlugs.ScrollCircleMaker
             int tmpItemIdx = _sProperty.itemIdx, tmpRow;
             if (nowSeat > contentSite + headItemLen)//向下
             {
-                tmpRow = (int)(nowSeat - contentSite) / headItemLen;
-                contentSite += headItemLen * tmpRow;
+                tmpRow = (int)(nowSeat - contentSite) / minItemLen;
+                contentSite += minItemLen * tmpRow;
                 _sProperty.dataIdx = (_sProperty.dataIdx + tmpRow) % _dataSet.Count;
                 _sProperty.itemIdx = (_sProperty.itemIdx + tmpRow) % _sProperty.initItems;
                 ToItemOffset(tmpItemIdx);
             }
             else if (nowSeat < contentSite - spacingExt)
             {
-                tmpRow = (int)Math.Ceiling((contentSite - nowSeat - spacingExt) / headItemLen);
-                contentSite -= headItemLen * tmpRow;
+                tmpRow = (int)Math.Ceiling((contentSite - nowSeat - spacingExt) / minItemLen);
+                contentSite -= minItemLen * tmpRow;
                 _sProperty.dataIdx = _sProperty.dataIdx - tmpRow % _dataSet.Count;
                 _sProperty.dataIdx = _sProperty.dataIdx < 0 ? _dataSet.Count + _sProperty.dataIdx : _sProperty.dataIdx;
                 _sProperty.itemIdx = _sProperty.itemIdx - tmpRow % _sProperty.initItems;
@@ -613,8 +568,8 @@ namespace UIPlugs.ScrollCircleMaker
             if (toIndex > _sProperty.dataIdx)//向下
             {
                 tmpRow = toIndex - _sProperty.dataIdx;
-                nowSeat += headItemLen * tmpRow;
-                contentSite += headItemLen * tmpRow;
+                nowSeat += minItemLen * tmpRow;
+                contentSite += minItemLen * tmpRow;
                 _sProperty.dataIdx = (_sProperty.dataIdx + tmpRow) % _dataSet.Count;
                 _sProperty.itemIdx = (_sProperty.itemIdx + tmpRow) % _sProperty.initItems;
                 ToItemOffset(tmpItemIdx);
@@ -622,8 +577,8 @@ namespace UIPlugs.ScrollCircleMaker
             else if (toIndex < _sProperty.dataIdx)
             {
                 tmpRow = _sProperty.dataIdx - toIndex;
-                nowSeat -= headItemLen * tmpRow;
-                contentSite -= headItemLen * tmpRow;
+                nowSeat -= minItemLen * tmpRow;
+                contentSite -= minItemLen * tmpRow;
                 _sProperty.dataIdx = _sProperty.dataIdx - tmpRow % _dataSet.Count;
                 _sProperty.dataIdx = _sProperty.dataIdx < 0 ? _dataSet.Count + _sProperty.dataIdx : _sProperty.dataIdx;
                 _sProperty.itemIdx = _sProperty.itemIdx - tmpRow % _sProperty.initItems;

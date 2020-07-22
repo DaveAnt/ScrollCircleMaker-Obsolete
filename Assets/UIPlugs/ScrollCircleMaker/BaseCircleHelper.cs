@@ -23,7 +23,7 @@ namespace UIPlugs.ScrollCircleMaker
         protected GameObject _baseItem;
 
         /// <summary>
-        /// 动画结束回调
+        /// 定位动画结束回调
         /// </summary>
         public event Action toLocationEvent
         {
@@ -54,7 +54,7 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
-        /// 数据个数
+        /// 物品数据数量
         /// </summary>
         public int dataCount
         {
@@ -71,7 +71,6 @@ namespace UIPlugs.ScrollCircleMaker
                 return _itemSet == null ? 0 : _itemSet.Count;
             }
         }
-
         /// <summary>
         /// 滑动构造基类
         /// </summary>
@@ -96,7 +95,7 @@ namespace UIPlugs.ScrollCircleMaker
         /// <summary>
         /// 启动插件
         /// </summary>
-        /// <param name="_tmpDataSet"></param>
+        /// <param name="tmpDataSet">物品数据列表</param>
         public virtual void OnStart(List<T> tmpDataSet = null)
         {
             _firstRun = true;
@@ -145,7 +144,7 @@ namespace UIPlugs.ScrollCircleMaker
             GC.Collect();       
         }
         /// <summary>
-        /// 物品持续更新
+        /// 持续更新物品样式
         /// </summary>
         public virtual void OnUpdate()
         {
@@ -156,38 +155,59 @@ namespace UIPlugs.ScrollCircleMaker
         /// <summary>
         /// 锁定滑动
         /// </summary>
-        /// <param name="lockStatus">是否开关</param>
+        /// <param name="lockStatus">开关滑动</param>
         public virtual void OnSlideLockout(bool lockStatus)
         {
             try {
                 _scrollRect.enabled = lockStatus;
             }
             catch (Exception e) {
-                Debug.LogError("OnSlideLockout Error!" + e.Message);
+                throw new Exception("OnSlideLockout Error!" + e.Message);
             }
         }
         /// <summary>
         /// 刷新方式
         /// </summary>
-        /// <param name="v2"></param>
-        protected abstract void OnRefreshHandler(Vector2 v2);
+        /// <param name="v2">偏移间距</param>
+        protected virtual void OnRefreshHandler(Vector2 v2)
+        {
+            if (lockRefresh)
+                return;
+            if (_timer < _sProperty.refreshRatio)
+            {
+                _timer += Time.deltaTime;
+                return;
+            }
+            _timer = 0;
+            if (_sProperty.scrollType == ScrollType.Limit)
+            {
+                ToLocation(nowSeat + _sProperty.stepLen * slideDir);
+                return;
+            }                
+        }
         /// <summary>
-        /// 移除数据
+        /// 移除物品数据
         /// </summary>
-        /// <param name="itemIdx">索引</param>
+        /// <param name="itemIdx">物品索引</param>
         public abstract void DelItem(int itemIdx);
         /// <summary>
-        /// 移除数据
+        /// 移除物品数据
         /// </summary>
-        /// <param name="seekFunc">匹配函数</param>
-        /// <param name="data">移除数据</param>
+        /// <param name="seekFunc">匹配物品函数</param>
+        /// <param name="data">移除物品数据</param>
         public abstract void DelItem(Func<T, T, bool> seekFunc, T data);
         /// <summary>
-        /// 添加数据
+        /// 添加物品数据
         /// </summary>
-        /// <param name="data">数据</param>
-        /// <param name="itemIdx">索引</param>
+        /// <param name="data">物品数据</param>
+        /// <param name="itemIdx">物品索引</param>
         public abstract void AddItem(T data, int itemIdx = int.MaxValue);
+        /// <summary>
+        /// 更新物品样式
+        /// </summary>
+        /// <param name="data">物品数据</param>
+        /// <param name="itemIdx">物品索引</param>
+        public abstract void UpdateItem(T data, int itemIdx);
         /// <summary>
         /// 初始化物品
         /// </summary>
@@ -201,12 +221,6 @@ namespace UIPlugs.ScrollCircleMaker
             baseItem.InitEvents();
             _itemSet.Add(baseItem);
         }
-        /// <summary>
-        /// 更新样式
-        /// </summary>
-        /// <param name="data">数据</param>
-        /// <param name="itemIdx">索引</param>
-        public abstract void UpdateItem(T data, int itemIdx);
         /// <summary>
         /// 真实位置定位
         /// </summary>
@@ -222,11 +236,22 @@ namespace UIPlugs.ScrollCircleMaker
         /// <summary>
         /// 数据匹配定位
         /// </summary>
-        /// <param name="seekFunc">匹配函数</param>
+        /// <param name="seekFunc">匹配物品函数</param>
         /// <param name="isDrawEnable">是否存在动画过程</param>
-        public abstract void ToLocation(Func<T, T, bool> seekFunc, T data, bool isDrawEnable = true);
+        public virtual void ToLocation(Func<T, T, bool> seekFunc, T data, bool isDrawEnable = true)
+        {
+            for (int i = _dataSet.Count - 1; i >= 0; ++i)
+            {
+                if (seekFunc(data, _dataSet[i]))
+                {
+                    ToLocation(i, isDrawEnable);
+                    break;
+                }
+            }
+            Debug.LogWarning("ToLocation SeekFunc Fail!" + data);
+        }
         /// <summary>
-        /// 置顶
+        /// 置顶定位
         /// </summary>
         /// <param name="isDrawEnable">是否存在动画过程</param>
         public virtual void ToTop(bool isDrawEnable = true)
@@ -234,14 +259,13 @@ namespace UIPlugs.ScrollCircleMaker
             ToLocation(topSeat, isDrawEnable);
         }
         /// <summary>
-        /// 置底
+        /// 置底定位
         /// </summary>
         /// <param name="isDrawEnable">是否存在动画过程</param>
         public virtual void ToBottom(bool isDrawEnable = true)
         {
             ToLocation(bottomSeat, isDrawEnable);
         }
-
         #region 辅助器内置共需属性
         /// <summary>
         /// 刷新速率
@@ -276,7 +300,7 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
-        /// 对应高宽
+        /// 包含物品自适应高宽
         /// </summary>
         protected float contentRectangle
         {
@@ -346,7 +370,7 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
-        /// 当前位置
+        /// 真实位置
         /// </summary>
         protected float nowSeat
         {
@@ -370,7 +394,17 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
-        /// 数据顶部位置
+        /// 扩展顶部
+        /// </summary>
+        protected float topSeatExt
+        {
+            get
+            {
+                return topSeat + spacingExt;
+            }
+        }
+        /// <summary>
+        /// 顶部位置
         /// </summary>
         protected float topSeat
         {
@@ -398,7 +432,7 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
-        /// 数据底部位置
+        /// 底部位置
         /// </summary>
         protected float bottomSeat
         {
@@ -418,7 +452,7 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
-        /// 真实底部位置
+        /// 真实底部
         /// </summary>
         protected float footSeat
         {
@@ -434,27 +468,7 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
-        /// 扩展边距
-        /// </summary>
-        protected float contentBorder
-        {
-            get
-            {
-                switch (_scrollRect.vertical)
-                {
-                    case true:
-                        if (_sProperty.isCircleEnable)
-                            return 2 *_viewRect.rect.height;
-                        return _sProperty.TopExt + _sProperty.BottomExt;
-                    default:
-                        if (_sProperty.isCircleEnable)
-                            return 2 * _viewRect.rect.width;
-                        return _sProperty.LeftExt + _sProperty.RightExt;
-                }
-            }
-        }
-        /// <summary>
-        /// 物品对应间距
+        /// 物品间距
         /// </summary>
         protected int spacingExt
         {
@@ -470,6 +484,26 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
+        /// 上下扩展间距
+        /// </summary>
+        protected float contentBorder
+        {
+            get
+            {
+                switch (_scrollRect.vertical)
+                {
+                    case true:
+                        if (_sProperty.isCircleEnable)
+                            return 2 * _viewRect.rect.height;
+                        return _sProperty.TopExt + _sProperty.BottomExt;
+                    default:
+                        if (_sProperty.isCircleEnable)
+                            return 2 * _viewRect.rect.width;
+                        return _sProperty.LeftExt + _sProperty.RightExt;
+                }
+            }
+        }
+        /// <summary>
         /// 滑动方向
         /// </summary>
         protected int slideDir
@@ -479,10 +513,16 @@ namespace UIPlugs.ScrollCircleMaker
                 switch (_scrollRect.vertical)
                 {
                     case true:
-                        if (_scrollRect.velocity.y > 0) return _frontDir;
+                        if (_scrollRect.velocity.y == 0)
+                            return 0;
+                        if (_scrollRect.velocity.y > 0)
+                            return _frontDir;
                         return -_frontDir;
                     default:
-                        if (_scrollRect.velocity.x > 0) return _frontDir;
+                        if (_scrollRect.velocity.x == 0)
+                            return 0;
+                        if (_scrollRect.velocity.x > 0)
+                            return _frontDir;
                         return -_frontDir;
                 }
             }
@@ -523,6 +563,17 @@ namespace UIPlugs.ScrollCircleMaker
                         return Mathf.Abs(_contentRect.anchoredPosition.x) >=
                             (int)(_contentRect.rect.width - _viewRect.rect.width);
                 }
+            }
+        }
+        /// <summary>
+        /// 处于循环状态
+        /// </summary>
+        protected bool isCircleStatus
+        {
+            get
+            {
+                return _sProperty.isCircleEnable && _sProperty.dataIdx 
+                    + _sProperty.initItems > _dataSet.Count;
             }
         }
         #endregion

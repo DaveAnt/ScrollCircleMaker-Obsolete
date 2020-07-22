@@ -12,17 +12,53 @@ using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
 {
     /// <summary>
-    /// 自定义排版
+    /// 自定义滑动循环
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public sealed class CustomRectCircleHelper<T> : BaseCircleHelper<T> 
     {
+        #region
+        /// <summary>
+        /// 整体布局高宽
+        /// </summary>
+        private float itemsRect
+        {
+            get
+            {
+                switch (_scrollRect.vertical)
+                {
+                    case true:
+                        return Mathf.Abs(_itemsPos[_itemsPos.Length - 1].y - _itemsPos[0].y);
+                    default:
+                        return Mathf.Abs(_itemsPos[_itemsPos.Length - 1].x - _itemsPos[0].x);
+                }
+            }
+        }
+        private float calRectangle
+        {
+            get
+            {
+                int itemNum = _dataSet.Count / _itemsPos.Length;
+                int itemExcess = _dataSet.Count % _itemsPos.Length - 1;
+                float tmpRectangle = contentBorder + itemNum * (itemsRect + spacingExt);
+                if (!_sProperty.isCircleEnable)
+                    tmpRectangle -= spacingExt;
+                return tmpRectangle;
+            }
+        }
+        #endregion
         private Vector2[] _itemsPos;
-        private sbyte _slideDir = 1;
-
+        /// <summary>
+        /// 自定义布局滑动构造
+        /// </summary>
+        /// <param name="contentTrans">内容组件</param>
+        /// <param name="createItemFunc">创建物品函数</param>
+        /// <param name="itemsPos">物品位置</param>
         public CustomRectCircleHelper(Transform contentTrans, Func<BaseItem<T>> createItemFunc,Vector2[] itemsPos = null)
             :base(contentTrans,createItemFunc)
         {
+            _itemsPos = itemsPos;
+            _sProperty.ItemsPos = itemsPos;
             switch (_sProperty.scrollDir)
             {
                 case ScrollDir.TopToBottom:
@@ -32,14 +68,14 @@ namespace UIPlugs.ScrollCircleMaker
                     _scrollRect.vertical = true;
                     break;
                 case ScrollDir.BottomToTop:
-                    _slideDir = -1;
+                    _frontDir = -1;
                     _contentRect.anchorMin = _contentRect.anchorMax = _contentRect.pivot = new Vector2(0.5f, 0);
                     Array.Sort(_itemsPos, new Comparison<Vector2>((item1, item2) => item1.y.CompareTo(item2.y)));
                     _scrollRect.horizontal = false;
                     _scrollRect.vertical = true;
                     break;
                 case ScrollDir.LeftToRight:
-                    _slideDir = -1;
+                    _frontDir = -1;
                     _contentRect.anchorMin = _contentRect.anchorMax = _contentRect.pivot = new Vector2(0, 0.5f);
                     Array.Sort(_itemsPos, new Comparison<Vector2>((item1, item2) => item1.x.CompareTo(item2.x)));
                     _scrollRect.horizontal = true;
@@ -55,43 +91,42 @@ namespace UIPlugs.ScrollCircleMaker
         }
         protected override void OnRefreshHandler(Vector2 v2)
         {
-
+            base.OnRefreshHandler(v2);
+            OnRefreshCircle();
         }
         public override void OnStart(List<T> tmpDataSet = null)
         {
-            if (tmpDataSet != null)
-            {
-                if (_sProperty.scrollSort == ScrollSort.BackDir ||
-                _sProperty.scrollSort == ScrollSort.BackZDir)
-                    tmpDataSet.Reverse();
-                _dataSet.AddRange(tmpDataSet);
-            }
-            bool breakStatus;
-            Vector2 tmpItemPos; 
-            for (int i = 0; i < _dataSet.Count; ++i)
-            {
-                tmpItemPos = ItemPos(i + 1);
-                breakStatus = _scrollRect.vertical ?
-                   tmpItemPos.y >  _viewRect.rect.height:
-                   tmpItemPos.x > _viewRect.rect.width;
-                if (breakStatus)
-                {
-                    _sProperty.initItems = i;
-                    break;
-                }
-                InitItem(i,tmpItemPos);
-            }
-            OnAnchorSet();
+            base.OnStart(tmpDataSet);
+            _sProperty.initItems = (int)(viewRectangle / itemsRect + 1) * _itemsPos.Length;
+            contentRectangle = contentBorder;
+            OnRefreshItems();
         }
-
         public override void DelItem(int itemIdx)
         {
-
+            itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count);
+            switch (_sProperty.scrollSort)
+            {
+                case ScrollSort.BackDir:
+                case ScrollSort.BackZDir:
+                    itemIdx = _dataSet.Count - itemIdx;
+                    break;
+            }
+            _dataSet.RemoveAt(itemIdx);
+            OnRefreshOwn();
         }
 
         public override void DelItem(Func<T, T, bool> seekFunc, T data)
         {
-
+            for (int i = _dataSet.Count - 1; i >= 0; ++i)
+            {
+                if (seekFunc(data, _dataSet[i]))
+                {
+                    _dataSet.RemoveAt(i);
+                    OnRefreshOwn();
+                    return;
+                }
+            }
+            Debug.LogWarning("DelItem SeekFunc Fail!");
         }
 
         public override void AddItem(T data, int itemIdx = int.MaxValue)
@@ -105,6 +140,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
             }
             _dataSet.Insert(itemIdx, data);
+            OnRefreshOwn();
         }
         public override void UpdateItem(T data, int itemIdx)
         {
@@ -120,95 +156,57 @@ namespace UIPlugs.ScrollCircleMaker
         {
 
         }
-        public override void ToLocation(Func<T, T, bool> seekFunc, T data, bool isDrawEnable = true)
-        {
-
-        }
         #region ------------------------内置函数---------------------------------
         /// <summary>
-        /// 数据底部所在位置
+        /// 刷新当前样式
         /// </summary>
-        /// <param name="isRealBottom">是否真实底部</param>
-        /// <returns></returns>
-        private int BottomSeat(bool isRealBottom = true)
+        private void OnRefreshOwn()
         {
-            switch (_scrollRect.vertical)
+            if (!_firstRun) return;
+            _sProperty.visibleItems = _dataSet.Count;
+            lockRefresh = _sProperty.initItems >= _dataSet.Count;
+            OnRefreshItems();
+        }
+        /// <summary>
+        /// 刷新所有物品
+        /// </summary>
+        private void OnRefreshItems()
+        {
+            int tmpItemIdx, tmpDataIdx;
+            for (int i = 0; i < _sProperty.initItems; ++i)
             {
-                case true:
-                    if (isRealBottom)
-                        return (int)(_contentRect.rect.height - _viewRect.rect.height);
-                    return (int)(_contentRect.rect.height + _sProperty.WidthExt - ContentBorder(true));
-                default:
-                    if (isRealBottom)
-                        return (int)(_contentRect.rect.width - _viewRect.rect.width);
-                    return (int)(_contentRect.rect.width + _sProperty.WidthExt - ContentBorder(true));
+                tmpDataIdx = (_sProperty.dataIdx + i) % _dataSet.Count;
+                tmpItemIdx = (_sProperty.itemIdx + i) % _sProperty.initItems;
+                _itemSet[tmpItemIdx].gameObject.name = _baseItem.name + tmpDataIdx;
+                _itemSet[tmpItemIdx].rectTrans.anchoredPosition = _itemsPos[tmpDataIdx % _itemsPos.Length];
+                if (!_sProperty.isCircleEnable && _sProperty.dataIdx + i >= _dataSet.Count)
+                    _itemSet[tmpItemIdx].transform.localScale = Vector3.zero;
+                else
+                    _itemSet[tmpItemIdx].UpdateView(_dataSet[tmpDataIdx], tmpDataIdx);
             }
         }
         /// <summary>
-        /// 扩展长度
+        /// 下刷新
         /// </summary>
-        /// <param name="isCircleEnable">是否循环扩展长度</param>
-        /// <returns></returns>
-        private float ContentBorder(bool isCircleEnable)
+        private void OnRefreshDown()
         {
-            switch (_scrollRect.vertical)
-            {
-                case true:
-                    if (isCircleEnable)
-                        return 2 * (_viewRect.rect.height + _sProperty.WidthExt);
-                    return _sProperty.TopExt + _sProperty.BottomExt;
-                default:
-                    if (isCircleEnable)
-                        return 2 * (_viewRect.rect.width + _sProperty.WidthExt);
-                    return _sProperty.LeftExt + _sProperty.RightExt;
-            }
+            
         }
         /// <summary>
-        /// Item位置
+        /// 上刷新
         /// </summary>
-        /// <param name="itemIdx">位置索引</param>
-        /// <returns></returns>
-        private Vector2 ItemPos(int itemIdx)
+        private void OnRefreshUp()
         {
-            Vector2 tmpItemPos;
-            int totalNum = itemIdx / _itemsPos.Length;
-            int remainNum = itemIdx % _itemsPos.Length;
-            if (_scrollRect.vertical)
-            {
-                tmpItemPos.x = remainNum == 0 ? _itemsPos[_itemsPos.Length - 1].x : _itemsPos[remainNum - 1].x;
-                tmpItemPos.y = totalNum * (_itemsPos[_itemsPos.Length - 1].y + _sProperty.WidthExt) +
-                    (remainNum == 0 ? -_sProperty.WidthExt : _itemsPos[remainNum - 1].y);
-            }
-            else
-            {
-                tmpItemPos.x = totalNum * (_itemsPos[_itemsPos.Length - 1].x + _sProperty.WidthExt)+
-                    (remainNum == 0 ? -_sProperty.WidthExt : _itemsPos[remainNum - 1].x);
-                tmpItemPos.y = remainNum == 0 ? _itemsPos[_itemsPos.Length - 1].y : _itemsPos[remainNum - 1].y;
-            }
-            return tmpItemPos;
+            
         }
         /// <summary>
-        /// 初始化item
+        /// 循环刷新
         /// </summary>
-        /// <param name="itemIdx">位置</param>
-        private void InitItem(int itemIdx,Vector2 itemPos)
+        private void OnRefreshCircle()
         {
-            BaseItem<T> baseItem = _createItemFunc();
-            baseItem.gameObject = GameObject.Instantiate(_baseItem, _contentRect);
-            baseItem.gameObject.name = _baseItem.name + itemIdx;
-            baseItem.rectTrans.anchoredPosition = itemPos;
-            baseItem.InitComponents();
-            baseItem.InitEvents();
-            baseItem.UpdateView(_dataSet[itemIdx],itemIdx);
-            _itemSet.Add(baseItem);
+            
         }
-        /// <summary>
-        /// 自适应高宽
-        /// </summary>
-        private void OnAnchorSet()
-        {           
-           
-        }
+
         #endregion
     }
 }
