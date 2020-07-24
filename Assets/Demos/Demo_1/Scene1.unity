@@ -496,9 +496,9 @@ MonoBehaviour:
   _scrollMaker: UIPlugs.ScrollCircleMaker.testCircleMaker
   _baseItem: {fileID: 7749687860297296843, guid: 12f9543447ce02c44bfc7b6e08238efd,
     type: 3}
-  _scrollType: 1
+  _scrollType: 0
   _scrollDir: 2
-  _scrollSort: 0
+  _scrollSort: 2
   _refreshRatio: 0
   _autoMoveRatio: 100
   _padding:

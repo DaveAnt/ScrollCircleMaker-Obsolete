@@ -20,6 +20,7 @@ namespace UIPlugs.ScrollCircleMaker
                 baseHelper.AddItem(i);
             baseHelper.OnStart();
             //baseHelper.ToLocation(340);
+            baseHelper.SwapItem(0, 2);
         }
     }
 

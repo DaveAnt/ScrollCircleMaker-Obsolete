@@ -683,21 +683,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fae2f24c9de61914793286874ecf4d79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _baseHelperIdx: 2
-  _scrollMaker: UIPlugs.ScrollCircleMaker.test2CircleMaker
+  _baseHelperIdx: 1
+  _scrollMaker: UIPlugs.ScrollCircleMaker.testCircleMaker
   _baseItem: {fileID: 7749687860297296843, guid: 12f9543447ce02c44bfc7b6e08238efd,
     type: 3}
   _scrollType: 0
   _scrollDir: 0
-  _scrollSort: 0
+  _scrollSort: 2
   _refreshRatio: 0
   _autoMoveRatio: 50
   _padding:
     m_Left: 600
     m_Right: 600
-    m_Top: 333
-    m_Bottom: 600
-  _spacing: {x: 100, y: 100}
+    m_Top: 300
+    m_Bottom: 300
+  _spacing: {x: 100, y: 200}
   _isUpdateEnable: 0
   _isCircleEnable: 1
   _stepLen: 1000

@@ -195,7 +195,24 @@ namespace UIPlugs.ScrollCircleMaker
         /// </summary>
         /// <param name="seekFunc">匹配物品函数</param>
         /// <param name="data">移除物品数据</param>
-        public abstract void DelItem(Func<T, T, bool> seekFunc, T data);
+        public virtual void DelItem(Func<T, T, bool> seekFunc, T data)
+        {
+            int itemIdx = -1;
+            for (int i = _dataSet.Count - 1; i >= 0; --i)
+            {
+                if (seekFunc(data, _dataSet[i]))
+                {
+                    itemIdx = i;
+                    break;
+                }
+            }
+            if (itemIdx == -1)
+            {
+                Debug.LogWarning("DelItem SeekFunc Fail!");
+                return;
+            }
+            DelItem(itemIdx);
+        }
         /// <summary>
         /// 添加物品数据
         /// </summary>
@@ -208,6 +225,44 @@ namespace UIPlugs.ScrollCircleMaker
         /// <param name="data">物品数据</param>
         /// <param name="itemIdx">物品索引</param>
         public abstract void UpdateItem(T data, int itemIdx);
+        /// <summary>
+        /// 交换物品位置
+        /// </summary>
+        /// <param name="firstIdx">被交换物品</param>
+        /// <param name="nextIdx">交换物品</param>
+        public abstract void SwapItem(int firstIdx, int nextIdx);
+        /// <summary>
+        /// 交换物品位置
+        /// </summary>
+        /// <param name="seekFunc">匹配查询物品</param>
+        /// <param name="firstData">被交换数据</param>
+        /// <param name="nextData">交换数据</param>
+        public virtual void SwapItem(Func<T, T, bool> seekFunc, T firstData, T nextData)
+        {
+            int firstIdx = -1, nextIdx = -1;
+            for (int i = _dataSet.Count - 1; i >= 0; --i)
+            {
+                if (seekFunc(firstData, _dataSet[i]))
+                {
+                    firstIdx = i;
+                    if (nextIdx != -1)
+                        break;
+                }
+
+                if (seekFunc(nextData, _dataSet[i]))
+                {
+                    nextIdx = i;
+                    if (firstIdx != -1)
+                        break;
+                }
+            }
+            if (nextIdx == -1 || firstIdx == -1)
+            {
+                Debug.LogWarning("SwapItem SeekFunc Fail!");
+                return;
+            }
+            SwapItem(firstIdx, nextIdx);
+        }
         /// <summary>
         /// 初始化物品
         /// </summary>

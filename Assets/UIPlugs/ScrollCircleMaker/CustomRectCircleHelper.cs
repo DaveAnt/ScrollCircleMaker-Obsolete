@@ -5,6 +5,7 @@
 // Github: https://github.com/DaveAnt/ScollCircleMaker
 //------------------------------------------------------------
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,18 +35,6 @@ namespace UIPlugs.ScrollCircleMaker
                 }
             }
         }
-        private float calRectangle
-        {
-            get
-            {
-                int itemNum = _dataSet.Count / _itemsPos.Length;
-                int itemExcess = _dataSet.Count % _itemsPos.Length - 1;
-                float tmpRectangle = contentBorder + itemNum * (itemsRect + spacingExt);
-                if (!_sProperty.isCircleEnable)
-                    tmpRectangle -= spacingExt;
-                return tmpRectangle;
-            }
-        }
         #endregion
         private Vector2[] _itemsPos;
         /// <summary>
@@ -66,6 +55,8 @@ namespace UIPlugs.ScrollCircleMaker
                     Array.Sort(_itemsPos, new Comparison<Vector2>((item1, item2) => item1.y.CompareTo(item2.y)));
                     _scrollRect.horizontal = false;
                     _scrollRect.vertical = true;
+                    for (int i = 0; i < _itemsPos.Length; ++i)
+                        _itemsPos[i].y = _itemsPos[i].y - _itemsPos[0].y;
                     break;
                 case ScrollDir.BottomToTop:
                     _frontDir = -1;
@@ -73,6 +64,11 @@ namespace UIPlugs.ScrollCircleMaker
                     Array.Sort(_itemsPos, new Comparison<Vector2>((item1, item2) => item1.y.CompareTo(item2.y)));
                     _scrollRect.horizontal = false;
                     _scrollRect.vertical = true;
+                    for (int i = 0; i < _itemsPos.Length; ++i)
+                    {
+                        float viewOffset = viewRectangle - _itemsPos[i].y;
+                        _itemsPos[i].y = _itemsPos[i].y + viewOffset;
+                    }   
                     break;
                 case ScrollDir.LeftToRight:
                     _frontDir = -1;
@@ -80,12 +76,19 @@ namespace UIPlugs.ScrollCircleMaker
                     Array.Sort(_itemsPos, new Comparison<Vector2>((item1, item2) => item1.x.CompareTo(item2.x)));
                     _scrollRect.horizontal = true;
                     _scrollRect.vertical = false;
+                    for (int i = 0; i < _itemsPos.Length; ++i)
+                        _itemsPos[i].x = _itemsPos[i].x - _itemsPos[0].x;
                     break;
                 case ScrollDir.RightToLeft:
                     _contentRect.anchorMin = _contentRect.anchorMax = _contentRect.pivot = new Vector2(1, 0.5f);
                     Array.Sort(_itemsPos, new Comparison<Vector2>((item1, item2) => item1.x.CompareTo(item2.x)));
                     _scrollRect.horizontal = true;
                     _scrollRect.vertical = false;
+                    for (int i = 0; i < _itemsPos.Length; ++i)
+                    {
+                        float viewOffset = viewRectangle - _itemsPos[i].x;
+                        _itemsPos[i].x = _itemsPos[i].x + viewOffset;
+                    }   
                     break;
             }
         }
@@ -98,37 +101,15 @@ namespace UIPlugs.ScrollCircleMaker
         {
             base.OnStart(tmpDataSet);
             _sProperty.initItems = (int)(viewRectangle / itemsRect + 1) * _itemsPos.Length;
-            contentRectangle = contentBorder;
+            contentRectangle = OnCalRectangle();
             OnRefreshItems();
         }
         public override void DelItem(int itemIdx)
         {
             itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count);
-            switch (_sProperty.scrollSort)
-            {
-                case ScrollSort.BackDir:
-                case ScrollSort.BackZDir:
-                    itemIdx = _dataSet.Count - itemIdx;
-                    break;
-            }
             _dataSet.RemoveAt(itemIdx);
             OnRefreshOwn();
         }
-
-        public override void DelItem(Func<T, T, bool> seekFunc, T data)
-        {
-            for (int i = _dataSet.Count - 1; i >= 0; ++i)
-            {
-                if (seekFunc(data, _dataSet[i]))
-                {
-                    _dataSet.RemoveAt(i);
-                    OnRefreshOwn();
-                    return;
-                }
-            }
-            Debug.LogWarning("DelItem SeekFunc Fail!");
-        }
-
         public override void AddItem(T data, int itemIdx = int.MaxValue)
         {
             itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count);
@@ -146,17 +127,86 @@ namespace UIPlugs.ScrollCircleMaker
         {
 
         }
-
+        public override void SwapItem(int firstIdx, int nextIdx)
+        {
+            firstIdx = Mathf.Clamp(firstIdx, 0, _dataSet.Count - 1);
+            nextIdx = Mathf.Clamp(nextIdx, 0, _dataSet.Count - 1);
+            if (firstIdx == nextIdx) throw new Exception("Swap Item Same!");
+            T swapData = _dataSet[firstIdx];
+            _dataSet[firstIdx] = _dataSet[nextIdx];
+            _dataSet[nextIdx] = swapData;
+            OnRefreshOwn();
+        }
         public override void ToLocation(float toSeat, bool isDrawEnable = true)
         {
-
+            if (Mathf.Abs(toSeat - nowSeat) < 0.1f)
+                Debug.LogWarning("ToLocation Has Arrived!");
+            else if (isDrawEnable)
+                _sProperty.StartCoroutine(ToAutoMoveSeat(toSeat));
+            else
+                ToDirectSeat(toSeat);
         }
 
-        public override void ToLocation(int toSeat, bool isDrawEnable = true)
+        public override void ToLocation(int toIndex, bool isDrawEnable = true)
         {
-
+            if (_dataSet.Count < _sProperty.initItems)
+                Debug.LogWarning("ToLocation ItemIndex Overflow!");
+            else if (isDrawEnable)
+                _sProperty.StartCoroutine(ToAutoMoveIndex(toIndex));
+            else
+                ToDirectIndex(toIndex);
         }
         #region ------------------------内置函数---------------------------------
+        /// <summary>
+        /// 计算布局
+        /// </summary>
+        private float OnCalRectangle()
+        {
+            int itemExcess = _dataSet.Count % _itemsPos.Length - 1;
+            float tmpRectangle = contentBorder + (itemsRect + spacingExt)
+                * (_dataSet.Count / _itemsPos.Length);
+            if (itemExcess >= 0)
+            {
+                switch (_sProperty.scrollDir)
+                {
+                    case ScrollDir.TopToBottom:
+                        tmpRectangle += _itemsPos[itemExcess].y - _itemsPos[0].y +spacingExt;
+                        break;
+                    case ScrollDir.BottomToTop:
+                        tmpRectangle += _itemsPos[_itemsPos.Length - 1].y - _itemsPos[_itemsPos.Length - itemExcess- 1].y + spacingExt;
+                        break;
+                    case ScrollDir.LeftToRight:
+                        tmpRectangle += _itemsPos[itemExcess].x - _itemsPos[0].x +spacingExt;
+                        break;
+                    default:
+                        tmpRectangle += _itemsPos[_itemsPos.Length - 1].x - _itemsPos[_itemsPos.Length - itemExcess - 1].x + spacingExt;
+                        break;
+                }
+            }
+            if (!_sProperty.isCircleEnable)
+                tmpRectangle -= spacingExt;
+            return tmpRectangle;
+        }
+        /// <summary>
+        /// 计算物品位置
+        /// </summary>
+        /// <param name="dataIdx">数据索引</param>
+        private Vector2 OnCalItemPos(int dataIdx)
+        {
+            switch (_sProperty.scrollDir)
+            {
+                case ScrollDir.TopToBottom:
+                    break;
+                case ScrollDir.BottomToTop:
+                    break;
+                case ScrollDir.LeftToRight:
+                    break;
+                case ScrollDir.RightToLeft:
+                    break;
+            }
+            //dataIdx % dataIdx / _itemsPos.Length
+            return default;
+        }
         /// <summary>
         /// 刷新当前样式
         /// </summary>
@@ -205,6 +255,40 @@ namespace UIPlugs.ScrollCircleMaker
         private void OnRefreshCircle()
         {
             
+        }
+        /// <summary>
+        /// 动画定位
+        /// </summary>
+        /// <param name="toSeat">真实位置</param>
+        /// <returns></returns>
+        private IEnumerator ToAutoMoveSeat(float toSeat)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+        /// <summary>
+        /// 直接定位
+        /// </summary>
+        /// <param name="toSeat">真实位置</param>
+        private void ToDirectSeat(float toSeat)
+        {
+
+        }
+        /// <summary>
+        /// 动画定位
+        /// </summary>
+        /// <param name="toIndex">数据索引</param>
+        /// <returns></returns>
+        private IEnumerator ToAutoMoveIndex(int toIndex)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+        /// <summary>
+        /// 直接定位
+        /// </summary>
+        /// <param name="toIndex">数据索引</param>
+        private void ToDirectIndex(int toIndex)
+        {
+
         }
 
         #endregion

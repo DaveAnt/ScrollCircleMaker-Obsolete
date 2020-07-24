@@ -153,13 +153,11 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
             }
         }
-
         protected override void OnRefreshHandler(Vector2 v2)
         {
             base.OnRefreshHandler(v2);
             OnRefreshCircle();
         }
-
         public override void OnStart(List<T> tmpDataSet = null)
         {
             base.OnStart(tmpDataSet);
@@ -175,33 +173,11 @@ namespace UIPlugs.ScrollCircleMaker
             }
             OnRefreshItems();
         }
-
         public override void DelItem(int itemIdx)
         {
-            itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count);
-            switch (_sProperty.scrollSort)
-            {
-                case ScrollSort.BackDir:
-                case ScrollSort.BackZDir:
-                    itemIdx = _dataSet.Count - itemIdx;
-                    break;
-            }
+            itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count - 1);
             _dataSet.RemoveAt(itemIdx);
             OnRefreshOwn(0);
-        }
-
-        public override void DelItem(Func<T, T, bool> seekFunc, T data)
-        {
-            for (int i = _dataSet.Count - 1; i >= 0; ++i)
-            {
-                if (seekFunc(data, _dataSet[i]))
-                {
-                    _dataSet.RemoveAt(i);
-                    OnRefreshOwn(0);
-                    return;
-                }
-            }
-            Debug.LogWarning("DelItem SeekFunc Fail!");
         }
         public override void AddItem(T data, int itemIdx = int.MaxValue)
         {
@@ -218,9 +194,9 @@ namespace UIPlugs.ScrollCircleMaker
         }
         public override void UpdateItem(T data, int itemIdx)
         {
-            if (itemIdx < 0 || itemIdx >= _dataSet.Count)
-                throw new Exception("UpdateItem Overflow!");
+            itemIdx = Mathf.Clamp(itemIdx, 0, _dataSet.Count - 1);
             _dataSet[itemIdx] = data;
+            if (!_firstRun) return;
             int tmpOffset = _sProperty.dataIdx > itemIdx ? _cExtra.totalItems -
                     _sProperty.dataIdx + itemIdx : itemIdx - _sProperty.dataIdx;
             if (tmpOffset < _sProperty.initItems)
@@ -229,6 +205,15 @@ namespace UIPlugs.ScrollCircleMaker
                 if (tmpItemIdx < _itemSet.Count)
                     _itemSet[tmpItemIdx].UpdateView(data, itemIdx);
             }
+        }
+        public override void SwapItem(int firstIdx, int nextIdx)
+        {
+            firstIdx = Mathf.Clamp(firstIdx, 0, _dataSet.Count - 1);
+            nextIdx = Mathf.Clamp(nextIdx, 0, _dataSet.Count - 1);
+            if (firstIdx == nextIdx) throw new Exception("Swap Item Same!");
+            T swapData = _dataSet[firstIdx];
+            UpdateItem(_dataSet[nextIdx], firstIdx);
+            UpdateItem(swapData,nextIdx);
         }
         public override void ToLocation(float toSeat, bool isDrawEnable = true)
         {

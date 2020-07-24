@@ -18,6 +18,7 @@ namespace UIPlugs.ScrollCircleMaker
             for (int i = 0; i < 35; ++i)
                 baseHelper.AddItem(i);
             baseHelper.OnStart();
+            baseHelper.SwapItem(0, 2);
             //baseHelper.ToBottom(false);
             //How to load data?
         }
