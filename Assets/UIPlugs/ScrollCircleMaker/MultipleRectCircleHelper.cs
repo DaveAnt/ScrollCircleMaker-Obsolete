@@ -164,12 +164,12 @@ namespace UIPlugs.ScrollCircleMaker
             _sProperty.visibleItems = _dataSet.Count;
             _cExtra.length = (ushort)Math.Ceiling(_dataSet.Count / (float)autoRanks);
             _cExtra.totalItems = (ushort)(_cExtra.length * autoRanks);
-            contentRectangle = contentBorder + _cExtra.length * itemLen - spacingExt;
+            contentRect = contentBorder + _cExtra.length * itemLen - spacingExt;
             if (_sProperty.isCircleEnable)
             {
                 nowSeat = topSeat;
                 contentSite = (int)topSeatExt;
-                contentRectangle += spacingExt;
+                contentRect += spacingExt;
             }
             OnRefreshItems();
         }
@@ -297,7 +297,7 @@ namespace UIPlugs.ScrollCircleMaker
                     {
                         _cExtra.length -= 1;
                         _cExtra.totalItems -= (ushort)autoRanks;
-                        contentRectangle -= itemLen;
+                        contentRect -= itemLen;
                     }
                     break;
                 case 1:
@@ -305,7 +305,7 @@ namespace UIPlugs.ScrollCircleMaker
                     {
                         _cExtra.length += 1;
                         _cExtra.totalItems += (ushort)autoRanks;
-                        contentRectangle += itemLen;
+                        contentRect += itemLen;
                     }
                     break;
                 default:

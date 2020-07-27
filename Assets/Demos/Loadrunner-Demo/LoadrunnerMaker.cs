@@ -9,22 +9,20 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
 {
-    public class testCircleMaker : BaseDirectMaker<int>
+    public class LoadrunnerMaker : BaseDirectMaker<int>
     {
         public override void OnStart(Transform transform)
         {
             baseHelper = new MultipleRectCircleHelper<int>(transform,()=> {
-                return new HeroaItem();
+                return new TestItem();
             });
-            for (int i = 0; i < 113; ++i)
+            for (int i = 0; i < 10000; ++i)
                 baseHelper.AddItem(i);
             baseHelper.OnStart();
-            //baseHelper.ToLocation(340);
-            baseHelper.SwapItem(0, 2);
         }
     }
 
-    public class HeroaItem : BaseItem<int>
+    public class TestItem : BaseItem<int>
     {
         Text text;
         public override void InitComponents()

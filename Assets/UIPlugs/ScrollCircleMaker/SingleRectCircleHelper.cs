@@ -104,7 +104,7 @@ namespace UIPlugs.ScrollCircleMaker
         /// <summary>
         /// 内容组件高宽
         /// </summary>
-        private float calRectangle
+        private float getContentRect
         {
             get 
             {
@@ -384,7 +384,7 @@ namespace UIPlugs.ScrollCircleMaker
                 else
                     _itemSet[tmpItemIdx].UpdateView(_dataSet[tmpDataIdx],tmpDataIdx);
             }
-            contentRectangle = calRectangle;
+            contentRect = getContentRect;
             _singleLayoutGroup.SetLayoutVertical();
         }
         /// <summary>
@@ -402,7 +402,7 @@ namespace UIPlugs.ScrollCircleMaker
                 contentSite += tmpItemLen;
             else
             {
-                contentRectangle += footItemLen - tmpItemLen;
+                contentRect += footItemLen - tmpItemLen;
                 nowSeat += minItemLen - tmpItemLen;
                 contentSite += minItemLen;
             }
@@ -422,7 +422,7 @@ namespace UIPlugs.ScrollCircleMaker
                 contentSite -= headItemLen;
             else
             {
-                contentRectangle += headItemLen - tmpItemLen;
+                contentRect += headItemLen - tmpItemLen;
                 nowSeat += headItemLen - minItemLen;
                 contentSite -= minItemLen;
             }

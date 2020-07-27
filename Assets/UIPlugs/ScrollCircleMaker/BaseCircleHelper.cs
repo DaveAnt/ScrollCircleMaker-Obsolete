@@ -137,7 +137,7 @@ namespace UIPlugs.ScrollCircleMaker
             foreach (var baseItem in _itemSet)
                 baseItem.OnDestroy();
             contentSite = (int)topSeat;
-            contentRectangle = 0;
+            contentRect = 0;
             nowSeat = 0;
             _dataSet.Clear();
             _itemSet.Clear();
@@ -357,7 +357,7 @@ namespace UIPlugs.ScrollCircleMaker
         /// <summary>
         /// 包含物品自适应高宽
         /// </summary>
-        protected float contentRectangle
+        protected float contentRect
         {
             get
             {
@@ -385,7 +385,7 @@ namespace UIPlugs.ScrollCircleMaker
         /// <summary>
         /// 视图自适应高宽
         /// </summary>
-        protected float viewRectangle
+        protected float viewRect
         {
             get
             {
