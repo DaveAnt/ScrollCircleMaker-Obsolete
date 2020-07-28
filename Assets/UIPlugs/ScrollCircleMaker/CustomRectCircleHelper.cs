@@ -110,7 +110,6 @@ namespace UIPlugs.ScrollCircleMaker
         }
         #endregion
         private Vector2[] _itemsPos;
-        private Dictionary<int, int> _seatDir;
         /// <summary>
         /// 自定义布局滑动构造
         /// </summary>
@@ -126,11 +125,12 @@ namespace UIPlugs.ScrollCircleMaker
             {
                 _itemsPos = itemsPos;
                 _sProperty.ItemsPos = itemsPos;
-            }
-            _seatDir = new Dictionary<int, int>();
+            }        
             switch (_sProperty.scrollDir)
             {
                 case ScrollDir.TopToBottom:
+                    for (int i = 0; i < _itemsPos.Length; ++i)
+                        _itemsPos[i].y = -_itemsPos[i].y;
                     _itemRect.anchorMin = _itemRect.anchorMax = _itemRect.pivot = new Vector2(0,1);
                     _contentRect.anchorMin = _contentRect.anchorMax = _contentRect.pivot = new Vector2(0.5f, 1);
                     Array.Sort(_itemsPos, new Comparison<Vector2>((item1, item2) => item2.y.CompareTo(item1.y)));
@@ -162,6 +162,8 @@ namespace UIPlugs.ScrollCircleMaker
                         _itemsPos[i].x = _itemsPos[i].x - _itemsPos[0].x;
                     break;
                 case ScrollDir.RightToLeft:
+                    for (int i = 0; i < _itemsPos.Length; ++i)
+                        _itemsPos[i].x = -_itemsPos[i].x;
                     _itemRect.anchorMin = _itemRect.anchorMax = _itemRect.pivot = Vector2.one;
                     _contentRect.anchorMin = _contentRect.anchorMax = _contentRect.pivot = new Vector2(1, 0.5f);
                     for (int i = 0; i < _itemsPos.Length - 1; ++i)
@@ -174,6 +176,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
             }
             _sProperty.initItems = (int)(viewRect / itemsRect + 1) * _itemsPos.Length;
+            _scrollRect.inertia = _sProperty.scrollType != ScrollType.Drag;
         }
         protected override void OnRefreshHandler(Vector2 v2)
         {
@@ -278,7 +281,7 @@ namespace UIPlugs.ScrollCircleMaker
                 tmpForce = _scrollRect.velocity;
                 _scrollRect.enabled = false;
                 tmpItemIdx = _sProperty.itemIdx;
-                _sProperty.dataIdx = _dataSet.Count - _sProperty.initItems;
+                _sProperty.dataIdx = _dataSet.Count - _sProperty.initItems % _dataSet.Count;
                 _sProperty.itemIdx = _sProperty.dataIdx % _sProperty.initItems;
                 ToItemOffset(tmpItemIdx);
                 OnRefreshItems();

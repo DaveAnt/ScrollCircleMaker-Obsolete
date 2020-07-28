@@ -45,14 +45,24 @@ namespace UIPlugs.ScrollCircleMaker
             }
         }
         /// <summary>
-        /// 视图中心
+        /// 物品中心
         /// </summary>
         public int itemCore
         {
             get {
-                return ((_sProperty.dataIdx + _sProperty.initItems) / 2) % _dataSet.Count;
+                return (_sProperty.dataIdx + _itemSet.Count / 2) % _dataSet.Count;
             }
         }
+        /// <summary>
+        /// 视图中心
+        /// </summary>
+        public int viewCore
+        {
+            get {
+                return _dataSet.Count / 2;
+            }
+        }
+        
         /// <summary>
         /// 物品数据数量
         /// </summary>
@@ -179,9 +189,12 @@ namespace UIPlugs.ScrollCircleMaker
                 return;
             }
             _timer = 0;
-            if (_sProperty.scrollType == ScrollType.Limit)
+            if (_sProperty.scrollType == ScrollType.Limit
+                && _scrollRect.velocity != Vector2.zero)
             {
-                ToLocation(nowSeat + _sProperty.stepLen * slideDir);
+                if(nowSeat >= 0 && nowSeat <= footSeat)
+                    ToLocation(nowSeat + _sProperty.stepLen * slideDir);
+                _scrollRect.velocity = Vector2.zero;
                 return;
             }                
         }
@@ -361,9 +374,10 @@ namespace UIPlugs.ScrollCircleMaker
         {
             get
             {
-                switch (_scrollRect.vertical)
+                switch (_sProperty.scrollDir)
                 {
-                    case true:
+                    case ScrollDir.TopToBottom:
+                    case ScrollDir.BottomToTop:
                         return _contentRect.rect.height;
                     default:
                         return _contentRect.rect.width;
@@ -371,9 +385,10 @@ namespace UIPlugs.ScrollCircleMaker
             }
             set
             {
-                switch (_scrollRect.vertical)
+                switch (_sProperty.scrollDir)
                 {
-                    case true:
+                    case ScrollDir.TopToBottom:
+                    case ScrollDir.BottomToTop:
                         _contentRect.sizeDelta = new Vector2(_contentRect.sizeDelta.x, value);
                         break;
                     default:
@@ -389,9 +404,10 @@ namespace UIPlugs.ScrollCircleMaker
         {
             get
             {
-                switch (_scrollRect.vertical)
+                switch (_sProperty.scrollDir)
                 {
-                    case true:
+                    case ScrollDir.TopToBottom:
+                    case ScrollDir.BottomToTop:
                         return _viewRect.rect.height;
                     default:
                         return _viewRect.rect.width;
@@ -529,9 +545,10 @@ namespace UIPlugs.ScrollCircleMaker
         {
             get
             {
-                switch (_scrollRect.vertical)
+                switch (_sProperty.scrollDir)
                 {
-                    case true:
+                    case ScrollDir.TopToBottom:
+                    case ScrollDir.BottomToTop:
                         return _sProperty.HeightExt;
                     default:
                         return _sProperty.WidthExt;
@@ -545,9 +562,10 @@ namespace UIPlugs.ScrollCircleMaker
         {
             get
             {
-                switch (_scrollRect.vertical)
+                switch (_sProperty.scrollDir)
                 {
-                    case true:
+                    case ScrollDir.TopToBottom:
+                    case ScrollDir.BottomToTop:
                         if (_sProperty.isCircleEnable)
                             return 2 * _viewRect.rect.height;
                         return _sProperty.TopExt + _sProperty.BottomExt;
@@ -565,9 +583,10 @@ namespace UIPlugs.ScrollCircleMaker
         {
             get
             {
-                switch (_scrollRect.vertical)
+                switch (_sProperty.scrollDir)
                 {
-                    case true:
+                    case ScrollDir.TopToBottom:
+                    case ScrollDir.BottomToTop:
                         if (_scrollRect.velocity.y == 0)
                             return 0;
                         if (_scrollRect.velocity.y > 0)

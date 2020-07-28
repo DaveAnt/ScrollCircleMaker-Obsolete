@@ -1,0 +1,144 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SkillIcons
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+    variantMultiplier: 1
+    packables:
+    - {fileID: 2800000, guid: 6eb50a773d3fd4a43967dc74339b2519, type: 3}
+    - {fileID: 2800000, guid: 5f7f24ea811830a4f8c425dbe761968c, type: 3}
+    - {fileID: 2800000, guid: c64abca32d8dfce4a9cb9c7d9a3f073a, type: 3}
+    - {fileID: 2800000, guid: e65dc312ba53674429d6fddf761d273f, type: 3}
+    - {fileID: 2800000, guid: 98d82efcab5ab1b41bd622d64b9babcb, type: 3}
+    - {fileID: 2800000, guid: 4e782fd40574076489e2f8cc421b9de1, type: 3}
+    - {fileID: 2800000, guid: 4e5eaf6db95fb0b4e8e2fb934bb59ade, type: 3}
+    - {fileID: 2800000, guid: 2714321b305ffe54c90a12ab6f519be9, type: 3}
+    - {fileID: 2800000, guid: 36ef3f725a9d321449ad3c17300e6614, type: 3}
+    - {fileID: 2800000, guid: e1eec00224e1a5c408cfb90205ffb34e, type: 3}
+    - {fileID: 2800000, guid: a66f1beac7312064ca781b6522f1b1fc, type: 3}
+    - {fileID: 2800000, guid: 5b6eb591692222343b2dc4a3cf38ccec, type: 3}
+    - {fileID: 2800000, guid: 16f5bde1869eeae46b152f96073dfb23, type: 3}
+    - {fileID: 2800000, guid: 134cfd96a954b354dad302a3c7478018, type: 3}
+    - {fileID: 2800000, guid: 37bf6920436d5374d8eca066dde83c9c, type: 3}
+    - {fileID: 2800000, guid: 9c39d089ac02b934b9c2d81c0cabd75c, type: 3}
+    - {fileID: 2800000, guid: 03c362de8195af941bf7c71ef89f67f2, type: 3}
+    - {fileID: 2800000, guid: cb92eec7efa38f4459dcc687a42b2057, type: 3}
+    - {fileID: 2800000, guid: c0c92a24decdbe747954efeba526f8d3, type: 3}
+    - {fileID: 2800000, guid: e371d4c5ad195dc48a1a15eb23675f34, type: 3}
+    - {fileID: 2800000, guid: 74a3cd4db8ac94047897a0a729593243, type: 3}
+    - {fileID: 2800000, guid: 4f121d5b020c47445851b3ae4e0df9af, type: 3}
+    - {fileID: 2800000, guid: efb78c8d7a7cd2b47ae871baab2bb544, type: 3}
+    - {fileID: 2800000, guid: 7b00aab3ed31a984ab3202f5611b0356, type: 3}
+    - {fileID: 2800000, guid: 0401bd9106cbf4a4a980b7bfa4d721e6, type: 3}
+    - {fileID: 2800000, guid: 7b5258b85fd111c47871711d66977246, type: 3}
+    - {fileID: 2800000, guid: b27af5ed0185d934ab1c4a0d8aee0232, type: 3}
+    - {fileID: 2800000, guid: 04b51fb1017e021449e8ae5910ab1d58, type: 3}
+    - {fileID: 2800000, guid: 02306cdb78f958a45a5d43a6cd365cab, type: 3}
+    - {fileID: 2800000, guid: 570cb99813b821347bfb340ebaa3a036, type: 3}
+    - {fileID: 2800000, guid: 5c2432953244f4f49ac05b5d7621cc12, type: 3}
+    - {fileID: 2800000, guid: 8e79366cae88a7d4cb60aa4a8c22ba5a, type: 3}
+    - {fileID: 2800000, guid: 174007668b4a7cc4e8609f6f083e2637, type: 3}
+    - {fileID: 2800000, guid: b35bdb58c672ad94f801555d3fe234b4, type: 3}
+    - {fileID: 2800000, guid: bb37f4e10d90e12448b3ca876fb99322, type: 3}
+    totalSpriteSurfaceArea: 454860
+    bindAsDefault: 1
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 37bf6920436d5374d8eca066dde83c9c, type: 3}
+  - {fileID: 21300000, guid: 5b6eb591692222343b2dc4a3cf38ccec, type: 3}
+  - {fileID: 21300000, guid: 0401bd9106cbf4a4a980b7bfa4d721e6, type: 3}
+  - {fileID: 21300000, guid: 04b51fb1017e021449e8ae5910ab1d58, type: 3}
+  - {fileID: 21300000, guid: bb37f4e10d90e12448b3ca876fb99322, type: 3}
+  - {fileID: 21300000, guid: 16f5bde1869eeae46b152f96073dfb23, type: 3}
+  - {fileID: 21300000, guid: e1eec00224e1a5c408cfb90205ffb34e, type: 3}
+  - {fileID: 21300000, guid: e65dc312ba53674429d6fddf761d273f, type: 3}
+  - {fileID: 21300000, guid: 36ef3f725a9d321449ad3c17300e6614, type: 3}
+  - {fileID: 21300000, guid: c64abca32d8dfce4a9cb9c7d9a3f073a, type: 3}
+  - {fileID: 21300000, guid: 7b00aab3ed31a984ab3202f5611b0356, type: 3}
+  - {fileID: 21300000, guid: c0c92a24decdbe747954efeba526f8d3, type: 3}
+  - {fileID: 21300000, guid: 4e782fd40574076489e2f8cc421b9de1, type: 3}
+  - {fileID: 21300000, guid: 5c2432953244f4f49ac05b5d7621cc12, type: 3}
+  - {fileID: 21300000, guid: e371d4c5ad195dc48a1a15eb23675f34, type: 3}
+  - {fileID: 21300000, guid: 174007668b4a7cc4e8609f6f083e2637, type: 3}
+  - {fileID: 21300000, guid: 134cfd96a954b354dad302a3c7478018, type: 3}
+  - {fileID: 21300000, guid: 6eb50a773d3fd4a43967dc74339b2519, type: 3}
+  - {fileID: 21300000, guid: cb92eec7efa38f4459dcc687a42b2057, type: 3}
+  - {fileID: 21300000, guid: b35bdb58c672ad94f801555d3fe234b4, type: 3}
+  - {fileID: 21300000, guid: 570cb99813b821347bfb340ebaa3a036, type: 3}
+  - {fileID: 21300000, guid: 7b5258b85fd111c47871711d66977246, type: 3}
+  - {fileID: 21300000, guid: 9c39d089ac02b934b9c2d81c0cabd75c, type: 3}
+  - {fileID: 21300000, guid: 5f7f24ea811830a4f8c425dbe761968c, type: 3}
+  - {fileID: 21300000, guid: a66f1beac7312064ca781b6522f1b1fc, type: 3}
+  - {fileID: 21300000, guid: 2714321b305ffe54c90a12ab6f519be9, type: 3}
+  - {fileID: 21300000, guid: 4f121d5b020c47445851b3ae4e0df9af, type: 3}
+  - {fileID: 21300000, guid: 02306cdb78f958a45a5d43a6cd365cab, type: 3}
+  - {fileID: 21300000, guid: 8e79366cae88a7d4cb60aa4a8c22ba5a, type: 3}
+  - {fileID: 21300000, guid: 98d82efcab5ab1b41bd622d64b9babcb, type: 3}
+  - {fileID: 21300000, guid: 74a3cd4db8ac94047897a0a729593243, type: 3}
+  - {fileID: 21300000, guid: 4e5eaf6db95fb0b4e8e2fb934bb59ade, type: 3}
+  - {fileID: 21300000, guid: efb78c8d7a7cd2b47ae871baab2bb544, type: 3}
+  - {fileID: 21300000, guid: b27af5ed0185d934ab1c4a0d8aee0232, type: 3}
+  - {fileID: 21300000, guid: 03c362de8195af941bf7c71ef89f67f2, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - skill_icon (15)
+  - skill_icon (12)
+  - skill_icon (25)
+  - skill_icon (28)
+  - skill_icon (35)
+  - skill_icon (13)
+  - skill_icon (10)
+  - skill_icon (4)
+  - skill_icon (9)
+  - skill_icon (3)
+  - skill_icon (24)
+  - skill_icon (19)
+  - skill_icon (6)
+  - skill_icon (31)
+  - skill_icon (20)
+  - skill_icon (33)
+  - skill_icon (14)
+  - skill_icon (1)
+  - skill_icon (18)
+  - skill_icon (34)
+  - skill_icon (30)
+  - skill_icon (26)
+  - skill_icon (16)
+  - skill_icon (2)
+  - skill_icon (11)
+  - skill_icon (8)
+  - skill_icon (22)
+  - skill_icon (29)
+  - skill_icon (32)
+  - skill_icon (5)
+  - skill_icon (21)
+  - skill_icon (7)
+  - skill_icon (23)
+  - skill_icon (27)
+  - skill_icon (17)
+  m_Tag: SkillIcons
+  m_IsVariant: 0

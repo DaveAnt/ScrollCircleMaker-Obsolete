@@ -93,6 +93,6 @@ namespace UIPlugs.ScrollCircleMaker
         /// <summary>
         /// 持续更新物品
         /// </summary>
-        public virtual void OnUpdate() { }
+        public virtual void OnUpdate() {}
     }
 }

@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
 {0}
-    public class {2} : BaseCircleMaker<{3}>
+    public class {2} : BaseDirectMaker<{3}>
     {0}
         public override void OnStart(Transform transform)
         {0}
@@ -36,9 +36,9 @@ namespace UIPlugs.ScrollCircleMaker
 			         
         {1}
 
-        public override void UpdateView(int data, int globalSeat)
+        public override void UpdateView({3} data, int globalSeat)
         {0}
-        	
+        	base.UpdateView(data, globalSeat);
         {1}
     {1}
 {1}

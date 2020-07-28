@@ -324,7 +324,7 @@ namespace UIPlugs.ScrollCircleMaker
                 tmpForce = _scrollRect.velocity;
                 _scrollRect.enabled = false;
                 tmpItemIdx = _sProperty.itemIdx;
-                _sProperty.dataIdx = _dataSet.Count - _sProperty.initItems;
+                _sProperty.dataIdx = _dataSet.Count - _sProperty.initItems % _dataSet.Count;
                 _sProperty.itemIdx = _sProperty.dataIdx % _sProperty.initItems;
                 ToItemOffset(tmpItemIdx);
                 OnRefreshItems();
@@ -403,7 +403,11 @@ namespace UIPlugs.ScrollCircleMaker
             else
             {
                 contentRect += footItemLen - tmpItemLen;
+                Vector2 tmpVelocity = _scrollRect.velocity;
+                _scrollRect.enabled = Mathf.Abs(minItemLen - tmpItemLen) < 0.1;
                 nowSeat += minItemLen - tmpItemLen;
+                _scrollRect.enabled = true;
+                _scrollRect.velocity = tmpVelocity;
                 contentSite += minItemLen;
             }
         }
@@ -423,7 +427,11 @@ namespace UIPlugs.ScrollCircleMaker
             else
             {
                 contentRect += headItemLen - tmpItemLen;
+                Vector2 tmpVelocity = _scrollRect.velocity;
+                _scrollRect.enabled = Mathf.Abs(headItemLen - minItemLen) <= 0.1;
                 nowSeat += headItemLen - minItemLen;
+                _scrollRect.enabled = true;
+                _scrollRect.velocity = tmpVelocity;
                 contentSite -= minItemLen;
             }
         }

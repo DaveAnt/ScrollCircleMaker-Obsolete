@@ -269,8 +269,7 @@ namespace UIPlugs.ScrollCircleMaker
                 tmpForce = _scrollRect.velocity;
                 _scrollRect.enabled = false;
                 tmpItemIdx = _sProperty.itemIdx;
-                _sProperty.dataIdx = _cExtra.totalItems - _sProperty.initItems;
-                _sProperty.dataIdx = _sProperty.dataIdx < 0 ? 0 : _sProperty.dataIdx;
+                _sProperty.dataIdx = _cExtra.totalItems - _sProperty.initItems % _cExtra.totalItems;
                 _sProperty.itemIdx = _sProperty.dataIdx % _sProperty.initItems;
                 nowSeat = bottomSeat;
                 contentSite = (int)(topSeatExt + _sProperty.dataIdx * itemLen / autoRanks);
@@ -435,7 +434,7 @@ namespace UIPlugs.ScrollCircleMaker
             }
             while (toSeat < contentSite - spacingExt && nowSeat > toSeat)
             {
-                nowSeat -= _sProperty.autoMoveRatio;
+                nowSeat -= _sProperty.autoMoveRatio;     
                 yield return new WaitForEndOfFrame();
                 if (nowSeat < contentSite - spacingExt)
                 {
