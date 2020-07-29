@@ -277,6 +277,10 @@ namespace UIPlugs.ScrollCircleMaker
                 _initItems = value;
             }
         }
+        public bool isDargging
+        {
+            get;set;
+        }
         /// <summary>
         /// 解决方案
         /// </summary>
@@ -286,6 +290,7 @@ namespace UIPlugs.ScrollCircleMaker
         /// </summary>
         public void Awake()
         {
+            isDargging = false;
             baseMaker = TypesObtainer<BaseMaker>.CreateInstanceByName(_scrollMaker);
         }
         /// <summary>
@@ -300,7 +305,11 @@ namespace UIPlugs.ScrollCircleMaker
         /// </summary>
         public void Update()
         {
-            if(_isUpdateEnable) 
+            if (Input.GetMouseButtonDown(0))
+                isDargging = true;
+            if (Input.GetMouseButtonUp(0))
+                isDargging = false;
+            if (_isUpdateEnable) 
                 baseMaker?.OnUpdate();
         }
         /// <summary>

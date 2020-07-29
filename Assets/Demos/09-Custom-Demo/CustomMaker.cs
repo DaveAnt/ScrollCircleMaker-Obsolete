@@ -12,9 +12,9 @@ namespace UIPlugs.ScrollCircleMaker
     {
         public override void OnStart(Transform transform)
         {
-            Vector2[] vector2 = new Vector2[18];
+            Vector2[] vector2 = new Vector2[10];
             for (int i = 0; i < vector2.Length; ++i)
-                vector2[i] = new Vector2(i * 60, i * 100);
+                vector2[i] = new Vector2(i * 100, i * 100);
             baseHelper = new CustomRectCircleHelper<int>(transform,()=> {
                 return new CustomItem();
             }, vector2);

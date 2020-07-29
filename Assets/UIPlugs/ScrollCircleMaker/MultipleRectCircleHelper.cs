@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UIPlugs.ScrollCircleMaker
@@ -250,24 +251,18 @@ namespace UIPlugs.ScrollCircleMaker
         /// </summary>
         private void ToItemCircle()
         {
-            int tmpItemIdx; Vector2 tmpForce;
+            int tmpItemIdx;
             if (isHighDefine)
             {
-                tmpForce = _scrollRect.velocity;
-                _scrollRect.enabled = false;
                 tmpItemIdx = _sProperty.itemIdx;
                 _sProperty.itemIdx = _sProperty.dataIdx = 0;
                 nowSeat = topSeat;
                 contentSite = (int)topSeatExt;
                 ToItemOffset(tmpItemIdx);
                 OnRefreshItems();
-                _scrollRect.enabled = true;
-                _scrollRect.velocity = tmpForce;
             }
             else if (isLowerDefine)
             {
-                tmpForce = _scrollRect.velocity;
-                _scrollRect.enabled = false;
                 tmpItemIdx = _sProperty.itemIdx;
                 _sProperty.dataIdx = _cExtra.totalItems - _sProperty.initItems % _cExtra.totalItems;
                 _sProperty.itemIdx = _sProperty.dataIdx % _sProperty.initItems;
@@ -275,8 +270,6 @@ namespace UIPlugs.ScrollCircleMaker
                 contentSite = (int)(topSeatExt + _sProperty.dataIdx * itemLen / autoRanks);
                 ToItemOffset(tmpItemIdx);
                 OnRefreshItems();
-                _scrollRect.enabled = true;
-                _scrollRect.velocity = tmpForce;
             }
         }
         /// <summary>

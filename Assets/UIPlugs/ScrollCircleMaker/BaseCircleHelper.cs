@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UIPlugs.ScrollCircleMaker
@@ -21,6 +22,7 @@ namespace UIPlugs.ScrollCircleMaker
         protected RectTransform _viewRect, _contentRect, _itemRect;
         protected ScrollCircleComponent _sProperty;
         protected GameObject _baseItem;
+        private PointerEventData _eventData;
 
         /// <summary>
         /// 定位动画结束回调
@@ -93,7 +95,7 @@ namespace UIPlugs.ScrollCircleMaker
             _viewRect = contentTrans.parent.GetComponent<RectTransform>();
             _scrollRect = _viewRect.parent.GetComponent<ScrollRect>();
             _sProperty = _contentRect.GetComponent<ScrollCircleComponent>();
-
+            _eventData = new PointerEventData(EventSystem.current);
             if (_sProperty == null)
                 throw new Exception("Content must have ScrollCircleComponent!");
             _baseItem = _sProperty.baseItem;
@@ -290,6 +292,18 @@ namespace UIPlugs.ScrollCircleMaker
             _itemSet.Add(baseItem);
         }
         /// <summary>
+        /// 修正拖动位置
+        /// </summary>
+        protected void RefurbishMousePos()
+        {
+            if (Input.touchCount != 0 || _sProperty.isDargging)
+            {
+                _eventData.position = Input.mousePosition;
+                _scrollRect.OnEndDrag(_eventData);
+                _scrollRect.OnBeginDrag(_eventData);
+            }
+        }
+        /// <summary>
         /// 真实位置定位
         /// </summary>
         /// <param name="toSeat">真实位置</param>
@@ -461,7 +475,8 @@ namespace UIPlugs.ScrollCircleMaker
                     case true: _cacheSeat.y = value * _frontDir; break;
                     default: _cacheSeat.x = value * _frontDir; break;
                 }
-                _contentRect.anchoredPosition = _cacheSeat; 
+                _contentRect.anchoredPosition = _cacheSeat;
+                RefurbishMousePos();
             }
         }
         /// <summary>

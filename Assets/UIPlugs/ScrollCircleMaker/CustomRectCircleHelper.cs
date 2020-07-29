@@ -125,7 +125,7 @@ namespace UIPlugs.ScrollCircleMaker
             {
                 _itemsPos = itemsPos;
                 _sProperty.ItemsPos = itemsPos;
-            }        
+            }
             switch (_sProperty.scrollDir)
             {
                 case ScrollDir.TopToBottom:
@@ -143,8 +143,6 @@ namespace UIPlugs.ScrollCircleMaker
                     _frontDir = -1;
                     _itemRect.anchorMin = _itemRect.anchorMax = _itemRect.pivot = Vector2.zero;
                     _contentRect.anchorMin = _contentRect.anchorMax = _contentRect.pivot = new Vector2(0.5f, 0);
-                    for (int i = 0; i < _itemsPos.Length - 1; ++i)
-                        _itemsPos[i].y = -_itemsPos[i].y;
                     Array.Sort(_itemsPos, new Comparison<Vector2>((item1, item2) => item1.y.CompareTo(item2.y)));
                     _scrollRect.horizontal = false;
                     _scrollRect.vertical = true;
@@ -153,6 +151,8 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
                 case ScrollDir.LeftToRight:
                     _frontDir = -1;
+                    for (int i = 0; i < _itemsPos.Length; ++i)
+                        _itemsPos[i].y = -_itemsPos[i].y;
                     _itemRect.anchorMin = _itemRect.anchorMax = _itemRect.pivot = new Vector2(0, 1);
                     _contentRect.anchorMin = _contentRect.anchorMax = _contentRect.pivot = new Vector2(0, 0.5f);
                     Array.Sort(_itemsPos, new Comparison<Vector2>((item1, item2) => item1.x.CompareTo(item2.x)));
@@ -163,11 +163,9 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
                 case ScrollDir.RightToLeft:
                     for (int i = 0; i < _itemsPos.Length; ++i)
-                        _itemsPos[i].x = -_itemsPos[i].x;
+                        _itemsPos[i] = -_itemsPos[i];
                     _itemRect.anchorMin = _itemRect.anchorMax = _itemRect.pivot = Vector2.one;
                     _contentRect.anchorMin = _contentRect.anchorMax = _contentRect.pivot = new Vector2(1, 0.5f);
-                    for (int i = 0; i < _itemsPos.Length - 1; ++i)
-                        _itemsPos[i].x = -_itemsPos[i].x;
                     Array.Sort(_itemsPos, new Comparison<Vector2>((item1, item2) => item2.x.CompareTo(item1.x)));
                     _scrollRect.horizontal = true;
                     _scrollRect.vertical = false;
@@ -263,31 +261,23 @@ namespace UIPlugs.ScrollCircleMaker
         /// </summary>
         private void ToItemCircle()
         {
-            int tmpItemIdx; Vector2 tmpForce;
+            int tmpItemIdx;
             if (isHighDefine)
             {
-                tmpForce = _scrollRect.velocity;
-                _scrollRect.enabled = false;
                 tmpItemIdx = _sProperty.itemIdx;
                 _sProperty.itemIdx = _sProperty.dataIdx = 0;
                 ToItemOffset(tmpItemIdx);
                 OnRefreshItems();
                 nowSeat = topSeat;
-                _scrollRect.enabled = true;
-                _scrollRect.velocity = tmpForce;
             }
             else if (isLowerDefine)
             {
-                tmpForce = _scrollRect.velocity;
-                _scrollRect.enabled = false;
                 tmpItemIdx = _sProperty.itemIdx;
                 _sProperty.dataIdx = _dataSet.Count - _sProperty.initItems % _dataSet.Count;
                 _sProperty.itemIdx = _sProperty.dataIdx % _sProperty.initItems;
                 ToItemOffset(tmpItemIdx);
                 OnRefreshItems();
                 nowSeat = bottomSeat;
-                _scrollRect.enabled = true;
-                _scrollRect.velocity = tmpForce;
             }
         }
         /// <summary>

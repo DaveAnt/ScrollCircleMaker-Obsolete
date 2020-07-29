@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace UIPlugs.ScrollCircleMaker
 {
@@ -305,24 +306,18 @@ namespace UIPlugs.ScrollCircleMaker
         /// </summary>
         private void ToItemCircle()
         {
-            int tmpItemIdx; Vector2 tmpForce;
+            int tmpItemIdx;
             if (isHighDefine)
             {
-                tmpForce = _scrollRect.velocity;
-                _scrollRect.enabled = false;
                 tmpItemIdx = _sProperty.itemIdx;
                 _sProperty.itemIdx = _sProperty.dataIdx = 0;
                 ToItemOffset(tmpItemIdx);
                 OnRefreshItems();
                 nowSeat = topSeat;
                 contentSite = (int)topSeatExt;
-                _scrollRect.enabled = true;
-                _scrollRect.velocity = tmpForce;
             }
             else if (isLowerDefine)
             {
-                tmpForce = _scrollRect.velocity;
-                _scrollRect.enabled = false;
                 tmpItemIdx = _sProperty.itemIdx;
                 _sProperty.dataIdx = _dataSet.Count - _sProperty.initItems % _dataSet.Count;
                 _sProperty.itemIdx = _sProperty.dataIdx % _sProperty.initItems;
@@ -330,8 +325,6 @@ namespace UIPlugs.ScrollCircleMaker
                 OnRefreshItems();
                 nowSeat = bottomSeat;
                 contentSite = (int)(topSeatExt + _sProperty.dataIdx * minItemLen);
-                _scrollRect.enabled = true;
-                _scrollRect.velocity = tmpForce;
             }
         }
         /// <summary>
@@ -403,11 +396,7 @@ namespace UIPlugs.ScrollCircleMaker
             else
             {
                 contentRect += footItemLen - tmpItemLen;
-                Vector2 tmpVelocity = _scrollRect.velocity;
-                _scrollRect.enabled = Mathf.Abs(minItemLen - tmpItemLen) < 0.1;
                 nowSeat += minItemLen - tmpItemLen;
-                _scrollRect.enabled = true;
-                _scrollRect.velocity = tmpVelocity;
                 contentSite += minItemLen;
             }
         }
@@ -427,11 +416,7 @@ namespace UIPlugs.ScrollCircleMaker
             else
             {
                 contentRect += headItemLen - tmpItemLen;
-                Vector2 tmpVelocity = _scrollRect.velocity;
-                _scrollRect.enabled = Mathf.Abs(headItemLen - minItemLen) <= 0.1;
                 nowSeat += headItemLen - minItemLen;
-                _scrollRect.enabled = true;
-                _scrollRect.velocity = tmpVelocity;
                 contentSite -= minItemLen;
             }
         }
