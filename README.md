@@ -1,6 +1,6 @@
 ﻿## HOMEPAGE
 
-- **简体中文** - [https://daveant.gitee.io/](https://daveant.gitee.io/) 
+- **简体中文** - [https://daveant.gitee.io/posts/ScrollView循环滚动-插件篇/](https://daveant.gitee.io/posts/ScrollView循环滚动-插件篇/) 
 - **QQ讨论** - 939564762
 
 ## ScrollCircle Maker 简介
@@ -41,7 +41,7 @@ Scrollcircle maker is a unity based The cyclic reuse of sliding plug-ins of the 
 
 1. **Multi line rule length helper (MultipleRectCircleHelper)** - When the height and width of the n \ * m column is constant, such as the backpack sliding in the game
 2. **One line irregular length helper (SingleRectCircleHelper)** - 1 \* n or n \* 1 with variable height and width, such as the variable height sliding of chat module
-3. ** Custom location helper (CustomRectCircleHelper)** - When the location of each item is not fixed, the developer can input the layout array to determine the layout
+3. **Custom location helper (CustomRectCircleHelper)** - When the location of each item is not fixed, the developer can input the layout array to determine the layout
 
 Plug in interface document form
 

@@ -172,7 +172,8 @@ namespace UIPlugs.ScrollCircleMaker
                 contentSite = (int)topSeatExt;
                 contentRect += spacingExt;
             }
-            OnRefreshItems();
+            if(_dataSet.Count > 0)
+                OnRefreshItems();
         }
         public override void DelItem(int itemIdx)
         {
@@ -322,10 +323,9 @@ namespace UIPlugs.ScrollCircleMaker
                     _itemSet[tmpItemIdx].transform.localScale = Vector3.zero;
                 else
                 {
-                    if (_itemSet[tmpItemIdx].transform.localScale == Vector3.zero)
-                        _itemSet[tmpItemIdx].transform.localScale = Vector3.one;
+                    _itemSet[tmpItemIdx].transform.localScale = Vector3.one;
                     _itemSet[tmpItemIdx].UpdateView(_dataSet[tmpDataIdx], tmpDataIdx);
-                }                  
+                }           
             }
             _gridLayoutGroup.SetLayoutVertical();
         }
