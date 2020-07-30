@@ -243,15 +243,15 @@ namespace UIPlugs.ScrollCircleMaker
         /// <summary>
         /// 交换物品位置
         /// </summary>
-        /// <param name="firstIdx">被交换物品</param>
-        /// <param name="nextIdx">交换物品</param>
+        /// <param name="firstIdx">被交换物品索引</param>
+        /// <param name="nextIdx">交换物品索引</param>
         public abstract void SwapItem(int firstIdx, int nextIdx);
         /// <summary>
         /// 交换物品位置
         /// </summary>
         /// <param name="seekFunc">匹配查询物品</param>
-        /// <param name="firstData">被交换数据</param>
-        /// <param name="nextData">交换数据</param>
+        /// <param name="firstData">被交换物品数据</param>
+        /// <param name="nextData">交换物品数据</param>
         public virtual void SwapItem(Func<T, T, bool> seekFunc, T firstData, T nextData)
         {
             int firstIdx = -1, nextIdx = -1;
