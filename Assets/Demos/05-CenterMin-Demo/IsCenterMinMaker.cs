@@ -25,10 +25,12 @@ namespace UIPlugs.ScrollCircleMaker
     public class TaskItem : BaseItem<int>
     {
         Text text;
+        RectTransform taskRect;
         IsCenterMinMaker baseMaker;
         public override void InitComponents()
         {
             text = _transform.Find("Text").GetComponent<Text>();
+            taskRect = _transform.Find("TaskIMG").GetComponent<RectTransform>();
             baseMaker = _transform.parent.GetComponent<ScrollCircleComponent>().baseMaker as IsCenterMinMaker;
         }
 
@@ -47,7 +49,17 @@ namespace UIPlugs.ScrollCircleMaker
         	base.UpdateView(data, globalSeat);
             text.text = data.ToString();
             int itemOffset = Mathf.Abs(baseMaker.Helper.viewCore - globalSeat);
-            rectTrans.sizeDelta = new Vector2(200 + itemOffset*10,200 + itemOffset * 10);
+            taskRect.sizeDelta = new Vector2(200 + itemOffset*10,200 + itemOffset * 10);
+            switch (baseMaker.Helper.sProperty.scrollDir)
+            {
+                case ScrollDir.TopToBottom:
+                case ScrollDir.BottomToTop:
+                    rectTrans.sizeDelta = new Vector2(200, 200 + itemOffset * 10);
+                    break;
+                default:
+                    rectTrans.sizeDelta = new Vector2(200 + itemOffset * 10, 200);
+                    break;
+            }            
         }
     }
 }
