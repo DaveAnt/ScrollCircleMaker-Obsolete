@@ -396,8 +396,9 @@ namespace UIPlugs.ScrollCircleMaker
             else
             {
                 contentRect += footItemLen - tmpItemLen;
-                nowSeat += minItemLen - tmpItemLen;
                 contentSite += minItemLen;
+                if (minItemLen - tmpItemLen != 0)
+                    nowSeat += minItemLen - tmpItemLen;
             }
         }
         /// <summary>
@@ -416,8 +417,9 @@ namespace UIPlugs.ScrollCircleMaker
             else
             {
                 contentRect += headItemLen - tmpItemLen;
-                nowSeat += headItemLen - minItemLen;
                 contentSite -= minItemLen;
+                if (headItemLen - minItemLen != 0)
+                    nowSeat += headItemLen - minItemLen;
             }
         }
         /// <summary>

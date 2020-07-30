@@ -5,34 +5,34 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
   - enabled: 1
     path: Assets/Demos/01-Loadrunner-Demo/Scene_1.unity
     guid: dade62d95fb7a2e4bad6646c7f647e16
+  - enabled: 1
+    path: Assets/Demos/02-Simple-Demo/Scene_2.unity
+    guid: 381506c353992e84cb2dac8bb4361e6a
+  - enabled: 1
+    path: Assets/Demos/03-Click-Demo/Scene_3.unity
+    guid: bb81f24b75e338f438bd2d76019ed1c6
+  - enabled: 1
+    path: Assets/Demos/04-IsCircleAndUpdate-Demo/Scene_4.unity
+    guid: 4fea26a0882651c439d8342b10e5fd66
+  - enabled: 1
+    path: Assets/Demos/05-CenterMin-Demo/Scene_5.unity
+    guid: 534d153f8086e2d4fb1a87dd99f8acc1
+  - enabled: 1
+    path: Assets/Demos/06-CURD-Demo/Scene_6.unity
+    guid: 48dfd5513e9dc0e42bbef4a658f23306
+  - enabled: 1
+    path: Assets/Demos/07-PageSlide-Demo/Scene_7.unity
+    guid: e5eead7e9741614458a91901e3d31145
+  - enabled: 1
+    path: Assets/Demos/08-Chat-Demo/Scene_8.unity
+    guid: bdf9ab8be4e5827489da8dd6c021c2ef
+  - enabled: 1
+    path: Assets/Demos/09-Custom-Demo/Scene_9.unity
+    guid: d6df1c7137bba1e41aa9473d3c7be831
+  - enabled: 1
+    path: Assets/Demos/Main-Menu/MainMenu.unity
+    guid: 25769ac9a1b09ab429510d44c9e27cf5
   m_configObjects: {}
