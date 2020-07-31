@@ -541,6 +541,7 @@ namespace UIPlugs.ScrollCircleMaker
                     OnRefreshItemUp();
             }
             _scrollRect.enabled = true;
+            _toLocationEvent?.Invoke();
         }
         /// <summary>
         /// 直接定位
