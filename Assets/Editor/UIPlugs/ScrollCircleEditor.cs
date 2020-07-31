@@ -75,6 +75,16 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             AssetDatabase.Refresh();
         }
 
+        [MenuItem("GameObject/UI/ScrollCircle View")]
+        private static void CrateScrollCircleView()
+        {
+            GameObject tmpScrollCircleView = Resources.Load<GameObject>("ScrollCircle View");
+            GameObject scrollCircleView = GameObject.Instantiate(tmpScrollCircleView);
+            scrollCircleView.transform.parent = Selection.activeTransform;
+            scrollCircleView.transform.localPosition = Vector3.zero;
+            scrollCircleView.name = "ScrollCircle View";          
+        }
+
         static string savePath = string.Empty;
         static string saveMakerName = string.Empty;
         static string saveItemName = string.Empty;
@@ -159,7 +169,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                 try
                 {
                     string helperName = helperNames[selectHepler].Substring(26);
-                    string tmpTemplate = File.ReadAllText(@"Assets\Editor\UIPlugs\TemplateMaker");
+                    string tmpTemplate = Resources.Load<TextAsset>("TemplateMaker").ToString();
                     tmpTemplate = string.Format(tmpTemplate,'{','}', tmpMakerName, saveDataType, helperName, tmpItemName);
                     if (File.Exists(filePath))
                     {
