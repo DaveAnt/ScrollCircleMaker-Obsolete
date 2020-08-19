@@ -9,6 +9,7 @@ using UnityEngine.U2D;
 using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
 {
+    [MakerHandle(MakerHandle.SingleRectCircleHelper)]
     public class CircleAndUpdateMaker : BaseDirectMaker<string>
     {
         public static SpriteAtlas DiaItems;

@@ -15,6 +15,7 @@ namespace UIPlugs.ScrollCircleMaker
         public string SkillPath;
         public int SkillHurt;
     }
+    [MakerHandle(MakerHandle.SingleRectCircleHelper)]
     public class ClickMaker : BaseDirectMaker<SkillInfo>
     {
         public static SpriteAtlas SkillItems;

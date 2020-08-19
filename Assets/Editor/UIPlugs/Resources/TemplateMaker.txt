@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
 {0}
+    [MakerHandle(MakerHandle.{4})]
     public class {2} : BaseDirectMaker<{3}>
     {0}
         public override void OnStart(Transform transform)

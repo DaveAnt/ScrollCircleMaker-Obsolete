@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
 {
+    [MakerHandle(MakerHandle.MultipleRectCircleHelper)]
     public class LoadrunnerMaker : BaseDirectMaker<int>
     {
         public override void OnStart(Transform transform)

@@ -7,6 +7,7 @@
 using UnityEditor;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace UIPlugs.ScrollCircleMaker.Editor
 {
@@ -142,25 +143,13 @@ namespace UIPlugs.ScrollCircleMaker.Editor
 
         private void OnEnable()
         {
+            helperNames.Clear();makerNames.Clear();
             baseHelperIdx = serializedObject.FindProperty("_baseHelperIdx");
             foreach (var helperName in TypesObtainer<BaseCircleHelper<dynamic>>.GetNames())
-                helperNames.Add(helperName.Substring(0, helperName.Length - 2));   
-            List<string> tmpMakerNames = TypesObtainer<BaseDirectMaker<dynamic>>.GetNames();
-            List<string> resultFiles = ScrollCircleEditor.SeekFeatureMaker(helperNames[baseHelperIdx.intValue].Split('.')[2]);
-            foreach (var filesName in resultFiles)
-            {
-                foreach (var tmpMaker in tmpMakerNames)
-                {
-                    if (filesName.Contains(tmpMaker.Split('.')[2]))
-                    {
-                        makerNames.Add(tmpMaker);
-                        break;
-                    }
-                }
-            }
-            tmpMakerNames.Clear();
-            resultFiles.Clear();
-
+                helperNames.Add(helperName.Substring(0, helperName.Length - 2));
+            Type[] makerAttr = ScrollCircleEditor.SeekFeatureMaker(baseHelperIdx.intValue);
+            foreach (var makerName in makerAttr)
+                makerNames.Add(makerName.FullName);
             scrollMaker = serializedObject.FindProperty("_scrollMaker");            
             baseItem = serializedObject.FindProperty("_baseItem");
             scrollDir = serializedObject.FindProperty("_scrollDir");

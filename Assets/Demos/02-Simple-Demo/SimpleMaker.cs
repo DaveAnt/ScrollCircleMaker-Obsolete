@@ -14,6 +14,7 @@ namespace UIPlugs.ScrollCircleMaker
         public string HeroIMG;
         public string HeroName;
     }
+    [MakerHandle(MakerHandle.MultipleRectCircleHelper)]
     public class SimpleMaker : BaseDirectMaker<HeroItem>
     {
         public static SpriteAtlas HeroItems;

@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
 {
+    [MakerHandle(MakerHandle.CustomRectCircleHelper)]
     public class CustomMaker : BaseDirectMaker<int>
     {
         public override void OnStart(Transform transform)

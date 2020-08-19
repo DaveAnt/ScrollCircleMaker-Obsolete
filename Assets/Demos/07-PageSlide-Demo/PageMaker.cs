@@ -13,6 +13,7 @@ namespace UIPlugs.ScrollCircleMaker
         public string Content;
         public int PageNum;    
     }
+    [MakerHandle(MakerHandle.SingleRectCircleHelper)]
     public class PageMaker : BaseDirectMaker<PageInfo>
     {
         public string[] PageItems = {

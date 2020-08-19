@@ -7,19 +7,21 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
 namespace UIPlugs.ScrollCircleMaker.Editor
 {
-    public sealed class ScrollCircleEditor:EditorWindow
+    public sealed class ScrollCircleEditor : EditorWindow
     {
         [MenuItem("ScrollCircleMaker/Generate Maker")]
         private static void GenerateMaker()
-        {            
+        {
             ScrollCircleEditor window = GetWindow<ScrollCircleEditor>("ScrollCircle Maker", true);
-            window.minSize = window.maxSize = new Vector2(300f, 180f);            
+            window.minSize = window.maxSize = new Vector2(300f, 180f);
         }
 
         [MenuItem("ScrollCircleMaker/Document")]
@@ -33,7 +35,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
         {
             List<string> baseMakers = TypesObtainer<BaseDirectMaker<dynamic>>.GetScripts();
             List<string> resultFiles = new List<string>();
-            GetDirs("Assets/",baseMakers,resultFiles);
+            GetDirs("Assets/", baseMakers, resultFiles);
             foreach (var fileName in resultFiles)
             {
                 if (File.Exists(fileName))
@@ -82,7 +84,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             GameObject scrollCircleView = GameObject.Instantiate(tmpScrollCircleView);
             scrollCircleView.transform.parent = Selection.activeTransform;
             scrollCircleView.transform.localPosition = Vector3.zero;
-            scrollCircleView.name = "ScrollCircle View";          
+            scrollCircleView.name = "ScrollCircle View";
         }
 
         static string savePath = string.Empty;
@@ -148,13 +150,13 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                 if (saveMakerName == string.Empty ||
                     saveItemName == string.Empty ||
                     saveDataType == string.Empty ||
-                    savePath == string.Empty){
+                    savePath == string.Empty) {
                     Debug.LogError("please fill in !!!");
                     ShowNotification(new GUIContent("Empty!"));
                     return;
                 }
                 if (!Directory.Exists(savePath) ||
-                    !isLetterMark(saveMakerName[0])||
+                    !isLetterMark(saveMakerName[0]) ||
                     !isLetterMark(saveItemName[0]) ||
                     !isLetterMark(saveDataType[0]))
                 {
@@ -170,7 +172,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                 {
                     string helperName = helperNames[selectHepler].Substring(26);
                     string tmpTemplate = Resources.Load<TextAsset>("TemplateMaker").ToString();
-                    tmpTemplate = string.Format(tmpTemplate,'{','}', tmpMakerName, saveDataType, helperName, tmpItemName);
+                    tmpTemplate = string.Format(tmpTemplate, '{', '}', tmpMakerName, saveDataType, helperName, tmpItemName);
                     if (File.Exists(filePath))
                     {
                         if (!forceGenerate)
@@ -178,10 +180,10 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                             Debug.LogWarning("maker already exists, you can try to tick force");
                             ShowNotification(new GUIContent("Exist!"));
                             return;
-                        }                           
+                        }
                         File.Delete(filePath);
-                    }                  
-                    using (File.Create(filePath)){}
+                    }
+                    using (File.Create(filePath)) { }
                     File.WriteAllText(filePath, tmpTemplate);
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
@@ -190,7 +192,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
                 catch (Exception e)
                 {
                     Debug.LogError(e.Message);
-                }              
+                }
             }
             forceGenerate = EditorGUILayout.ToggleLeft("Force", forceGenerate);
             EditorGUILayout.EndHorizontal();
@@ -222,7 +224,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             return tmpPath + '/';
         }
 
-        public static void GetDirs(string seekPath,List<string> seekFiles,List<string> resultFiles)//得到所有文件夹
+        public static void GetDirs(string seekPath, List<string> seekFiles, List<string> resultFiles)//得到所有文件夹
         {
             string[] files = Directory.GetFiles(seekPath);//得到文件
             for (int i = seekFiles.Count - 1; i >= 0; --i)
@@ -243,7 +245,7 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             {
                 string[] dirs = Directory.GetDirectories(seekPath.Replace("\\", "/"));
                 foreach (string dir in dirs)
-                    GetDirs(dir.Replace("\\", "/"),seekFiles,resultFiles);//递归
+                    GetDirs(dir.Replace("\\", "/"), seekFiles, resultFiles);//递归
             }
             catch
             {
@@ -291,7 +293,41 @@ namespace UIPlugs.ScrollCircleMaker.Editor
             return symbolsString.Contains(symbol);
         }
 
-        //寻找特征解决方案
+        /// <summary>
+        /// 寻找特征解决方案
+        /// </summary>
+        /// <param name="baseHelperIdx">辅助器索引</param>
+        /// <returns></returns>
+        public static Type[] SeekFeatureMaker(int baseHelperIdx)
+        {   
+            Assembly assembly = Assembly.GetAssembly(typeof(MakerHandleAttribute));
+            Type[] types = assembly.GetExportedTypes();
+
+            Func<Attribute[], bool> featureAttribute = MakerHandleAttributes =>
+            {
+                foreach (Attribute attribute in MakerHandleAttributes)
+                {
+                    if (attribute is MakerHandleAttribute)
+                    {
+                        MakerHandleAttribute makerHandleAttribute = attribute as MakerHandleAttribute;
+                        if((int)makerHandleAttribute.makerHandle == baseHelperIdx)
+                            return true;
+                    }                
+                }
+                return false;
+            };
+
+            Type[] makerType = types.Where(element =>{
+                return featureAttribute(Attribute.GetCustomAttributes(element, true));
+            }).ToArray();
+            return makerType;
+        }
+
+        /// <summary>
+        /// 寻找特征解决方案
+        /// </summary>
+        /// <param name="helperName">辅助器名</param>
+        /// <returns></returns>
         public static List<string> SeekFeatureMaker(string helperName)
         {
             List<string> baseMakers = TypesObtainer<BaseDirectMaker<dynamic>>.GetScripts();

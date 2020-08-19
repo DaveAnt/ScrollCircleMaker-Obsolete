@@ -89,7 +89,7 @@ namespace UIPlugs.ScrollCircleMaker
         [SerializeField]
         private int _visibleItems, _initItems;
         /// <summary>
-        /// Item实例
+        /// 物品实例
         /// </summary>
         public GameObject baseItem
         {

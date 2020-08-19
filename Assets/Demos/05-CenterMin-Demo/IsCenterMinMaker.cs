@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace UIPlugs.ScrollCircleMaker
 {
+    [MakerHandle(MakerHandle.SingleRectCircleHelper)]
     public class IsCenterMinMaker : BaseDirectMaker<int>
     {
         public override void OnStart(Transform transform)
