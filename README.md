@@ -1,6 +1,6 @@
 ﻿## HOMEPAGE
 
-- **简体中文** - [https://daveant.gitee.io/posts/ScrollView循环滚动-插件篇/](https://daveant.gitee.io/posts/ScrollCircleMaker-v1.0教程/) 
+- **简体中文** - [https://daveant.gitee.io/posts/ScrollCircleMaker-v1.0教程/](https://daveant.gitee.io/posts/ScrollCircleMaker-v1.0教程/) 
 - **QQ讨论** - 939564762
 
 ## ScrollCircle Maker 简介
