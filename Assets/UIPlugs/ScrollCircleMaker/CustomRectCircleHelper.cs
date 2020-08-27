@@ -381,10 +381,10 @@ namespace UIPlugs.ScrollCircleMaker
                 _itemSet[tmpItemIdx].gameObject.name = _baseItem.name + tmpDataIdx;
                 _itemSet[tmpItemIdx].rectTrans.anchoredPosition = SetItemPos(_sProperty.dataIdx + i);
                 if (!_sProperty.isCircleEnable && _sProperty.dataIdx + i >= _dataSet.Count)
-                    _itemSet[tmpItemIdx].transform.localScale = Vector3.zero;
+                    _itemSet[tmpItemIdx].gameObject.SetActive(false);
                 else
                 {
-                    _itemSet[tmpItemIdx].transform.localScale = Vector3.one;
+                    _itemSet[tmpItemIdx].gameObject.SetActive(true);
                     _itemSet[tmpItemIdx].UpdateView(_dataSet[tmpDataIdx], tmpDataIdx);
                 }                 
             }

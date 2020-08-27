@@ -287,7 +287,7 @@ namespace UIPlugs.ScrollCircleMaker
             BaseItem<T> baseItem = _createItemFunc();
             baseItem.gameObject = GameObject.Instantiate(_baseItem, _contentRect);
             baseItem.gameObject.name = _baseItem.name + itemIdx;
-            baseItem.transform.localScale = Vector3.zero;
+            baseItem.gameObject.SetActive(false);
             baseItem.InitComponents();
             baseItem.InitEvents();
             _itemSet.Add(baseItem);

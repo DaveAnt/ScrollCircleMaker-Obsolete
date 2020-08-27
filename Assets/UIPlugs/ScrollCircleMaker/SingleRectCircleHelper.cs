@@ -112,7 +112,7 @@ namespace UIPlugs.ScrollCircleMaker
                 float calRectangle = contentBorder + _dataSet.Count * minItemLen;
                 for (int i = 0; i < _sProperty.initItems; ++i)
                 {
-                    if (_itemSet[i].transform.localScale == Vector3.zero)
+                    if (!_itemSet[i].gameObject.activeSelf)
                         continue;
                     if (_scrollRect.vertical)
                         calRectangle += _itemSet[i].rectTrans.rect.height - _itemRect.rect.height;
@@ -374,10 +374,10 @@ namespace UIPlugs.ScrollCircleMaker
                 tmpItemIdx = (_sProperty.itemIdx + i) % _sProperty.initItems;
                 _itemSet[tmpItemIdx].gameObject.name = _baseItem.name + tmpDataIdx;
                 if (!_sProperty.isCircleEnable && _sProperty.dataIdx + i >= _dataSet.Count)
-                    _itemSet[tmpItemIdx].transform.localScale = Vector3.zero;
+                    _itemSet[tmpItemIdx].gameObject.SetActive(false);
                 else
                 {
-                    _itemSet[tmpItemIdx].transform.localScale = Vector3.one;
+                    _itemSet[tmpItemIdx].gameObject.SetActive(true);
                     _itemSet[tmpItemIdx].UpdateView(_dataSet[tmpDataIdx], tmpDataIdx);
                 } 
             }

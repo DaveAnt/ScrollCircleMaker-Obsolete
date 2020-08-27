@@ -318,12 +318,12 @@ namespace UIPlugs.ScrollCircleMaker
                 tmpDataIdx = (_sProperty.dataIdx + i) % _cExtra.totalItems;
                 tmpItemIdx = (_sProperty.itemIdx + i) % _sProperty.initItems;
                 _itemSet[tmpItemIdx].gameObject.name = _baseItem.name + tmpDataIdx;
-                if (tmpDataIdx >= _dataSet.Count || (!_sProperty.isCircleEnable 
+                if (tmpDataIdx >= _dataSet.Count || (!_sProperty.isCircleEnable
                     && _sProperty.dataIdx + i >= _cExtra.totalItems))
-                    _itemSet[tmpItemIdx].transform.localScale = Vector3.zero;
+                    _itemSet[tmpItemIdx].gameObject.SetActive(false);
                 else
                 {
-                    _itemSet[tmpItemIdx].transform.localScale = Vector3.one;
+                    _itemSet[tmpItemIdx].gameObject.SetActive(true);
                     _itemSet[tmpItemIdx].UpdateView(_dataSet[tmpDataIdx], tmpDataIdx);
                 }           
             }
@@ -342,12 +342,12 @@ namespace UIPlugs.ScrollCircleMaker
                 _itemSet[tmpItemIdx].gameObject.name = _baseItem.name + tmpDataIdx;
                 if (tmpDataIdx < _dataSet.Count)
                 {
-                    if (_itemSet[tmpItemIdx].transform.localScale == Vector3.zero)
-                        _itemSet[tmpItemIdx].transform.localScale = Vector3.one;
+                    if (!_itemSet[tmpItemIdx].gameObject.activeSelf)
+                        _itemSet[tmpItemIdx].gameObject.SetActive(true);
                     _itemSet[tmpItemIdx].UpdateView(_dataSet[tmpDataIdx], tmpDataIdx);
                 }
                 else
-                    _itemSet[tmpItemIdx].transform.localScale = Vector3.zero;
+                    _itemSet[tmpItemIdx].gameObject.SetActive(false);
                 _itemSet[tmpItemIdx].transform.SetAsLastSibling();
             }
             _sProperty.dataIdx = _sProperty.dataIdx + autoRanks >=
@@ -374,12 +374,12 @@ namespace UIPlugs.ScrollCircleMaker
                 _itemSet[tmpItemIdx].gameObject.name = _baseItem.name + tmpDataIdx;
                 if (tmpDataIdx < _dataSet.Count)
                 {
-                    if (_itemSet[tmpItemIdx].transform.localScale == Vector3.zero)
-                        _itemSet[tmpItemIdx].transform.localScale = Vector3.one;
+                    if (!_itemSet[tmpItemIdx].gameObject.activeSelf)
+                        _itemSet[tmpItemIdx].gameObject.SetActive(true);
                     _itemSet[tmpItemIdx].UpdateView(_dataSet[tmpDataIdx], tmpDataIdx);
                 }
                 else
-                    _itemSet[tmpItemIdx].transform.localScale = Vector3.zero;
+                    _itemSet[tmpItemIdx].gameObject.SetActive(false);
                 _itemSet[tmpItemIdx].transform.SetAsFirstSibling();
             }
             contentSite -= itemLen;
