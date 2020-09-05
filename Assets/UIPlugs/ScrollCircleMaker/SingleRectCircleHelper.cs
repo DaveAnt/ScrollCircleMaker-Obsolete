@@ -9,7 +9,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
 
 namespace UIPlugs.ScrollCircleMaker
 {
@@ -207,7 +206,7 @@ namespace UIPlugs.ScrollCircleMaker
         }
         public override void OnStart(List<T> tmpDataSet = null)
         {
-            base.OnStart(tmpDataSet);
+            OnStart(tmpDataSet,HideMode.Active);
             switch (_sProperty.scrollDir)
             {
                 case ScrollDir.BottomToTop:
@@ -222,8 +221,7 @@ namespace UIPlugs.ScrollCircleMaker
                 nowSeat = topSeat;
                 contentSite = (int)topSeatExt;
             }
-            if(_dataSet.Count > 0)
-                OnRefreshItems();
+            OnRefreshItems();
         }
         public override void DelItem(int itemIdx)
         {
@@ -367,6 +365,7 @@ namespace UIPlugs.ScrollCircleMaker
         /// </summary>
         private void OnRefreshItems()
         {
+            if (_dataSet.Count == 0) return;
             int tmpItemIdx, tmpDataIdx;
             for (int i = 0; i < _sProperty.initItems; ++i)
             {

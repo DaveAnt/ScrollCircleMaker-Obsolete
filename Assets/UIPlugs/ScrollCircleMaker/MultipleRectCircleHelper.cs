@@ -8,7 +8,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UIPlugs.ScrollCircleMaker
@@ -159,9 +158,10 @@ namespace UIPlugs.ScrollCircleMaker
             base.OnRefreshHandler(v2);
             OnRefreshCircle();
         }
+
         public override void OnStart(List<T> tmpDataSet = null)
         {
-            base.OnStart(tmpDataSet);
+            OnStart(tmpDataSet,HideMode.Scale);
             _sProperty.visibleItems = _dataSet.Count;
             _cExtra.length = (ushort)Math.Ceiling(_dataSet.Count / (float)autoRanks);
             _cExtra.totalItems = (ushort)(_cExtra.length * autoRanks);
@@ -172,8 +172,7 @@ namespace UIPlugs.ScrollCircleMaker
                 contentSite = (int)topSeatExt;
                 contentRect += spacingExt;
             }
-            if(_dataSet.Count > 0)
-                OnRefreshItems();
+            OnRefreshItems();
         }
         public override void DelItem(int itemIdx)
         {
@@ -312,6 +311,7 @@ namespace UIPlugs.ScrollCircleMaker
         /// </summary>
         private void OnRefreshItems()
         {
+            if (_dataSet.Count == 0) return;
             int tmpItemIdx, tmpDataIdx;
             for (int i = 0; i < _sProperty.initItems; ++i)
             {
@@ -320,10 +320,10 @@ namespace UIPlugs.ScrollCircleMaker
                 _itemSet[tmpItemIdx].gameObject.name = _baseItem.name + tmpDataIdx;
                 if (tmpDataIdx >= _dataSet.Count || (!_sProperty.isCircleEnable
                     && _sProperty.dataIdx + i >= _cExtra.totalItems))
-                    _itemSet[tmpItemIdx].gameObject.SetActive(false);
+                    _itemSet[tmpItemIdx].transform.localScale = Vector3.zero;
                 else
                 {
-                    _itemSet[tmpItemIdx].gameObject.SetActive(true);
+                    _itemSet[tmpItemIdx].transform.localScale = Vector3.one;
                     _itemSet[tmpItemIdx].UpdateView(_dataSet[tmpDataIdx], tmpDataIdx);
                 }           
             }
@@ -343,11 +343,11 @@ namespace UIPlugs.ScrollCircleMaker
                 if (tmpDataIdx < _dataSet.Count)
                 {
                     if (!_itemSet[tmpItemIdx].gameObject.activeSelf)
-                        _itemSet[tmpItemIdx].gameObject.SetActive(true);
+                        _itemSet[tmpItemIdx].transform.localScale = Vector3.one;
                     _itemSet[tmpItemIdx].UpdateView(_dataSet[tmpDataIdx], tmpDataIdx);
                 }
                 else
-                    _itemSet[tmpItemIdx].gameObject.SetActive(false);
+                    _itemSet[tmpItemIdx].transform.localScale = Vector3.zero;
                 _itemSet[tmpItemIdx].transform.SetAsLastSibling();
             }
             _sProperty.dataIdx = _sProperty.dataIdx + autoRanks >=
@@ -375,11 +375,11 @@ namespace UIPlugs.ScrollCircleMaker
                 if (tmpDataIdx < _dataSet.Count)
                 {
                     if (!_itemSet[tmpItemIdx].gameObject.activeSelf)
-                        _itemSet[tmpItemIdx].gameObject.SetActive(true);
+                        _itemSet[tmpItemIdx].transform.localScale = Vector3.one;
                     _itemSet[tmpItemIdx].UpdateView(_dataSet[tmpDataIdx], tmpDataIdx);
                 }
                 else
-                    _itemSet[tmpItemIdx].gameObject.SetActive(false);
+                    _itemSet[tmpItemIdx].transform.localScale = Vector3.zero;
                 _itemSet[tmpItemIdx].transform.SetAsFirstSibling();
             }
             contentSite -= itemLen;

@@ -12,6 +12,12 @@ using UnityEngine.UI;
 
 namespace UIPlugs.ScrollCircleMaker
 {
+    public enum HideMode
+    {
+        Active,
+        Scale,
+    }
+
     public abstract class BaseCircleHelper<T>
     {
         protected List<T> _dataSet;
@@ -108,7 +114,13 @@ namespace UIPlugs.ScrollCircleMaker
         /// 启动插件
         /// </summary>
         /// <param name="tmpDataSet">物品数据列表</param>
-        public virtual void OnStart(List<T> tmpDataSet = null)
+        public abstract void OnStart(List<T> tmpDataSet = null);
+        /// <summary>
+        /// 启动插件
+        /// </summary>
+        /// <param name="tmpDataSet">物品数据列表</param>
+        /// <param name="hideMode">隐藏模式</param>
+        protected virtual void OnStart(List<T> tmpDataSet = null,HideMode hideMode = HideMode.Active)
         {
             _firstRun = true;
             lockRefresh = _sProperty.initItems >= _dataSet.Count;
@@ -123,8 +135,20 @@ namespace UIPlugs.ScrollCircleMaker
                 }
                 _dataSet.AddRange(tmpDataSet);
             }
+            BaseItem<T> baseItem;
             for (int i = 0; i < _sProperty.initItems; ++i)
-                InitItem(i);
+            {
+                baseItem = InitItem(i);
+                switch (hideMode)
+                {
+                    case HideMode.Active:
+                        baseItem.gameObject.SetActive(false);
+                        break;
+                    case HideMode.Scale:
+                        baseItem.transform.localScale = Vector3.zero;
+                        break;
+                }
+            }    
         }
         /// <summary>
         /// 释放插件
@@ -282,15 +306,15 @@ namespace UIPlugs.ScrollCircleMaker
         /// 初始化物品
         /// </summary>
         /// <param name="itemIdx">位置索引</param>
-        protected virtual void InitItem(int itemIdx)
+        protected virtual BaseItem<T> InitItem(int itemIdx)
         {
             BaseItem<T> baseItem = _createItemFunc();
             baseItem.gameObject = GameObject.Instantiate(_baseItem, _contentRect);
             baseItem.gameObject.name = _baseItem.name + itemIdx;
-            baseItem.gameObject.SetActive(false);
             baseItem.InitComponents();
             baseItem.InitEvents();
             _itemSet.Add(baseItem);
+            return baseItem;
         }
         /// <summary>
         /// 修正拖动位置

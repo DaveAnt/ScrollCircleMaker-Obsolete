@@ -7,9 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace UIPlugs.ScrollCircleMaker
 {
@@ -30,10 +28,35 @@ namespace UIPlugs.ScrollCircleMaker
                 switch (_scrollRect.vertical)
                 {
                     case true:
-                        return Mathf.Abs(_itemsPos[_itemsPos.Length - 1].y - _itemsPos[0].y);
+                        return Mathf.Abs(_itemsPos[_itemsPos.Length - 1].y - _itemsPos[0].y) + spacingExt;
                     default:
-                        return Mathf.Abs(_itemsPos[_itemsPos.Length - 1].x - _itemsPos[0].x);
+                        return Mathf.Abs(_itemsPos[_itemsPos.Length - 1].x - _itemsPos[0].x) + spacingExt;
                 }
+            }
+        }
+        /// <summary>
+        /// 需要实例化的物品数量
+        /// </summary>
+        private int itemsNum
+        {
+            get {
+                int wholeItem = (int)(viewRect / itemsRect);
+                float surplusRect = viewRect - wholeItem * itemsRect;
+                for (int i = 0; i < _itemsPos.Length; ++i)
+                {
+                    switch (_scrollRect.vertical)
+                    {
+                        case true:
+                            if (surplusRect < Mathf.Abs(_itemsPos[i].y - _itemsPos[0].y))      
+                                return i + wholeItem * _itemsPos.Length + 1;
+                            break;
+                        default:
+                            if (surplusRect < Mathf.Abs(_itemsPos[i].x - _itemsPos[0].x))
+                                return i + wholeItem * _itemsPos.Length + 1;
+                            break;
+                    }
+                }
+                return (wholeItem+1) * _itemsPos.Length + 1;
             }
         }
         /// <summary>
@@ -183,13 +206,12 @@ namespace UIPlugs.ScrollCircleMaker
         }
         public override void OnStart(List<T> tmpDataSet = null)
         {
-            base.OnStart(tmpDataSet);
+            OnStart(tmpDataSet,HideMode.Active);
             contentRect = getContentRect();
             _sProperty.visibleItems = _dataSet.Count;
             if (_sProperty.isCircleEnable)
                 nowSeat = topSeat;
-            if(_dataSet.Count > 0)
-                OnRefreshItems();
+            OnRefreshItems();  
         }
         public override void DelItem(int itemIdx)
         {
@@ -287,8 +309,7 @@ namespace UIPlugs.ScrollCircleMaker
         private float getContentRect()
         {
             int itemExcess = _dataSet.Count % _itemsPos.Length - 1;
-            float tmpRectangle = contentBorder + (itemsRect + spacingExt)
-                * (_dataSet.Count / _itemsPos.Length);
+            float tmpRectangle = contentBorder + itemsRect * (_dataSet.Count / _itemsPos.Length);
             if (itemExcess >= 0)
             { 
                 switch (_scrollRect.vertical)
@@ -325,7 +346,7 @@ namespace UIPlugs.ScrollCircleMaker
             {
                 case ScrollDir.TopToBottom:      
                     itemPos = _itemsPos[itemsExt];
-                    itemPos.y -= topSeat + (itemsRect + spacingExt)  * itemsNum;
+                    itemPos.y -= topSeat + itemsRect * itemsNum;
                     if (dataIdx < 0)
                         itemPos.y += contentRect - contentBorder;
                     else if (dataIdx >= _dataSet.Count)
@@ -333,7 +354,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
                 case ScrollDir.BottomToTop:
                     itemPos = _itemsPos[itemsExt];
-                    itemPos.y += topSeat + (itemsRect + spacingExt) * itemsNum;
+                    itemPos.y += topSeat + itemsRect * itemsNum;
                     if (dataIdx < 0)
                         itemPos.y -= contentRect - contentBorder;
                     else if (dataIdx >= _dataSet.Count)
@@ -341,7 +362,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
                 case ScrollDir.LeftToRight:
                     itemPos = _itemsPos[itemsExt];
-                    itemPos.x += topSeat + (itemsRect + spacingExt) * itemsNum;
+                    itemPos.x += topSeat + itemsRect * itemsNum;
                     if (dataIdx < 0)
                         itemPos.x -= contentRect - contentBorder;
                     else if (dataIdx >= _dataSet.Count)
@@ -349,7 +370,7 @@ namespace UIPlugs.ScrollCircleMaker
                     break;
                 case ScrollDir.RightToLeft:
                     itemPos = _itemsPos[itemsExt];
-                    itemPos.x -= topSeat + (itemsRect + spacingExt) * itemsNum;
+                    itemPos.x -= topSeat + itemsRect * itemsNum;
                     if (dataIdx < 0)
                         itemPos.x += contentRect - contentBorder;
                     else if (dataIdx >= _dataSet.Count)
@@ -373,6 +394,7 @@ namespace UIPlugs.ScrollCircleMaker
         /// </summary>
         private void OnRefreshItems()
         {
+            if (_dataSet.Count == 0) return;
             int tmpItemIdx, tmpDataIdx;
             for (int i = 0; i < _sProperty.initItems; ++i)
             {
