@@ -5,7 +5,9 @@
 
 ## ScrollCircle Maker 简介
 
-ScrollCircle Maker 是一个基于 Unity 引擎ScrollView组件的循环复用滑动插件，主要对游戏开发过程中滑动模块进行优化和一些滑动表现的封装，很大程度地提高滑动模块的开发进度并保证滑动质量，插件启动时会运算出需要实例化最少的物品数量来表现出滑动的最佳效果。在ScrollCircle Maker v1.0 版本中，包含以下3大个内置辅助器，多行规则长度辅助器、单行不规则长度辅助器、自定义位置辅助器，后续可能按照开发者需求添加另外的辅助器供开发者使用。
+<u><font color=FF0000>ScrollCircle Maker目前已经废弃，由于不满意此工程的设计结构和性能，作者准备基于ScriptableProcessor插件重写ScrollCircle Maker，后续两个插件都会低价上架Unity商店，此工程仅供参考。</font></u>
+
+ScrollCircle Maker是基于 Unity 引擎ScrollView组件的循环复用滑动插件，主要对游戏开发过程中滑动模块进行优化和一些滑动表现的封装，很大程度地提高滑动模块的开发进度并保证滑动质量，插件启动时会运算出需要实例化最少的物品数量来表现出滑动的最佳效果。在ScrollCircle Maker v1.0 版本中，包含以下3大个内置辅助器，多行规则长度辅助器、单行不规则长度辅助器、自定义位置辅助器，后续可能按照开发者需求添加另外的辅助器供开发者使用。
 
 1. **多行规则长度辅助器 (MultipleRectCircleHelper)** - n\*m行列的不变高宽时，比如游戏中的背包滑动。
 
